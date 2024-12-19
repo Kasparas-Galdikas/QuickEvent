@@ -2,28 +2,41 @@
 
 /* General Navbar */
 .navbar-custom {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 1) 100%);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    color: white;
-    height: 75px; /* Set a consistent navbar height */
+    position: sticky; /* Makes the navbar stick to the top */
+    top: 0; /* Ensures it stays at the top of the viewport */
+    z-index: 1000; /* Keeps it above other elements */
+    background: linear-gradient(90deg, #004d40 0%, #00695c 100%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    color: #e0f2f1; /* Light teal */
+    height: auto; /* Allow height to expand when toggled */
     display: flex;
-    align-items: center; /* Vertically align content */
+    align-items: center;
 }
+
+
+/* Toggler Button */
+.navbar-toggler {
+    border: none; /* Remove border for cleaner look */
+    background-color:rgb(89, 119, 116); /* Match button color to teal theme */
+    padding: 8px 12px; /* Add padding for larger clickable area */
+}
+
+
 
 /* Navbar Brand */
 .navbar-custom .navbar-brand {
     display: flex;
-    align-items: center; /* Align the image and text */
-    gap: 10px; /* Add spacing between the logo and text */
+    align-items: center;
+    gap: 10px;
     font-family: 'Comic Sans MS', cursive;
-    font-size: 1.5rem; /* Adjust text size to match the logo */
+    font-size: 1.5rem;
     color: #dc3545;
 }
 
 .navbar-custom .navbar-brand img {
-    height: 40px; /* Constrain the logo height */
-    max-height: 100%;
-    margin-right: 10px; /* Add spacing after the logo */
+    max-height: 60px; /* Responsive logo height */
+    width: auto; /* Maintain aspect ratio */
+    margin-right: 10px;
 }
 
 /* Search Bar */
@@ -37,58 +50,43 @@
 }
 
 .navbar-custom .input-group .form-control {
-    border: 1px solid #ddd; /* Default border */
+    border: 1px solid #000; /* Set black border */
     transition: border-color 0.3s ease; /* Smooth transition */
 }
 
 .navbar-custom .input-group .form-control:focus {
-    border-color: #ff4e50; /* Red border on focus */
-    box-shadow: 0 0 10px rgba(255, 78, 80, 0.5); /* Optional glow effect */
+    border-color:rgb(0, 0, 0); /* Red border on focus */
+    box-shadow: 0 0 20px rgba(255, 78, 80, 0.5); /* Optional glow effect */
     outline: none; /* Remove default blue outline */
 }
 
 /* Buttons */
 .navbar-custom .btn-login {
-    color: #343a40 !important; /* Keep text color consistent */
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-    transition: all 0.3s ease; /* Smooth transition */
+    background: #26a69a;
+    color: #fff;
+    transition: all 0.2s ease; /* Smooth transition for hover and click */
 }
 
 .navbar-custom .btn-login:hover {
-    background: #e9ecef;
+    background: #004d40; /* Darker teal */
 }
 
 .navbar-custom .btn-login:active {
-    transform: scale(0.95); /* Shrink the button slightly */
-    box-shadow: none; /* Remove any shadow during click */
-    color: #343a40 !important; /* Prevent text from turning white */
+    transform: scale(0.95); /* Slight shrink on click */
+    box-shadow: none; /* Remove shadow during click */
 }
 
-/* Sign Up Button */
 .navbar-custom .btn-signup {
-    background: #007bff;
-    border: none;
+    background: #00796b;
     color: #fff;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease; /* Smooth transition for hover and click */
 }
 
 .navbar-custom .btn-signup:hover {
-    background: #0056b3;
+    background: #004d40; /* Match login button hover */
 }
 
 .navbar-custom .btn-signup:active {
-    transform: scale(0.95); /* Shrink slightly on click */
-    box-shadow: none;
-    color: #fff !important; /* Ensure text stays white */
-}
-
-/* Navbar Links */
-.navbar-custom .nav-link {
-    color: #343a40;
-    transition: color 0.3s ease;
-}
-
-.navbar-custom .nav-link:hover {
-    color: #007bff;
+    transform: scale(0.95); /* Slight shrink on click */
+    box-shadow: none; /* Remove shadow during click */
 }

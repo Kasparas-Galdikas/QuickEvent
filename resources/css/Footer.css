@@ -1,0 +1,39 @@
+/* Footer Container */
+.footer {
+    background: linear-gradient(90deg, #004d40 0%, #00695c 100%); /* Same gradient as navbar */
+    color: #e0f2f1; /* Light teal text color */
+    padding: 20px 0; /* Add spacing for a clean look */
+    text-align: center;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow above footer */
+}
+
+/* Footer Text */
+.footer p {
+    margin: 0 0 10px; /* Add spacing below the text */
+    font-size: 14px; /* Smaller font size */
+}
+
+/* Footer Links */
+.footer-links {
+    list-style: none; /* Remove bullets */
+    padding: 0; /* Reset padding */
+    margin: 0; /* Reset margin */
+    display: flex; /* Arrange links in a row */
+    justify-content: center; /* Center the links */
+    gap: 15px; /* Add spacing between links */
+}
+
+.footer-links li {
+    margin: 0; /* Remove margin */
+}
+
+.footer-link {
+    color: #b2dfdb; /* Muted teal for links */
+    text-decoration: none; /* Remove underline */
+    font-size: 14px; /* Match the text size */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.footer-link:hover {
+    color: #ffffff; /* Bright white on hover */
+}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
+
 export default function Account() {
     return (
         <>
@@ -93,6 +95,8 @@ export default function Account() {
                     </div>
                 </div>
             </div>
+            {/* Footer */}
+                       <Footer />
         </>
     );
 }

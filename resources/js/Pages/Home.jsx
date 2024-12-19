@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
 
 export default function Home() {
  
@@ -62,17 +63,8 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="footer">
-                <div className="footer-content">
-                    <p className="footer-copyright">&copy; {new Date().getFullYear()} QuickEvent. All rights reserved.</p>
-                    <ul className="footer-links">
-                        <li><a href="/about" className="footer-link">About</a></li>
-                        <li><a href="/privacy" className="footer-link">Privacy Policy</a></li>
-                        <li><a href="/help" className="footer-link">Help</a></li>
-                    </ul>
-                </div>
-            </footer>
+           {/* Footer */}
+           <Footer />
         </div>
     );
 }
