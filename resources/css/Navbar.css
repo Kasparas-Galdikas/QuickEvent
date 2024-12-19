@@ -1,0 +1,94 @@
+/* Navbar.css */
+
+/* General Navbar */
+.navbar-custom {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 1) 100%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: white;
+    height: 75px; /* Set a consistent navbar height */
+    display: flex;
+    align-items: center; /* Vertically align content */
+}
+
+/* Navbar Brand */
+.navbar-custom .navbar-brand {
+    display: flex;
+    align-items: center; /* Align the image and text */
+    gap: 10px; /* Add spacing between the logo and text */
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 1.5rem; /* Adjust text size to match the logo */
+    color: #dc3545;
+}
+
+.navbar-custom .navbar-brand img {
+    height: 40px; /* Constrain the logo height */
+    max-height: 100%;
+    margin-right: 10px; /* Add spacing after the logo */
+}
+
+/* Search Bar */
+.navbar-custom .input-group {
+    height: 40px;
+}
+
+.navbar-custom .input-group-text {
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+.navbar-custom .input-group .form-control {
+    border: 1px solid #ddd; /* Default border */
+    transition: border-color 0.3s ease; /* Smooth transition */
+}
+
+.navbar-custom .input-group .form-control:focus {
+    border-color: #ff4e50; /* Red border on focus */
+    box-shadow: 0 0 10px rgba(255, 78, 80, 0.5); /* Optional glow effect */
+    outline: none; /* Remove default blue outline */
+}
+
+/* Buttons */
+.navbar-custom .btn-login {
+    color: #343a40 !important; /* Keep text color consistent */
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+.navbar-custom .btn-login:hover {
+    background: #e9ecef;
+}
+
+.navbar-custom .btn-login:active {
+    transform: scale(0.95); /* Shrink the button slightly */
+    box-shadow: none; /* Remove any shadow during click */
+    color: #343a40 !important; /* Prevent text from turning white */
+}
+
+/* Sign Up Button */
+.navbar-custom .btn-signup {
+    background: #007bff;
+    border: none;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom .btn-signup:hover {
+    background: #0056b3;
+}
+
+.navbar-custom .btn-signup:active {
+    transform: scale(0.95); /* Shrink slightly on click */
+    box-shadow: none;
+    color: #fff !important; /* Ensure text stays white */
+}
+
+/* Navbar Links */
+.navbar-custom .nav-link {
+    color: #343a40;
+    transition: color 0.3s ease;
+}
+
+.navbar-custom .nav-link:hover {
+    color: #007bff;
+}
