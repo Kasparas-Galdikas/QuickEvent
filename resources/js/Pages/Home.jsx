@@ -16,6 +16,7 @@ export default function Home() {
             {/* Hero Section */}
             <header className="hero">
                 <div className="hero-content">
+                <h1 className="hero-title">GIT</h1>
                     <h1 className="hero-title">The people platform—Where interests become friendships</h1>
                     <p className="hero-description">
                         Discover events, groups, and activities around you. Join now to connect with like-minded people.
