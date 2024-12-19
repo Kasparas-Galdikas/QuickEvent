@@ -9,9 +9,19 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
+Route::get('/Login', function () {
+    return Inertia::render('Auth/Login');
+})->name('Login');
+
+Route::get('/Register', function () {
+    return Inertia::render('Auth/Register');
+})->name('Register');
+
+
 Route::get('/account', function () {
     return Inertia::render('Account');
 })->name('account');
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

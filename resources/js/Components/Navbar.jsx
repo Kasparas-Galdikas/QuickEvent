@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import '../../css/Navbar.css';
-
+import ApplicationLogo from '@/Components/ApplicationLogo';
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -24,15 +24,9 @@ export default function Navbar() {
         <nav className="navbar navbar-expand-lg navbar-custom">
             <div className="container-fluid">
                 <Link href="/" className="navbar-brand d-flex align-items-center">
-                    <img
-                        src="/images/logo.png" // Adjust the path to match the location of your logo image
+                    <ApplicationLogo
                         alt="QuickEvent Logo"
-                        style={{
-                            height: '100px',
-                            marginRight: '10px',
-                        }}
                     />
-
                 </Link>
 
                 <button
@@ -68,8 +62,8 @@ export default function Navbar() {
                         </div>
                     </form>
                     <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
-                        <Link href="/account" className="btn btn-login me-3">Log in</Link>
-                        <Link href="/account" className="btn btn-signup">Sign up</Link>
+                        <Link href="/Login" className="btn btn-login me-3">Log in</Link>
+                        <Link href="/Register" className="btn btn-signup">Sign up</Link>
                     </div>
                 </div>
             </div>

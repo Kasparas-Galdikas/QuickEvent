@@ -10,4 +10,7 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: {
+        sourcemap: true, // Enable source maps
+    },
 });
