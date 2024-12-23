@@ -1,31 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import '../../css/Navbar.css';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Login from '@/Pages/Auth/Login';
 import Register from '@/Pages/Auth/Register';
+import axios from 'axios';
 
 export default function Navbar() {
+    const { auth } = usePage().props; // Access user data from shared props
+    const user = auth.user;
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [showLoginModal, setShowLoginModal] = useState(false); // State for Login modal
-    const [showRegisterModal, setShowRegisterModal] = useState(false); // State for Register modal
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 992) {
-                setIsMenuOpen(false);
-            }
-        };
+    const handleLogout = async () => {
+        try {
+            // Perform logout request
+            await axios.post('/logout');
 
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+            // Refresh CSRF token
+            await refreshCsrfToken();
+
+            // Redirect to home page
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    };
+
+    const refreshCsrfToken = async () => {
+        try {
+            await axios.get('/sanctum/csrf-cookie');
+
+            const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
+            const newCsrfToken = csrfMetaTag?.getAttribute('content');
+
+            if (newCsrfToken) {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = newCsrfToken;
+            } else {
+                console.error('CSRF token not found. Ensure the meta tag exists.');
+            }
+        } catch (error) {
+            console.error('Error refreshing CSRF token:', error);
+        }
+    };
 
     return (
         <>
@@ -68,49 +91,63 @@ export default function Navbar() {
                             </div>
                         </form>
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
-                            {/* Log In Button */}
-                            <button
-                                className="btn btn-login me-3"
-                                onClick={() => {
-                                    setShowLoginModal(true);
-                                }}
-                            >
-                                Log in
-                            </button>
-                            {/* Sign Up Button */}
-                            <button
-                                className="btn btn-signup"
-                                onClick={() => {
-                                    setShowRegisterModal(true);
-                                }}
-                            >
-                                Sign up
-                            </button>
+                            {user ? (
+                                <div className="dropdown">
+                                    <button
+                                        className="btn btn-rounded dropdown-toggle"
+                                        id="userDropdown"
+                                        data-bs-toggle="dropdown"
+                                        data-bs-boundary="viewport"
+                                        aria-expanded="false"
+                                    >
+                                        {user.name[0].toUpperCase()}
+                                    </button>
+                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                        <li>
+                                            <Link href="/account" className="dropdown-item">Profile</Link>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item" onClick={handleLogout}>
+                                                Logout
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            ) : (
+                                <>
+                                    <button
+                                        className="btn btn-login me-3"
+                                        onClick={() => setShowLoginModal(true)}
+                                    >
+                                        Log in
+                                    </button>
+                                    <button
+                                        className="btn btn-signup"
+                                        onClick={() => setShowRegisterModal(true)}
+                                    >
+                                        Sign up
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
             </nav>
 
-            {/* Login Modal */}
             {showLoginModal && (
                 <Login
                     show={showLoginModal}
-                    onClose={() => {
-                        setShowLoginModal(false);
-                    }}
+                    onClose={() => setShowLoginModal(false)}
                 />
             )}
 
-            {/* Register Modal */}
             {showRegisterModal && (
                 <Register
                     show={showRegisterModal}
-                    onClose={() => {
-                        setShowRegisterModal(false);
-                    }}
+                    onClose={() => setShowRegisterModal(false)}
                     openLoginModal={() => {
-                        setShowRegisterModal(false); // Close Register modal
-                        setShowLoginModal(true); // Open Login modal
+                        setShowRegisterModal(false);
+                        setShowLoginModal(true);
                     }}
                 />
             )}

@@ -2,8 +2,11 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
+import { usePage } from '@inertiajs/react';
 
 export default function Account() {
+    const { props } = usePage();
+    const user = props.auth.user;
     return (
         <>
             <Head title="Account" />
@@ -29,8 +32,8 @@ export default function Account() {
  
                                 {/* Profile Info */}
                                 <div className="p-4 bg-teal-800 text-white">
-                                    <h3 className="mb-2">edgaraszubrickis</h3>
-                                    <p className="mb-2">edgaraszubrickis@gmail.com ℹ</p>
+                                <h3 className="mb-2">{user.name}</h3>
+                                <p className="mb-2">{user.email} ℹ</p>
                                     <p className="mb-2">
                                         <span className="me-2">📍</span>
                                         Pabrade, LT
@@ -76,7 +79,7 @@ export default function Account() {
                                     E
                                 </div>
                                 <div>
-                                    <div>edgaraszubrickis</div>
+                                <div>{user.name}</div>
                                     <a href="#" className="text-primary text-decoration-none">Edit profile</a>
                                 </div>
                             </div>

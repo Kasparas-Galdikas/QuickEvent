@@ -90,3 +90,75 @@
     transform: scale(0.95); /* Slight shrink on click */
     box-shadow: none; /* Remove shadow during click */
 }
+
+/* Rounded Dropdown Button */
+.navbar-custom .btn-rounded {
+    background: #26a69a; /* Teal background matching the login button */
+    color: #ffffff; /* White text */
+    border: 2px solid #004d40; /* Dark teal border */
+    width: 50px; /* Width for a perfect circle */
+    height: 50px; /* Height for a perfect circle */
+    border-radius: 50%; /* Full circle */
+    font-size: 1.2rem; /* Adjust font size for the initial */
+    font-weight: bold; /* Bold text */
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: all 0.3s ease; /* Smooth transitions for hover and click effects */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Hover and Active States */
+.navbar-custom .btn-rounded:hover {
+    background: #004d40; /* Darker teal on hover */
+    color: #e0f2f1; /* Light teal text */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+.navbar-custom .btn-rounded:active {
+    transform: translateY(0); /* Reset lift effect on click */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Softer shadow on active */
+}
+
+/* Dropdown Menu - Enhanced Styling */
+.navbar-custom .dropdown-menu {
+    max-height: 300px; /* Limit dropdown height */
+    overflow-y: auto; /* Enable scrolling for large menus */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    background-color: #00695c; /* Match navbar background */
+    border: none; /* Remove border */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    padding: 0; /* Remove padding for clean look */
+    margin: 0; /* Remove margin */
+    border-radius: 8px; /* Rounded edges for the dropdown */
+}
+
+/* Dropdown Items */
+.navbar-custom .dropdown-item {
+    color: #e0f2f1; /* Light teal text */
+    padding: 10px 20px; /* Spacing for dropdown items */
+    font-size: 0.95rem; /* Adjust font size */
+    transition: all 0.2s ease; /* Smooth hover effects */
+}
+
+.navbar-custom .dropdown-item:hover {
+    background-color: #004d40; /* Darker teal background on hover */
+    color: #ffffff; /* White text on hover */
+    border-radius: 4px; /* Slightly rounded edges on hover */
+}
+
+/* Dropdown Scrollbar */
+.navbar-custom .dropdown-menu::-webkit-scrollbar {
+    width: 8px; /* Scrollbar width */
+}
+
+.navbar-custom .dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #004d40; /* Teal scrollbar thumb */
+    border-radius: 4px; /* Rounded scrollbar */
+}
+
+.navbar-custom .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background-color: #00332c; /* Darker teal on hover */
+}
