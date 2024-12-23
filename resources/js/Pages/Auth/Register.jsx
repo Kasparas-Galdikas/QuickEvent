@@ -35,7 +35,7 @@ export default function Register({ show, onClose, openLoginModal }) {
             // Send POST request to /register
             await axios.post('/register', formData);
             onClose(); // Close the modal
-            window.location.href = '/account'; // Redirect to account page
+            window.location.href = '/events'; // Redirect to Profile page
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors); // Set validation errors

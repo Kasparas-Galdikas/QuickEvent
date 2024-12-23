@@ -90,30 +90,43 @@ export default function Navbar() {
                                 </button>
                             </div>
                         </form>
+
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (
-                                <div className="dropdown">
-                                    <button
-                                        className="btn btn-rounded dropdown-toggle"
-                                        id="userDropdown"
-                                        data-bs-toggle="dropdown"
-                                        data-bs-boundary="viewport"
-                                        aria-expanded="false"
-                                    >
-                                        {user.name[0].toUpperCase()}
+                              
+                                <>
+                                    <button className="btn btn-create-group me-3">
+                                        Create Group
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                        <li>
-                                            <Link href="/account" className="dropdown-item">Profile</Link>
-                                        </li>
-                                        <li>
-                                            <button className="dropdown-item" onClick={handleLogout}>
-                                                Logout
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
+
+                                    {/* Show the logged-in user's profile and logout options */}
+                                    <div className="dropdown">
+                                        <button
+                                            className="btn btn-rounded dropdown-toggle"
+                                            id="userDropdown"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-boundary="viewport"
+                                            aria-expanded="false"
+                                        >
+                                            {user.name[0].toUpperCase()}
+                                        </button>
+                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                            <li>
+                                                <Link href="/Profile" className="dropdown-item">Profile</Link>
+                                            </li>
+                                            <li>
+                                                <Link href="/events" className="dropdown-item">Explore Events</Link>
+                                            </li>
+                                            <li>
+                                                <button className="dropdown-item" onClick={handleLogout}>
+                                                    Logout
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </>
                             ) : (
+                                // Show Log in and Sign up buttons if the user is not logged in
                                 <>
                                     <button
                                         className="btn btn-login me-3"
@@ -130,6 +143,7 @@ export default function Navbar() {
                                 </>
                             )}
                         </div>
+
                     </div>
                 </div>
             </nav>

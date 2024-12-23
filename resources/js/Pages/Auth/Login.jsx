@@ -36,7 +36,7 @@ export default function Login({ show, onClose, status }) {
 
             // Close the modal and redirect to the dashboard
             onClose();
-            window.location.href = '/account';
+            window.location.href = '/events';
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors); // Show validation errors

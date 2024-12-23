@@ -37,3 +37,13 @@
 .footer-link:hover {
     color: #ffffff; /* Bright white on hover */
 }
+
+/* Add this to your CSS */
+.hero {
+    flex-grow: 1; /* Allow hero section to grow */
+}
+
+/* Make sure that the footer is always pushed to the bottom */
+.footer {
+    margin-top: auto;
+}

@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Head } from '@inertiajs/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 
 export default function Home() {
- 
     return (
-        <div>
+        <div className="d-flex flex-column min-vh-100">
             <Head title="Home - QuickEvent" />
 
             {/* Navbar */}
@@ -63,8 +62,8 @@ export default function Home() {
                 </div>
             </section>
 
-           {/* Footer */}
-           <Footer />
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }

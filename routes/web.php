@@ -19,10 +19,14 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 
 // Authenticated Routes
+Route::get('/events', function () {
+    return Inertia::render('Events');  // This will load the Events component in Inertia
+})->middleware('auth');  // Add the middleware to require authentication if needed
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('/account', function () {
-        return Inertia::render('Account');
-    })->name('account');
+    Route::get('/Profile', function () {
+        return Inertia::render('Profile');
+    })->name('Profile');
 
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');

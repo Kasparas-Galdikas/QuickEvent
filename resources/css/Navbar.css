@@ -122,6 +122,22 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Softer shadow on active */
 }
 
+/* Custom style for the "Create Group" button */
+.navbar-custom .btn-create-group {
+    background-color: #00796b; /* Custom color for the Create button */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-left: 0; /* Ensure no left margin for alignment */
+}
+
+.navbar-custom .btn-create-group:hover {
+    background-color: #004d40; /* Darker color on hover */
+}
+
+
 /* Dropdown Menu - Enhanced Styling */
 .navbar-custom .dropdown-menu {
     max-height: 300px; /* Limit dropdown height */

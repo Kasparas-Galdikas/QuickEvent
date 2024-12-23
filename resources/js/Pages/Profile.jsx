@@ -4,18 +4,18 @@ import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import { usePage } from '@inertiajs/react';
 
-export default function Account() {
+export default function Profile() {
     const { props } = usePage();
     const user = props.auth.user;
     return (
         <>
-            <Head title="Account" />
-           
-{/* Navbar */}
-  <Navbar />
- 
+            <Head title="Profile" />
+
+            {/* Navbar */}
+            <Navbar />
+
             {/* Main Content */}
-            <div className="container py-4">
+            <div className="d-flex flex-column min-vh-100 container py-4">
                 {/* Rest of your existing content */}
                 <div className="row">
                     {/* Left Column */}
@@ -29,11 +29,11 @@ export default function Account() {
                                         🖊 Change profile photo
                                     </button>
                                 </div>
- 
+
                                 {/* Profile Info */}
                                 <div className="p-4 bg-teal-800 text-white">
-                                <h3 className="mb-2">{user.name}</h3>
-                                <p className="mb-2">{user.email} ℹ</p>
+                                    <h3 className="mb-2">{user.name}</h3>
+                                    <p className="mb-2">{user.email} ℹ</p>
                                     <p className="mb-2">
                                         <span className="me-2">📍</span>
                                         Pabrade, LT
@@ -45,7 +45,7 @@ export default function Account() {
                                 </div>
                             </div>
                         </div>
- 
+
                         {/* Stats */}
                         <div className="d-flex justify-content-between text-center my-4">
                             <div>
@@ -61,7 +61,7 @@ export default function Account() {
                                 <small className="text-muted">RSVPs</small>
                             </div>
                         </div>
- 
+
                         {/* About Section */}
                         <div className="mb-4">
                             <h5 className="mb-3">About me</h5>
@@ -70,22 +70,22 @@ export default function Account() {
                                 <span>New In Town</span>
                             </div>
                         </div>
- 
+
                         {/* Edit Profile Section */}
                         <div className="card">
                             <div className="card-body d-flex align-items-center">
                                 <div className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2"
-                                     style={{ width: '40px', height: '40px' }}>
+                                    style={{ width: '40px', height: '40px' }}>
                                     E
                                 </div>
                                 <div>
-                                <div>{user.name}</div>
+                                    <div>{user.name}</div>
                                     <a href="#" className="text-primary text-decoration-none">Edit profile</a>
                                 </div>
                             </div>
                         </div>
                     </div>
- 
+
                     {/* Right Column */}
                     <div className="col-md-8">
                         {/* Interests Section */}
@@ -99,7 +99,7 @@ export default function Account() {
                 </div>
             </div>
             {/* Footer */}
-                       <Footer />
+            <Footer />
         </>
     );
 }
