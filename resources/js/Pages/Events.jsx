@@ -47,7 +47,7 @@ export default function Events() {
 
                                 {/* Button to view all events */}
                                 <div className="d-flex justify-content-center">
-                                    <button className="btn btn-primary">View All</button>
+                                    <button className=" custom-btn btn btn-primary">View All</button>
                                 </div>
                             </div>
                         </div>
@@ -77,13 +77,13 @@ export default function Events() {
                     {/* Right Side: Event Listings and Filters */}
                     <div className="col-md-8 col-lg-9">
                         {/* Filters */}
-                        <div className="d-flex justify-content mb-3">
+                        <div className=" d-flex justify-content mb-3">
                             <select className="form-select w-auto">
                                 <option>Any type</option>
                                 <option>Online</option>
                                 <option>In-person</option>
                             </select>
-                            <button className="btn btn-outline-secondary ms-2">Reset Filters</button>
+                            <button className=" custom-btn btn ms-2">Reset Filters</button>
                         </div>
 
                         {/* Event Listings */}
@@ -117,7 +117,7 @@ export default function Events() {
                                                     <p className="mb-0">5 attendees</p>
                                                     <span className="badge badge-success">Suggested</span>
                                                 </div>
-                                                <a href="/events/1" className="btn btn-outline-primary mt-2">
+                                                <a href="/events/1" className=" custom-btn btn mt-2">
                                                     See Details
                                                 </a>
                                             </div>

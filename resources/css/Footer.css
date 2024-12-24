@@ -1,16 +1,22 @@
 /* Footer Container */
 .footer {
-    background: linear-gradient(90deg, #004d40 0%, #00695c 100%); /* Same gradient as navbar */
-    color: #e0f2f1; /* Light teal text color */
+    background: rgb(220, 226, 198); /* Slightly darker than the body for contrast */
+    color: #6e754f; /* Harmonized text color */
     padding: 20px 0; /* Add spacing for a clean look */
     text-align: center;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow above footer */
+    border-top: 1px solid rgb(220, 223, 208); /* Subtle border at the top for separation */
+}
+
+/* Footer Copyright Text */
+.footer-copyright {
+    color: #8d9440; /* Warm greenish tone for copyright text */
 }
 
 /* Footer Text */
 .footer p {
     margin: 0 0 10px; /* Add spacing below the text */
     font-size: 14px; /* Smaller font size */
+    color: #6e754f; /* Harmonized text color */
 }
 
 /* Footer Links */
@@ -27,23 +33,24 @@
     margin: 0; /* Remove margin */
 }
 
+/* Footer Link Styles */
 .footer-link {
-    color: #b2dfdb; /* Muted teal for links */
+    color: #6e754f; /* Muted text color to match the theme */
     text-decoration: none; /* Remove underline */
     font-size: 14px; /* Match the text size */
     transition: color 0.3s ease; /* Smooth color transition */
 }
 
 .footer-link:hover {
-    color: #ffffff; /* Bright white on hover */
+    color: #8d9440; /* Slightly brighter tone on hover */
 }
 
-/* Add this to your CSS */
+/* Hero Section Adjustment */
 .hero {
     flex-grow: 1; /* Allow hero section to grow */
 }
 
-/* Make sure that the footer is always pushed to the bottom */
+/* Ensure Footer Stays at Bottom */
 .footer {
-    margin-top: auto;
+    margin-top: auto; /* Push footer to the bottom when content is insufficient */
 }

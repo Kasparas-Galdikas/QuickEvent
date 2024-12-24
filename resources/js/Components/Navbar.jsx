@@ -85,15 +85,17 @@ export default function Navbar() {
                                     placeholder="Your location"
                                     aria-label="Your location"
                                 />
-                                <button className="btn btn-danger" type="submit">
-                                    <i className="bi bi-search text-white"></i>
+                                <button className="search btn" type="submit">
+                                    <i className="bi bi-search text-secondary"></i>
                                 </button>
+
+
                             </div>
                         </form>
 
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (
-                              
+
                                 <>
                                     <button className="btn btn-create-group me-3">
                                         Create Group

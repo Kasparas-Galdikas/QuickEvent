@@ -1,180 +1,145 @@
-/* Navbar.css */
-
 /* General Navbar */
 .navbar-custom {
     position: sticky; /* Makes the navbar stick to the top */
     top: 0; /* Ensures it stays at the top of the viewport */
     z-index: 1000; /* Keeps it above other elements */
-    background: linear-gradient(90deg, #004d40 0%, #00695c 100%);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    color: #e0f2f1; /* Light teal */
-    height: auto; /* Allow height to expand when toggled */
-    display: flex;
-    align-items: center;
-}
-
-
-/* Toggler Button */
-.navbar-toggler {
-    border: none; /* Remove border for cleaner look */
-    background-color:rgb(89, 119, 116); /* Match button color to teal theme */
-    padding: 8px 12px; /* Add padding for larger clickable area */
-}
-
-
-
-/* Navbar Brand */
-.navbar-custom .navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Comic Sans MS', cursive;
-    font-size: 1.5rem;
-    color: #dc3545;
+    background: rgb(220, 226, 198); /* Slightly darker than the body for contrast */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    color: #6e754f; /* Harmonized text color */
+    padding: 10px 20px; /* Adjusted padding */
 }
 
 .navbar-custom .navbar-brand img {
-    max-height: 60px; /* Responsive logo height */
-    width: auto; /* Maintain aspect ratio */
+    max-height: 50px; /* Adjusted logo height */
     margin-right: 10px;
 }
 
-/* Search Bar */
-.navbar-custom .input-group {
-    height: 40px;
+/* Toggler Button */
+.navbar-custom .navbar-toggler {
+    border: none; /* Clean button */
+    background-color: rgb(220, 223, 208); /* Subtle button background */
+    color: #6e754f; /* Harmonized color */
+    padding: 8px 12px; /* Comfortable size */
 }
 
-.navbar-custom .input-group-text {
-    background: #f7f7f7;
-    border: 1px solid #ddd;
+/* Navbar Links */
+.navbar-custom .nav-link {
+    color: #6e754f; /* Match text to theme */
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.navbar-custom .input-group .form-control {
-    border: 1px solid #000; /* Set black border */
-    transition: border-color 0.3s ease; /* Smooth transition */
-}
-
-.navbar-custom .input-group .form-control:focus {
-    border-color:rgb(0, 0, 0); /* Red border on focus */
-    box-shadow: 0 0 20px rgba(255, 78, 80, 0.5); /* Optional glow effect */
-    outline: none; /* Remove default blue outline */
+.navbar-custom .nav-link:hover {
+    color: #8d9440; /* Slightly brighter hover text */
+    background-color: rgb(235, 240, 225); /* Light hover background */
+    border-radius: 5px; /* Smooth corners */
 }
 
 /* Buttons */
-.navbar-custom .btn-login {
-    background: #26a69a;
-    color: #fff;
-    transition: all 0.2s ease; /* Smooth transition for hover and click */
+.navbar-custom .btn-login,
+.navbar-custom .btn-signup,
+.navbar-custom .btn-create-group {
+    background: rgb(235, 240, 225); /* Button background matching theme */
+    color: #6e754f; /* Harmonized text */
+    border: 1px solid #8d9440; /* Subtle border */
+    padding: 8px 16px; /* Uniform padding */
+    transition: all 0.3s ease; /* Smooth hover effects */
+    border-radius: 5px; /* Slightly rounded edges */
 }
 
-.navbar-custom .btn-login:hover {
-    background: #004d40; /* Darker teal */
-}
-
-.navbar-custom .btn-login:active {
-    transform: scale(0.95); /* Slight shrink on click */
-    box-shadow: none; /* Remove shadow during click */
-}
-
-.navbar-custom .btn-signup {
-    background: #00796b;
-    color: #fff;
-    transition: all 0.2s ease; /* Smooth transition for hover and click */
-}
-
-.navbar-custom .btn-signup:hover {
-    background: #004d40; /* Match login button hover */
-}
-
-.navbar-custom .btn-signup:active {
-    transform: scale(0.95); /* Slight shrink on click */
-    box-shadow: none; /* Remove shadow during click */
+.navbar-custom .btn-login:hover,
+.navbar-custom .btn-signup:hover,
+.navbar-custom .btn-create-group:hover {
+    background: rgb(215, 225, 205); /* Darker background on hover */
+    color: #8d9440; /* Brighter text on hover */
 }
 
 /* Rounded Dropdown Button */
 .navbar-custom .btn-rounded {
-    background: #26a69a; /* Teal background matching the login button */
-    color: #ffffff; /* White text */
-    border: 2px solid #004d40; /* Dark teal border */
-    width: 50px; /* Width for a perfect circle */
-    height: 50px; /* Height for a perfect circle */
-    border-radius: 50%; /* Full circle */
-    font-size: 1.2rem; /* Adjust font size for the initial */
-    font-weight: bold; /* Bold text */
-    display: flex; /* Flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: all 0.3s ease; /* Smooth transitions for hover and click effects */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    background: rgb(235, 240, 225); /* Match theme */
+    color: #6e754f; /* Harmonized text */
+    border: 2px solid #8d9440; /* Light green border */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Circle */
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: all 0.3s ease; /* Smooth hover effects */
 }
 
-/* Hover and Active States */
 .navbar-custom .btn-rounded:hover {
-    background: #004d40; /* Darker teal on hover */
-    color: #e0f2f1; /* Light teal text */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow */
-    transform: translateY(-2px); /* Slight lift effect */
+    background: rgb(215, 225, 205); /* Darker background */
+    color: #8d9440; /* Bright text */
 }
 
-.navbar-custom .btn-rounded:active {
-    transform: translateY(0); /* Reset lift effect on click */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Softer shadow on active */
-}
-
-/* Custom style for the "Create Group" button */
-.navbar-custom .btn-create-group {
-    background-color: #00796b; /* Custom color for the Create button */
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    margin-left: 0; /* Ensure no left margin for alignment */
-}
-
-.navbar-custom .btn-create-group:hover {
-    background-color: #004d40; /* Darker color on hover */
-}
-
-
-/* Dropdown Menu - Enhanced Styling */
+/* Dropdown Menu */
 .navbar-custom .dropdown-menu {
-    max-height: 300px; /* Limit dropdown height */
-    overflow-y: auto; /* Enable scrolling for large menus */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    background-color: #00695c; /* Match navbar background */
-    border: none; /* Remove border */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    padding: 0; /* Remove padding for clean look */
-    margin: 0; /* Remove margin */
-    border-radius: 8px; /* Rounded edges for the dropdown */
+    background-color: rgb(245, 247, 235); /* Match navbar */
+    border: 1px solid rgb(220, 223, 208); /* Subtle border */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    border-radius: 8px; /* Rounded corners */
 }
 
 /* Dropdown Items */
 .navbar-custom .dropdown-item {
-    color: #e0f2f1; /* Light teal text */
-    padding: 10px 20px; /* Spacing for dropdown items */
-    font-size: 0.95rem; /* Adjust font size */
-    transition: all 0.2s ease; /* Smooth hover effects */
+    color: #6e754f; /* Text color */
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    transition: all 0.2s ease;
 }
 
 .navbar-custom .dropdown-item:hover {
-    background-color: #004d40; /* Darker teal background on hover */
-    color: #ffffff; /* White text on hover */
-    border-radius: 4px; /* Slightly rounded edges on hover */
+    background-color: rgb(235, 240, 225); /* Light hover background */
+    color: #8d9440; /* Highlighted text */
+    border-radius: 5px; /* Rounded edges on hover */
 }
 
-/* Dropdown Scrollbar */
-.navbar-custom .dropdown-menu::-webkit-scrollbar {
-    width: 8px; /* Scrollbar width */
+/* Input Group */
+.navbar-custom .input-group {
+    background-color: rgb(235, 240, 225); /* Light background matching theme */
+    border-radius: 5px; /* Slightly rounded edges */
+    border: 1px solid rgb(220, 223, 208); /* Subtle border */
+    overflow: hidden; /* Ensures inputs and buttons stay within bounds */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
-.navbar-custom .dropdown-menu::-webkit-scrollbar-thumb {
-    background-color: #004d40; /* Teal scrollbar thumb */
-    border-radius: 4px; /* Rounded scrollbar */
+/* Input Group Text (Icon Container) */
+.navbar-custom .input-group-text {
+    background-color: rgb(215, 225, 205); /* Slightly darker for contrast */
+    border: none; /* Clean edges */
+    color: #6e754f; /* Text color matching theme */
 }
 
-.navbar-custom .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background-color: #00332c; /* Darker teal on hover */
+/* Input Fields */
+.navbar-custom .form-control {
+    background-color: rgb(245, 247, 235); /* Match body background */
+    border: none; /* Clean look */
+    color: #6e754f; /* Harmonized text color */
+    padding: 8px; /* Comfortable padding */
+    font-size: 0.95rem; /* Consistent font size */
+    transition: box-shadow 0.3s ease, border 0.3s ease; /* Smooth focus effects */
+}
+
+.navbar-custom .form-control:focus {
+    border: 1px solid rgb(190, 200, 180); /* Subtle focus border */
+    box-shadow: 0 0 5px rgba(190, 200, 180, 0.5); /* Glow effect */
+    outline: none; /* Remove default outline */
+}
+
+/* Button */
+.search {
+    background-color: rgb(200, 213, 174); /* Match body */
+    color: #6e754f; /* Harmonized text color */
+    border: 1px solid rgb(220, 223, 208); /* Subtle border */
+    transition: all 0.3s ease; /* Smooth hover effects */
+}
+/* Hover State */
+.search:hover {
+    background-color: rgb(203, 214, 193); /* Slightly lighter than the base color */
+    color: #8d9440; /* Slightly brighter text */
+    border-color: #8d9440; /* Harmonized hover border */
 }
