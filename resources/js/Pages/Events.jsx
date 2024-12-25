@@ -1,8 +1,14 @@
 import React from 'react';
+import { usePage } from '@inertiajs/react'; // Import Inertia's usePage hook
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
+import Calendar from 'react-calendar'; // Import the calendar component
+import 'react-calendar/dist/Calendar.css'; // Import default styling
 
 export default function Events() {
+    const { auth } = usePage().props; // Access shared Inertia props
+    const username = auth?.user?.name || 'Guest'; // Use "Guest" if user is not logged in
+
     return (
         <div className="d-flex flex-column min-vh-100">
             {/* Navbar */}
@@ -13,49 +19,33 @@ export default function Events() {
                 <div className="row w-100">
                     {/* Welcome Message */}
                     <div className="mt-5 mb-5"> {/* Adjust margin for larger space */}
-                        <h2 className='fs-1'>Welcome, kgaldikas123 👋</h2>
+                        <h2 className='fs-1'>Welcome, {username} 👋</h2>
                         <p className="lead fs-3">Upcoming Events</p>
-
                     </div>
+
                     {/* Left Side: Calendar, Upcoming Events, and Welcome Message */}
                     <div className="col-md-4 col-lg-3 mb-4">
 
                         {/* Calendar */}
-                        <div className="card">
-                            <div className="card-body">
-                                <h5 className="card-title text-center">Upcoming events</h5>
-                                <div className="calendar">
-                                    <p className="text-center">December 2024</p>
-                                    <div className="d-flex justify-content-center flex-wrap">
-                                        <span className="calendar-day">1</span>
-                                        <span className="calendar-day">2</span>
-                                        <span className="calendar-day">3</span>
-                                        <span className="calendar-day">4</span>
-                                        <span className="calendar-day">5</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="card mt-4">
-                            <div className="card-body">
-                                {/* Card Title */}
-                                <h5 className="card-title text-center">Your Next Events</h5>
+                        <Calendar className="mx-auto" />
 
-                                {/* Placeholder Text */}
+
+                        {/* Your Next Events */}
+                        <div className="card custom-card mt-4">
+                            <div className="card-body">
+                                <h5 className="card-title text-center text-dark">Your Next Events</h5>
                                 <p className="text-center">You have not registered for any events yet.</p>
-
-                                {/* Button to view all events */}
                                 <div className="d-flex justify-content-center">
-                                    <button className=" custom-btn btn btn-primary">View All</button>
+                                    <button className="custom-btn btn btn-primary">View All</button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Similar structure for groups and interests */}
-                        <div className="card mt-4">
+                        {/* Your Groups */}
+                        <div className="card custom-card mt-4">
                             <div className="card-body">
-                                <h5 className="card-title text-center">Your Groups</h5>
+                                <h5 className="card-title text-center text-dark">Your Groups</h5>
                                 <p className="text-center">You have not joined any groups</p>
                                 <div className="d-flex justify-content-center">
                                     <button className="btn btn-link">Discover groups</button>
@@ -63,9 +53,10 @@ export default function Events() {
                             </div>
                         </div>
 
-                        <div className="card mt-4">
+                        {/* Your Interests */}
+                        <div className="card custom-card mt-4">
                             <div className="card-body">
-                                <h5 className="card-title text-center">Your Interests</h5>
+                                <h5 className="card-title text-center text-dark">Your Interests</h5>
                                 <p className="text-center">You have not added any interests</p>
                                 <div className="d-flex justify-content-center">
                                     <button className="btn btn-link">Select interests</button>
@@ -73,6 +64,7 @@ export default function Events() {
                             </div>
                         </div>
                     </div>
+
 
                     {/* Right Side: Event Listings and Filters */}
                     <div className="col-md-8 col-lg-9">
@@ -89,7 +81,7 @@ export default function Events() {
                         {/* Event Listings */}
                         <div className="d-flex flex-column align-items-center">
                             {[1, 2, 3, 4].map((event) => (
-                                <div className="card mb-4 w-100" key={event} style={{ border: 'none' }}>
+                                <div className="card custom-card mb-4 w-100" key={event} style={{ border: 'none' }}>
                                     <div className="row g-0">
                                         {/* Event Date and Details on Top */}
                                         <div className="col-md-12">
@@ -115,7 +107,7 @@ export default function Events() {
                                                 <p className="card-text">English Conversation Practice • Berlin, DE</p>
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <p className="mb-0">5 attendees</p>
-                                                    <span className="badge badge-success">Suggested</span>
+
                                                 </div>
                                                 <a href="/events/1" className=" custom-btn btn mt-2">
                                                     See Details
