@@ -12,7 +12,7 @@ export default function GuestLayout({ children }) {
             </div>
 
             {/* Content Section */}
-            <div className="w-full bg-white px-6 py-4 shadow-lg sm:max-w-lg sm:rounded-lg">
+            <div className="w-full bg-[#FAF3DD] px-6 py-4 shadow-lg sm:max-w-lg sm:rounded-lg">
                 {children}
             </div>
         </div>

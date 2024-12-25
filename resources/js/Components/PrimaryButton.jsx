@@ -6,15 +6,18 @@ export default function PrimaryButton({
 }) {
     return (
         <button
-            {...props}
-            className={
-                `inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 ${
-                    disabled && 'opacity-25'
-                } ` + className
-            }
-            disabled={disabled}
-        >
-            {children}
-        </button>
+        {...props}
+        className={`inline-flex items-center rounded-md border border-[#E8D8A6] bg-[#F3E5AB] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#5A5A5A]
+                    transition duration-150 ease-in-out 
+                    hover:bg-[#FEEBC8] hover:border-[#D6BA7B] 
+                    focus:bg-[#FFF4E6] focus:border-[#C9A564] focus:ring-2 focus:ring-[#C9A564] focus:ring-offset-2 
+                    active:bg-[#FEEBC8] active:border-[#C9A564] ${
+                      disabled ? 'opacity-25 cursor-not-allowed' : ''
+                    } ` + className}
+        disabled={disabled}
+      >
+        {children}
+      </button>
+      
     );
 }

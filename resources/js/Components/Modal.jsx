@@ -18,7 +18,7 @@ export default function Modal({
         md: 'sm:max-w-md',
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-3xl', // Slightly larger max-width
+        '2xl': 'sm:max-w-3xl',
     }[maxWidth];
 
     return (
@@ -26,11 +26,7 @@ export default function Modal({
             <Dialog
                 as="div"
                 id="modal"
-                className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-0"
-                style={{
-                    marginTop: '80px', // Default margin for larger screens
-                    ...(window.innerWidth < 768 && { marginTop: '200px' }), // Increased margin for smaller screens
-                }}
+                className="fixed inset-0 z-[1050] flex items-center justify-center px-4 sm:px-0"
                 onClose={close}
             >
                 {/* Overlay */}
@@ -43,7 +39,7 @@ export default function Modal({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-black bg-opacity-50" />
+                    <div className="fixed inset-0 bg-black bg-opacity-50 z-[1040]" />
                 </TransitionChild>
 
                 {/* Dialog Panel */}
@@ -57,11 +53,9 @@ export default function Modal({
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <DialogPanel
-                        className={`relative transform overflow-auto rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
+                        className={`relative z-[1060] transform overflow-auto rounded-lg bg-[#FAF3DD] shadow-xl transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
                         style={{
-                            maxHeight: '87vh',
-                            width: '100%',
-                            margin: '0 auto',
+                            maxHeight: '90vh',
                             padding: '20px',
                         }}
                     >
