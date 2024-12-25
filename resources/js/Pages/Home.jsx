@@ -33,7 +33,7 @@ export default function Home() {
                                     lineHeight: '1.5',
                                 }}
                             >
-                                Whatever your interest, from hiking and reading to networking and skill sharing, there are thousands of people who share it on Meetup.
+                                Whatever your interest, from hiking and reading to networking and skill sharing, there are thousands of people who share it on QuickEvent.
                             </p>
                             <a
                                 href="/register"
@@ -45,7 +45,7 @@ export default function Home() {
                                     borderColor: '#8d9440',
                                 }}
                             >
-                                Join Meetup
+                                Join QuickEvent
                             </a>
                         </div>
                         <div className="col-lg-6 text-center">
@@ -88,12 +88,12 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Join Meetup Section */}
-            <section className="join-meetup py-5 text-center">
+            {/* Join QuickEvent Section */}
+            <section className="py-5 text-center">
                 <div className="container">
-                    <h2 className="mb-3 fw-bold">Join Meetup</h2>
+                    <h2 className="mb-3 fw-bold">Join QuickEvent</h2>
                     <p className="lead">
-                        People use Meetup to meet new people, learn new things, find support, get out of their comfort zones, and pursue their passions, together. Membership is free.
+                        People use QuickEvent to meet new people, learn new things, find support, get out of their comfort zones, and pursue their passions, together. Membership is free.
                     </p>
                     <a href="/register" className=" custom-btn btn btn-primary btn-lg">Sign up</a>
                 </div>

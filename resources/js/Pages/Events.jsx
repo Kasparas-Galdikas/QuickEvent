@@ -1,4 +1,5 @@
 import React from 'react';
+import { Head } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react'; // Import Inertia's usePage hook
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
@@ -11,6 +12,7 @@ export default function Events() {
 
     return (
         <div className="d-flex flex-column min-vh-100">
+            <Head title="Evemts" />
             {/* Navbar */}
             <Navbar />
 

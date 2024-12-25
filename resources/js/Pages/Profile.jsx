@@ -40,7 +40,7 @@ export default function Profile() {
                                     </p>
                                     <p className="mb-0">
                                         <span className="me-2">📅</span>
-                                        Joined Meetup on Dec 2024
+                                        Joined QuickEvent on Dec 2024
                                     </p>
                                 </div>
                             </div>
