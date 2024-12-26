@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { Link, usePage } from '@inertiajs/react'; // Use Inertia's usePage hook
 import '../../css/Navbar.css';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Login from '@/Pages/Auth/Login';
@@ -50,6 +50,9 @@ export default function Navbar() {
         }
     };
 
+    // Check the current URL path
+    const currentPath = window.location.pathname;
+
     return (
         <>
             <nav className="navbar navbar-expand-lg navbar-custom">
@@ -88,18 +91,21 @@ export default function Navbar() {
                                 <button className="search btn" type="submit">
                                     <i className="bi bi-search text-secondary"></i>
                                 </button>
-
-
                             </div>
                         </form>
 
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (
-
                                 <>
-                                    <button className="btn btn-create-group me-3">
-                                        Create Group
-                                    </button>
+                                    {/* Conditionally render "Create Group" button */}
+                                    {currentPath !== '/groups/create' && (
+                                        <button
+                                            onClick={() => window.location.href = route('groups.create')}
+                                            className="btn btn-create-group me-3"
+                                        >
+                                            Create Group
+                                        </button>
+                                    )}
 
                                     {/* Show the logged-in user's profile and logout options */}
                                     <div className="dropdown">

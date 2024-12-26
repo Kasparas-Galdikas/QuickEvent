@@ -77,7 +77,7 @@ body {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important; /* Stronger shadow on hover */
 }
 .custom-card {
-    background-color: #E0E4CC !important; /* Pale greenish vanilla */
+    background-color:rgb(237, 241, 218) !important; /* Pale greenish vanilla */
     border: 1px solid #B0B9A6 !important; /* Subtle border */
     border-radius: 10px !important; /* Rounded corners */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1) !important; /* Soft shadow */
