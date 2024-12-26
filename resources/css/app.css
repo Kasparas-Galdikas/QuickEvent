@@ -83,6 +83,17 @@ body {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1) !important; /* Soft shadow */
 }
 
+.custom-textarea {
+    background-color: #FFF9C4!important; /* Pale greenish vanilla */
+    border: 1pxrgb(183, 151, 91)!important; /* Subtle border */
+    border-radius: 10px !important; /* Rounded corners */
+}
+
+.custom-textarea:focus {
+    border-color: rgb(188, 159, 112); /* Darker border on focus */
+    box-shadow: 0 0 5px rgba(142, 110, 60, 0.5); /* Add subtle glow on focus */
+}
+
 .custom-btn:hover {
     background-color: #eef2df !important; /* Slightly darker button background */
     color: #505a33 !important; /* Maintain consistent text color */

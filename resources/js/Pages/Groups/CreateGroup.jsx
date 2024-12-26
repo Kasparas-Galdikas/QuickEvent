@@ -4,12 +4,15 @@ import TextInput from '@/Components/TextInput';
 import { Head } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 
-export default function CreateGroupStep1() {
+
+export default function CreateGroup() {
     const [location, setLocation] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTopics, setSelectedTopics] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
+    const [groupName, setGroupName] = useState('');
+    const [groupDescription, setGroupDescription] = useState('');
 
     const allTopics = [
         'Anxiety', 'Work At Home Moms', 'Freedom From Religion', 'Writing Workshops',
@@ -29,11 +32,19 @@ export default function CreateGroupStep1() {
 
     const handleNext = (e) => {
         e.preventDefault();
-        if (location.trim()) {
-            setCurrentStep(currentStep + 1);
-        } else {
+        if (currentStep === 1 && !location.trim()) {
             alert('Please enter your location.');
+            return;
         }
+        if (currentStep === 3 && !groupName.trim()) {
+            alert('Please enter a group name.');
+            return;
+        }
+        if (currentStep === 4 && groupDescription.length < 50) {
+            alert('Please write at least 50 characters for the group description.');
+            return;
+        }
+        setCurrentStep(currentStep + 1);
     };
 
     const handleTopicChange = (topic) => {
@@ -48,23 +59,24 @@ export default function CreateGroupStep1() {
         if (nextPage * 15 < filteredTopics.length) {
             setCurrentPage(nextPage);
         } else {
-            setCurrentPage(0); // Return to first page if at the end
+            setCurrentPage(0);
         }
     };
 
     const handleBack = () => {
         if (currentStep > 1) {
-            setCurrentStep(currentStep - 1); // Go back to the previous step
+            setCurrentStep(currentStep - 1);
         }
-        setLocation(''); // Optional: Reset location when going back
-        setSearchQuery(''); // Optional: Reset search query when going back
-        setCurrentPage(0); // Reset page for topic display when going back
     };
 
     return (
         <div className="flex flex-col min-h-screen">
             <Navbar />
-            <Head title="Set Location" />
+            <Head title={
+                currentStep === 3 ? "Name Your Group" :
+                    currentStep === 4 ? "Describe Your Group" :
+                        "Set Location"
+            } />
 
             <div className="w-full bg-[#F3E5AB] h-2 rounded-full relative">
                 <div
@@ -85,15 +97,12 @@ export default function CreateGroupStep1() {
                 <div className="w-full max-w-4xl p-4 custom-card">
                     <div className="flex flex-col sm:flex-row">
                         <div className="flex-1 pr-4">
-                            
-                            {/* Conditionally Render Back Button Only on Step 2 and Beyond */}
                             {currentStep > 1 && (
                                 <button
                                     type="button"
                                     className="text-teal-600 mb-3 flex items-center"
                                     onClick={handleBack}
                                 >
-                                    {/* Back Arrow Icon */}
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                     </svg>
@@ -102,10 +111,30 @@ export default function CreateGroupStep1() {
                             )}
 
                             <h1 className="text-2xl font-bold text-gray-800 mb-3">
-                                {currentStep === 1
-                                    ? 'First, set your location for your group'
-                                    : 'Choose topics for your group'}
+                                {currentStep === 1 && 'First, set your location for your group'}
+                                {currentStep === 2 && 'Choose topics for your group'}
+                                {currentStep === 3 && 'Name your group'}
+                                {currentStep === 4 && 'Describe your group'}
                             </h1>
+
+                            {currentStep === 3 && (
+                                <p className="text-gray-600 mb-4">
+                                    Choose a name that will give people a clear idea of what the group is about.
+                                </p>
+                            )}
+
+                            {currentStep === 4 && (
+                                <div className="mb-4">
+                                    <p className="text-gray-600">
+                                        People will see this when we promote your group, but you'll be able to update it later too.
+                                        We care about human connection, so someone will review your group to make sure it meets our{' '}
+                                        <a href="#" className="text-teal-600 hover:underline">
+                                            community guidelines
+                                        </a>.
+                                    </p>
+                                </div>
+                            )}
+
                             <form onSubmit={handleNext} className="space-y-3">
                                 {currentStep === 1 && (
                                     <div>
@@ -124,7 +153,6 @@ export default function CreateGroupStep1() {
                                 {currentStep === 2 && (
                                     <div>
                                         <h2 className="text-lg font-bold">Search topics for your group</h2>
-
                                         <TextInput
                                             id="searchTopics"
                                             name="searchTopics"
@@ -148,7 +176,6 @@ export default function CreateGroupStep1() {
                                                 </button>
                                             ))}
                                         </div>
-
                                         <button
                                             type="button"
                                             className="text-teal-600 mt-3"
@@ -159,7 +186,31 @@ export default function CreateGroupStep1() {
                                     </div>
                                 )}
 
-                                <PrimaryButton className="mt-3" type="submit">
+                                {currentStep === 3 && (
+                                    <div>
+                                        <TextInput
+                                            id="groupName"
+                                            name="groupName"
+                                            value={groupName}
+                                            className="block w-full"
+                                            isFocused={true}
+                                            onChange={(e) => setGroupName(e.target.value)}
+                                        />
+                                    </div>
+                                )}
+
+                                {currentStep === 4 && (
+                                    <div className="space-y-4">
+                                        <textarea
+                                            value={groupDescription}
+                                            onChange={(e) => setGroupDescription(e.target.value)}
+                                            className="w-full custom-textarea h-40 p-3 "
+                                            placeholder="Write your own description or click the button to generate a description with AI that includes all the information you've already input (group location, name, topics)."
+                                        />
+                                    </div>
+                                )}
+
+                                <PrimaryButton disabled={currentStep === 4 && groupDescription.length < 50}>
                                     Next
                                 </PrimaryButton>
                             </form>
