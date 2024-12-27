@@ -20,8 +20,9 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 // Authenticated Routes
 Route::get('/events', function () {
-    return Inertia::render('Events');  // This will load the Events component in Inertia
-})->middleware('auth');  // Add the middleware to require authentication if needed
+    return Inertia::render('Events/Events'); // Update path to include the folder
+})->middleware('auth'); // Optional middleware
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/Profile', function () {
@@ -39,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/groups/create', function () {
         return Inertia::render('Groups/CreateGroup'); // Replace with the actual path of your Inertia page
     })->name('groups.create');
+
+    Route::get('/events/create', function () {
+        return Inertia::render('Events/CreateEvent'); // Replace with the actual path of your Inertia component
+    })->name('events.create');
 });
 
 require __DIR__.'/auth.php';
