@@ -6,6 +6,8 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError'; // Import InputError component
 import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function Register({ show, onClose, openLoginModal }) {
     // State to track form data
@@ -27,7 +29,7 @@ export default function Register({ show, onClose, openLoginModal }) {
         });
     };
 
-    // Handle form submission
+    // Handle regular form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({}); // Clear previous errors
@@ -42,6 +44,15 @@ export default function Register({ show, onClose, openLoginModal }) {
             } else {
                 console.error('Unexpected error:', error); // Debugging message
             }
+        }
+    };
+
+    // Handle Google registration
+    const handleGoogleRegister = async () => {
+        try {
+            window.location.href = '/auth/google'; // Redirect to Laravel backend for Google OAuth
+        } catch (error) {
+            console.error('Google registration failed:', error);
         }
     };
 
@@ -106,6 +117,7 @@ export default function Register({ show, onClose, openLoginModal }) {
                             className="mt-2"
                         />
                     </div>
+
                     <div className="mt-4 flex items-center justify-between">
                         <button
                             type="button"
@@ -121,6 +133,18 @@ export default function Register({ show, onClose, openLoginModal }) {
                             Register
                         </PrimaryButton>
                     </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                        <SecondaryButton
+                            type="button"
+                            onClick={handleGoogleRegister}
+                            className="w-full flex items-center justify-center gap-2"
+                        >
+                            <FcGoogle className="text-lg" />
+                            Register using Google
+                        </SecondaryButton>
+                    </div>
+
                 </form>
             </GuestLayout>
         </Modal>

@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Add Google OAuth configuration here
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'), // Your Google Client ID
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'), // Your Google Client Secret
+        'redirect' => env('GOOGLE_REDIRECT_URI'), // Your Redirect URI
+    ],
+
 ];

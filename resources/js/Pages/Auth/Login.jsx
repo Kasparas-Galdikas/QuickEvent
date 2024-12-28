@@ -9,6 +9,8 @@ import Checkbox from '@/Components/Checkbox';
 import Modal from '@/Components/Modal';
 import ForgotPassword from '@/Pages/Auth/ForgotPassword';
 import { Head } from '@inertiajs/react';
+import SecondaryButton from '@/Components/SecondaryButton';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function Login({ show, onClose, status }) {
     const [formData, setFormData] = useState({
@@ -114,6 +116,14 @@ export default function Login({ show, onClose, status }) {
                                 Log in
                             </PrimaryButton>
                         </div>
+
+                        <div className="mt-4 flex items-center justify-between">
+                            <SecondaryButton type="submit" className="w-full flex items-center justify-center gap-2">
+                                <FcGoogle className="text-lg" /> {/* Google icon */}
+                                Login using Google
+                            </SecondaryButton>
+                        </div>
+
                     </form>
                 </GuestLayout>
             </Modal>
