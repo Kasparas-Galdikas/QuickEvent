@@ -118,10 +118,17 @@ export default function Login({ show, onClose, status }) {
                         </div>
 
                         <div className="mt-4 flex items-center justify-between">
-                            <SecondaryButton type="submit" className="w-full flex items-center justify-center gap-2">
-                                <FcGoogle className="text-lg" /> {/* Google icon */}
+                            <SecondaryButton
+                                type="button"
+                                onClick={() => {
+                                    window.location.href = '/auth/google'; // Redirect to Laravel's Google login route
+                                }}
+                                className="w-full flex items-center justify-center gap-2"
+                            >
+                                <FcGoogle className="text-lg" />
                                 Login using Google
                             </SecondaryButton>
+
                         </div>
 
                     </form>
