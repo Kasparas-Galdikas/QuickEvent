@@ -34,7 +34,7 @@ export default function Login({ show, onClose, status }) {
         setErrors({}); // Clear previous errors
 
         try {
-            await axios.post('/login', formData);
+            const response = await axios.post('/login', formData);
             onClose(); // Close the Login modal on success
             window.location.href = '/events';
         } catch (error) {
@@ -117,7 +117,9 @@ export default function Login({ show, onClose, status }) {
                             </PrimaryButton>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between">
+                        <hr />
+                        
+                        <div className="flex items-center justify-between">
                             <SecondaryButton
                                 type="button"
                                 onClick={() => {
@@ -130,7 +132,6 @@ export default function Login({ show, onClose, status }) {
                             </SecondaryButton>
 
                         </div>
-
                     </form>
                 </GuestLayout>
             </Modal>
