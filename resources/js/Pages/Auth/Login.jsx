@@ -11,8 +11,10 @@ import ForgotPassword from '@/Pages/Auth/ForgotPassword';
 import { Head } from '@inertiajs/react';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { FcGoogle } from 'react-icons/fc';
+import VerifyEmail from '@/Pages/Auth/VerifyEmail';
 
 export default function Login({ show, onClose, status }) {
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -20,6 +22,10 @@ export default function Login({ show, onClose, status }) {
     });
     const [errors, setErrors] = useState({});
     const [showForgotPassword, setShowForgotPassword] = useState(false); // Forgot Password modal state
+
+    // Missing state variables
+    const [showVerifyEmail, setShowVerifyEmail] = useState(false); // Verify Email modal state
+    const [verifyEmail, setVerifyEmail] = useState(''); // Store email for VerifyEmail modal
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -35,10 +41,17 @@ export default function Login({ show, onClose, status }) {
 
         try {
             const response = await axios.post('/login', formData);
-            onClose(); // Close the Login modal on success
-            window.location.href = '/events';
+
+            if (response.data.status === 'unverified') {
+                setVerifyEmail(response.data.email); // Pass email to VerifyEmail component
+                setShowVerifyEmail(true); // Show the VerifyEmail modal
+            } else {
+                onClose(); // Close the Login modal on success
+                window.location.href = '/events'; // Redirect to events
+            }
         } catch (error) {
-            if (error.response && error.response.data.errors) {
+            if (error.response && error.response.status === 422) {
+                console.error('Validation errors:', error.response.data.errors);
                 setErrors(error.response.data.errors); // Display validation errors
             } else {
                 console.error('Unexpected error:', error);
@@ -118,7 +131,7 @@ export default function Login({ show, onClose, status }) {
                         </div>
 
                         <hr />
-                        
+
                         <div className="flex items-center justify-between">
                             <SecondaryButton
                                 type="button"
@@ -134,6 +147,11 @@ export default function Login({ show, onClose, status }) {
                         </div>
                     </form>
                 </GuestLayout>
+            </Modal>
+
+            {/* Verify Email Modal */}
+            <Modal show={showVerifyEmail} onClose={() => setShowVerifyEmail(false)}>
+                <VerifyEmail email={verifyEmail} />
             </Modal>
 
             {/* Forgot Password Modal */}

@@ -23,7 +23,6 @@ export default function Register({ show, onClose, openLoginModal }) {
     const [verificationEmail, setVerificationEmail] = useState('');
 
     useEffect(() => {
-        console.log('Registration modal visibility:', show);
     }, [show]);
 
     const handleChange = (e) => {
@@ -46,7 +45,6 @@ export default function Register({ show, onClose, openLoginModal }) {
                 // Open VerifyEmail modal directly if the user is already registered but not verified
                 setVerificationEmail(formData.email);
                 setShowVerifyEmail(true);
-                console.log('User is already registered but not verified. Opening verification modal.');
                 return;
             }
 
@@ -59,7 +57,6 @@ export default function Register({ show, onClose, openLoginModal }) {
             // Open VerifyEmail modal
             setShowVerifyEmail(true);
 
-            console.log('Verification email sent!');
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);

@@ -25,15 +25,12 @@ export default function VerifyEmail({ email }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log(`Submitting code for email: ${email}`); // Debugging email
-
         try {
             const response = await axios.post('/verify', {
                 email: email, // Include the email from props
                 verification_code: formData.verification_code,
             });
-
-            console.log(response.data.message); // Success message
+           
             setIsVerified(true); // Mark the user as verified
             window.location.href = '/events'; // Redirect after verification
         } catch (error) {
@@ -52,7 +49,6 @@ export default function VerifyEmail({ email }) {
         try {
             const response = await axios.post('/resend-verification-code', { email });
             setResendMessage('A new verification code has been sent to your email.');
-            console.log(response.data.message); // Debugging success message
         } catch (error) {
             console.error('Failed to resend verification code:', error);
             setResendMessage('Failed to resend verification code. Please try again.');

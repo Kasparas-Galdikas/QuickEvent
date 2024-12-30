@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
-
+use Illuminate\Support\Facades\Log;
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -27,14 +27,35 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
+        // Authenticate the user
         $request->authenticate();
-
+    
+        // Check if the user's email is verified
+        $user = Auth::user(); // Get the authenticated user
+    
+        if (is_null($user->email_verified_at)) {
+            // Log the user out immediately if not verified
+            Auth::logout();
+    
+            // Return a JSON response indicating unverified status
+            return response()->json([
+                'status' => 'unverified',
+                'email' => $user->email,
+                'message' => 'Your email address is not verified. Please check your email to verify your account.',
+            ], 200); // 200 OK to avoid triggering catch blocks unnecessarily
+        }
+    
+        // Regenerate session if email is verified
         $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+    
+        // Return success response
+        return response()->json(['status' => 'verified']);
     }
+    
+
+
 
     /**
      * Destroy an authenticated session.
@@ -42,10 +63,10 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-    
+
         $request->session()->invalidate();
         $request->session()->regenerateToken(); // Regenerate the CSRF token
-    
+
         return redirect('/');
     }
 }
