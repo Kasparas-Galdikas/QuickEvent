@@ -19,6 +19,7 @@ export default function ResetPassword({ token, email }) {
         post(route('password.store'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
+        Inertia.visit('/'); // Redirect to login after success
     };
 
     return (
@@ -36,8 +37,9 @@ export default function ResetPassword({ token, email }) {
                         value={data.email}
                         className="mt-1 block w-full"
                         autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
+                        readOnly 
                     />
+
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
