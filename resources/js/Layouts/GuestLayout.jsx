@@ -7,7 +7,7 @@ export default function GuestLayout({ children }) {
             {/* Logo Section */}
             <div className="mb-6">
                 <Link href="/">
-                    <ApplicationLogo className="h-24 w-24 fill-current text-gray-600" /> {/* Bigger logo */}
+                    <ApplicationLogo className="h-20 w-30 fill-current text-gray-600" /> {/* Bigger logo */}
                 </Link>
             </div>
 
