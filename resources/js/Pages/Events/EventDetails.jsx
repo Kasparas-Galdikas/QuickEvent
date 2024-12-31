@@ -14,7 +14,7 @@ export default function EventDetails() {
             <Navbar />
 
             {/* Event Header Section - Meetup style */}
-            <div className="px-5 w-full bg-white border-b border-gray-200 py-2 lg:py-6">
+            <div className="px-5 w-full custom-card  border-b border-gray-200 py-2 lg:py-6">
                 <div className="max-w-5xl mx-auto">
                     <h1 className="text-3xl font-bold leading-snug overflow-hidden overflow-ellipsis">
                         English Conversation Meeting
@@ -40,7 +40,7 @@ export default function EventDetails() {
             </div>
 
             {/* Main Content Section - Meetup style */}
-            <div className="flex w-full flex-col items-center justify-between border-t border-gray-200 bg-gray-50 pb-6 lg:px-5">
+            <div className="flex w-full flex-col items-center justify-between border-t border-gray-200 pb-6 lg:px-5">
                 <div className="max-w-5xl w-full">
                     <div className="flex flex-col-reverse lg:flex-row">
                         {/* Left Column */}
@@ -68,7 +68,7 @@ export default function EventDetails() {
 
                             {/* Attendees Section */}
                             <div className="px-6 sm:px-4 xl:px-0 mt-5 w-full">
-                                <div className="bg-white p-6 rounded-lg">
+                                <div className="custom-card p-6 rounded-lg">
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold">Attendees (12)</h2>
                                         <button className="text-green-600 hover:underline">See all</button>
