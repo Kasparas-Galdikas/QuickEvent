@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\GoogleAuthController;
 
-
 Route::get('/', function () {
     return Inertia::render('Home');
 });
@@ -32,14 +31,21 @@ Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verif
 Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
 Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
 
-
 Route::middleware(['auth'])->group(function () {
+    // Events Routes
     Route::get('/events', function () {
         return Inertia::render('Events/Events');
-    })->name('events'); // Ensure the route is named 'events'
-});
+    })->name('events');
 
-Route::middleware(['auth'])->group(function () {
+    Route::get('/events/details', function () {
+        return Inertia::render('Events/EventDetails');
+    })->name('events.details');
+    
+    Route::get('/events/create', function () {
+        return Inertia::render('Events/CreateEvent');
+    })->name('events.create');
+
+    // Profile Routes
     Route::get('/Profile', function () {
         return Inertia::render('Profile');
     })->name('Profile');
@@ -52,13 +58,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Groups Routes
     Route::get('/groups/create', function () {
-        return Inertia::render('Groups/CreateGroup'); // Replace with the actual path of your Inertia page
+        return Inertia::render('Groups/CreateGroup');
     })->name('groups.create');
-
-    Route::get('/events/create', function () {
-        return Inertia::render('Events/CreateEvent'); // Replace with the actual path of your Inertia component
-    })->name('events.create');
 });
 
 require __DIR__ . '/auth.php';
