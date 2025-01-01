@@ -171,7 +171,7 @@ export default function Events() {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <p className="mb-0">5 attendees</p>
                                                 </div>
-                                                <a href="/events/1" className="custom-btn btn mt-2">
+                                                <a href="/events/details" className="custom-btn btn mt-2">
                                                     See Details
                                                 </a>
                                             </div>
