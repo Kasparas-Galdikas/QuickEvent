@@ -9,7 +9,6 @@ class Event extends Model
 {
     use HasFactory;
 
-    // Allow mass assignment for the listed attributes
     protected $fillable = [
         'title',
         'event_date',
@@ -18,9 +17,15 @@ class Event extends Model
         'description',
         'location',
         'image_path',
+        'group_id',
     ];
 
-    // Define the many-to-many relationship with the Topic model
+    // Relationships
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
     public function topics()
     {
         return $this->belongsToMany(Topic::class, 'event_topic');
