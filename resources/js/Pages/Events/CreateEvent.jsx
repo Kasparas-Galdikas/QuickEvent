@@ -8,9 +8,37 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 
-export default function CreateEvent() {
+export default function CreateEvent({ topics = [] }) {
     const [startDate, setStartDate] = useState(new Date());
-    const [selectedLocation, setSelectedLocation] = useState('in-person');
+    const [selectedTopics, setSelectedTopics] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+
+    const filteredTopics = topics.filter((topic) =>
+        topic.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const displayedTopics = filteredTopics.slice(
+        currentPage * 15,
+        (currentPage + 1) * 15
+    );
+
+    const handleTopicChange = (topicId) => {
+        setSelectedTopics((prev) =>
+            prev.includes(topicId)
+                ? prev.filter((id) => id !== topicId)
+                : [...prev, topicId]
+        );
+    };
+
+    const handleViewMore = () => {
+        const nextPage = currentPage + 1;
+        if (nextPage * 15 < filteredTopics.length) {
+            setCurrentPage(nextPage);
+        } else {
+            setCurrentPage(0);
+        }
+    };
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -22,11 +50,11 @@ export default function CreateEvent() {
                 <form>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
                     <p className="text-gray-600 mb-2 fs-6">My Group name</p>
-                    <hr/>
+                    <hr />
 
                     {/* Title */}
                     <div className="mb-6">
-                        <InputLabel htmlFor="title" value="Title (required)" /> {/* Changed forInput to htmlFor */}
+                        <InputLabel htmlFor="title" value="Title (required)" />
                         <TextInput
                             id="title"
                             type="text"
@@ -40,27 +68,22 @@ export default function CreateEvent() {
                     <div className="mb-6">
                         <InputLabel value="Date and Time" />
                         <div className="flex gap-4 items-center">
-                            {/* Date Picker */}
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => setStartDate(date)}
                                 className="form-control custom-date-time"
                                 dateFormat="MMMM d, yyyy"
                             />
-
-                            {/* Time Picker */}
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => setStartDate(date)}
                                 className="form-control custom-date-time custom-time-box"
                                 showTimeSelect
                                 showTimeSelectOnly
-                                timeIntervals={15} // Time intervals in minutes
+                                timeIntervals={15}
                                 timeCaption="Time"
                                 dateFormat="h:mm aa"
                             />
-
-                            {/* Static EET Text */}
                             <span className="text-gray-700">EET</span>
                         </div>
                     </div>
@@ -73,7 +96,6 @@ export default function CreateEvent() {
                             <option>3 hours</option>
                         </select>
                     </div>
-
 
                     {/* Featured Photo */}
                     <div className="mb-6">
@@ -98,7 +120,37 @@ export default function CreateEvent() {
                             type="text"
                             placeholder="Search topic"
                             className="w-full"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(0);
+                            }}
                         />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {displayedTopics.map((topic) => (
+                                <button
+                                    key={topic.id}
+                                    type="button"
+                                    className={`px-4 py-2 rounded-full text-sm border-2 ${selectedTopics.includes(topic.id)
+                                            ? 'bg-teal-600 text-white border-teal-600'
+                                            : 'bg-teal-100 text-teal-600 border-teal-600'
+                                        }`}
+                                    onClick={() => handleTopicChange(topic.id)}
+                                >
+                                    {topic.name}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            className="text-teal-600 mt-3"
+                            onClick={handleViewMore}
+                        >
+                            {(currentPage + 1) * 15 >= filteredTopics.length
+                                ? 'Back to Start'
+                                : 'View More'}
+                        </button>
                     </div>
 
                     {/* Location */}

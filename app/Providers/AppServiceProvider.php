@@ -10,6 +10,8 @@ use Illuminate\Pagination\Paginator;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Vite;
 use App\Models\Topic;
+use App\Models\Group;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -50,8 +52,20 @@ class AppServiceProvider extends ServiceProvider
                     return []; // Gracefully handle any errors
                 }
             },
+            'groups' => function () {
+                try {
+                    if (Auth::check()) {
+                        return Group::where('user_id', Auth::id())
+                            ->with('topics')
+                            ->get()
+                            ->toArray();
+                    }
+                    return [];
+                } catch (\Exception $e) {
+                    return []; // Gracefully handle any errors
+                }
+            },
         ]);
-        
 
         // Use Bootstrap styling for pagination
         Paginator::useBootstrap();

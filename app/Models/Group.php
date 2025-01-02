@@ -24,6 +24,6 @@ class Group extends Model
 
     public function topics()
     {
-        return $this->belongsToMany(Topic::class, 'group_topic');
+        return $this->belongsToMany(Topic::class, 'group_topic', 'group_id', 'topic_id');
     }
 }
