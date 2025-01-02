@@ -6,7 +6,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\GoogleAuthController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;  // Add this line to resolve the conflict
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Models\Topic;
+use App\Http\Controllers\Group\GroupController;
 
 Route::get('/', function () {
     return Inertia::render('Home');
@@ -33,6 +35,10 @@ Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verif
 Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
 Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
 
+Route::get('/topics', function () {
+    return response()->json(Topic::select('id', 'name')->get());
+});
+
 Route::middleware(['auth'])->group(function () {
     // Events Routes
     Route::get('/events', function () {
@@ -42,10 +48,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/events/details', function () {
         return Inertia::render('Events/EventDetails');
     })->name('events.details');
-    
+
     Route::get('/events/create', function () {
         return Inertia::render('Events/CreateEvent');
     })->name('events.create');
+
+    // Groups Routes
+    Route::get('/groups/create', function () {
+        return Inertia::render('Groups/CreateGroup');
+    })->name('groups.create');
+
+    // Add the store route for creating groups
+    Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
 
     // Profile Routes
     Route::get('/Profile', function () {
@@ -59,11 +73,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Groups Routes
-    Route::get('/groups/create', function () {
-        return Inertia::render('Groups/CreateGroup');
-    })->name('groups.create');
 });
 
 require __DIR__ . '/auth.php';

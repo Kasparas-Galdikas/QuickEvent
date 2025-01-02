@@ -9,7 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Vite;
-
+use App\Models\Topic;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -40,7 +40,18 @@ class AppServiceProvider extends ServiceProvider
                     'user' => Auth::check() ? Auth::user()->only(['id', 'name', 'email']) : null,
                 ];
             },
+            'topics' => function () {
+                try {
+                    // Cache for 1 hour to improve performance
+                    return cache()->remember('topics', 3600, function () {
+                        return Topic::select('id', 'name')->get();
+                    });
+                } catch (\Exception $e) {
+                    return []; // Gracefully handle any errors
+                }
+            },
         ]);
+        
 
         // Use Bootstrap styling for pagination
         Paginator::useBootstrap();
