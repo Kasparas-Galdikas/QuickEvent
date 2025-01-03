@@ -80,7 +80,7 @@ export default function Events() {
                                     </div>
                                 ))}
                             </div>
-
+                            
                             {/* Right Column: Tips */}
                             <div className="col-md-4">
                                 <div className="card-body">

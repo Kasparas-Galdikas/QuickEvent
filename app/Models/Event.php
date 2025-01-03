@@ -10,24 +10,19 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
+        'group_id',
         'title',
         'event_date',
         'event_time',
         'duration',
-        'description',
         'location',
         'image_path',
-        'group_id',
+        'description',
     ];
-
-    // Relationships
-    public function group()
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function topics()
     {
-        return $this->belongsToMany(Topic::class, 'event_topic');
+        return $this->belongsToMany(Topic::class, 'event_topic', 'event_id', 'topic_id')
+                    ->withTimestamps();
     }
 }

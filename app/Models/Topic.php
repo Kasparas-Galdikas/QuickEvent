@@ -19,6 +19,8 @@ class Topic extends Model
 
     public function events()
     {
-        return $this->belongsToMany(Event::class, 'event_topic');
+        return $this->belongsToMany(Event::class, 'event_topic', 'topic_id', 'event_id')
+                    ->withTimestamps();
     }
+    
 }

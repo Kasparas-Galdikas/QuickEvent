@@ -42,19 +42,7 @@ class AppServiceProvider extends ServiceProvider
                     'user' => Auth::check() ? Auth::user()->only(['id', 'name', 'email']) : null,
                 ];
             },
-            'groups' => function () {
-                try {
-                    if (Auth::check()) {
-                        return Group::where('user_id', Auth::id())
-                            ->with('topics')
-                            ->get()
-                            ->toArray();
-                    }
-                    return [];
-                } catch (\Exception $e) {
-                    return []; // Gracefully handle any errors
-                }
-            },
+           
         ]);
 
         // Use Bootstrap styling for pagination

@@ -15,18 +15,17 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const [topics, setTopics] = useState(initialTopics);
-    const { url } = usePage(); // Get the current URL from Inertia.js
+    const { url } = usePage();
     const [selectedGroup, setSelectedGroup] = useState(null);
-    const [groupImage, setGroupImage] = useState(null); // State for group image upload
+    const [groupImage, setGroupImage] = useState(null);
 
-    // Extract the `group_id` from the query parameters
+    // On initial load, parse `group_id` from query string, or fall back to the first group in the array.
     useEffect(() => {
         const queryParams = new URLSearchParams(url.split('?')[1]);
         const groupId = queryParams.get('group_id');
         setSelectedGroup(parseInt(groupId, 10) || (groups[0]?.id || null));
     }, [url]);
 
-   
     // Fetch topics for the selected group
     useEffect(() => {
         if (selectedGroup) {
@@ -37,16 +36,18 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
         }
     }, [selectedGroup]);
 
-
+    // Filter topics by search query
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Paginate displayed topics (15 per page)
     const displayedTopics = filteredTopics.slice(
         currentPage * 15,
         (currentPage + 1) * 15
     );
 
+    // Toggle topic selection
     const handleTopicChange = (topicId) => {
         setSelectedTopics((prev) =>
             prev.includes(topicId)
@@ -55,6 +56,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
         );
     };
 
+    // Pagination for topics
     const handleViewMore = () => {
         const nextPage = currentPage + 1;
         if (nextPage * 15 < filteredTopics.length) {
@@ -64,10 +66,54 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
         }
     };
 
+    // Handle image upload
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             setGroupImage(file);
+        }
+    };
+
+    // Submit form
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        // Required fields
+        formData.append('group_id', selectedGroup);
+        formData.append('title', document.getElementById('title').value);
+        formData.append('description', document.getElementById('description').value);
+
+        // Convert date/time to ISO
+        formData.append('start_date', startDate.toISOString());
+
+        // IMPORTANT: Get numeric value from #duration (the select element)
+        const durationValue = document.getElementById('duration').value;
+        formData.append('duration', durationValue);
+
+        formData.append(
+            'location',
+            document.querySelector('input[placeholder="Search or add a location"]').value
+        );
+
+        // Topics array
+        selectedTopics.forEach((topic) => {
+            formData.append('topics[]', topic);
+        });
+
+        // Optional image
+        if (groupImage) {
+            formData.append('image', groupImage);
+        }
+
+        try {
+            await axios.post('/events', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            alert('Event created successfully!');
+        } catch (error) {
+            console.error('Error creating event:', error);
+            alert(`Failed to create event: ${error.response?.data.message || 'Unknown error'}`);
         }
     };
 
@@ -76,12 +122,11 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
             <Head title="Create Event" />
             <Navbar />
 
-            {/* Wrapped form in custom-card */}
             <div className="custom-card max-w-4xl mx-auto p-6 my-8 rounded shadow">
-                <form>
+                <form onSubmit={handleSubmit}>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
 
-                    {/* Group Name Display */}
+                    {/* Display the selected group */}
                     <div className="mb-6">
                         <InputLabel value="Group" />
                         <p className="mb-6">
@@ -89,7 +134,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         </p>
                     </div>
 
-                    {/* Title */}
+                    {/* Title Field */}
                     <div className="mb-6">
                         <InputLabel htmlFor="title" value="Title (required)" />
                         <TextInput
@@ -101,7 +146,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         />
                     </div>
 
-                    {/* Date and Time */}
+                    {/* Date and Time Fields */}
                     <div className="mb-6">
                         <InputLabel value="Date and Time" />
                         <div className="flex gap-4 items-center">
@@ -125,25 +170,25 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         </div>
                     </div>
 
-                    {/* Duration */}
+                    {/* Duration Dropdown - numeric values */}
                     <div className="mb-6">
-                        <InputLabel value="Duration" />
-                        <select className="form-control custom-dropdown">
-                            <option>1 hour</option>
-                            <option>2 hours</option>
-                            <option>3 hours</option>
-                            <option>4 hours</option>
+                        <InputLabel value="Duration (required)" />
+                        <select className="form-control custom-dropdown" id="duration" defaultValue="1">
+                            <option value="1">1 hour</option>
+                            <option value="2">2 hours</option>
+                            <option value="3">3 hours</option>
+                            <option value="4">4 hours</option>
                         </select>
                     </div>
 
-                    {/* Event Image Upload */}
+                    {/* Event Image */}
                     <div className="mb-6">
                         <InputLabel value="Event Image" />
                         <div>
                             <button
                                 type="button"
                                 className="btn mt-2 custom-btn px-3 py-1"
-                                style={{ fontSize: '14px' }} // Inline style to override font size
+                                style={{ fontSize: '14px' }}
                                 onClick={() => document.getElementById('event-image-upload').click()}
                             >
                                 Upload Image
@@ -153,7 +198,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageUpload}
-                                className="hidden" // Hide the file input
+                                className="hidden"
                             />
                         </div>
                         {groupImage && (
@@ -163,6 +208,17 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         )}
                     </div>
 
+                    {/* Description Field */}
+                    <div className="mb-6">
+                        <InputLabel htmlFor="description" value="Description (required)" />
+                        <textarea
+                            id="description"
+                            className="form-control custom-textarea w-full"
+                            placeholder="Enter event description"
+                            rows="4"
+                            required
+                        ></textarea>
+                    </div>
 
                     {/* Topics */}
                     <div className="mb-6">
@@ -183,10 +239,11 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                                 <button
                                     key={topic.id}
                                     type="button"
-                                    className={`px-4 py-2 rounded-full text-sm border-2 ${selectedTopics.includes(topic.id)
-                                        ? 'bg-teal-600 text-white border-teal-600'
-                                        : 'bg-teal-100 text-teal-600 border-teal-600'
-                                        }`}
+                                    className={`px-4 py-2 rounded-full text-sm border-2 ${
+                                        selectedTopics.includes(topic.id)
+                                            ? 'bg-teal-600 text-white border-teal-600'
+                                            : 'bg-teal-100 text-teal-600 border-teal-600'
+                                    }`}
                                     onClick={() => handleTopicChange(topic.id)}
                                 >
                                     {topic.name}
@@ -215,7 +272,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         />
                     </div>
 
-                    {/* Form Actions */}
+                    {/* Buttons */}
                     <div className="flex justify-between mt-8">
                         <PrimaryButton type="button">Cancel</PrimaryButton>
                         <PrimaryButton type="submit">Publish</PrimaryButton>
