@@ -11,7 +11,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Vite;
 use App\Models\Topic;
 use App\Models\Group;
-
+use Illuminate\Support\Facades\Log;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -41,16 +41,6 @@ class AppServiceProvider extends ServiceProvider
                 return [
                     'user' => Auth::check() ? Auth::user()->only(['id', 'name', 'email']) : null,
                 ];
-            },
-            'topics' => function () {
-                try {
-                    // Cache for 1 hour to improve performance
-                    return cache()->remember('topics', 3600, function () {
-                        return Topic::select('id', 'name')->get();
-                    });
-                } catch (\Exception $e) {
-                    return []; // Gracefully handle any errors
-                }
             },
             'groups' => function () {
                 try {

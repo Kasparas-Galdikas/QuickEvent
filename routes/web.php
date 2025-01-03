@@ -8,8 +8,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Group\GroupController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\Topic;
-
+use App\Http\Controllers\Event\EventController;
+use App\Http\Controllers\TopicsController;
 // Home Route
 Route::get('/', function () {
     return Inertia::render('Home');
@@ -40,10 +40,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
 });
 
-// Public API Routes
-Route::get('/topics', function () {
-    return response()->json(Topic::select('id', 'name')->get());
-});
+Route::get('/topics', [TopicsController::class, 'index'])->name('topics.index'); // Fetch all topics
+Route::get('/topics/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter-by-group');
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {

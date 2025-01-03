@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import Navbar from '@/Components/Navbar';
@@ -8,11 +9,34 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 
-export default function CreateEvent({ topics = [] }) {
+export default function CreateEvent({ groups = [], initialTopics = [] }) {
     const [startDate, setStartDate] = useState(new Date());
     const [selectedTopics, setSelectedTopics] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
+    const [topics, setTopics] = useState(initialTopics);
+    const { url } = usePage(); // Get the current URL from Inertia.js
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [groupImage, setGroupImage] = useState(null); // State for group image upload
+
+    // Extract the `group_id` from the query parameters
+    useEffect(() => {
+        const queryParams = new URLSearchParams(url.split('?')[1]);
+        const groupId = queryParams.get('group_id');
+        setSelectedGroup(parseInt(groupId, 10) || (groups[0]?.id || null));
+    }, [url]);
+
+   
+    // Fetch topics for the selected group
+    useEffect(() => {
+        if (selectedGroup) {
+            axios
+                .get('/topics/filter-by-group', { params: { group_id: selectedGroup } })
+                .then((response) => setTopics(response.data))
+                .catch((error) => console.error('Error fetching topics:', error));
+        }
+    }, [selectedGroup]);
+
 
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -40,6 +64,13 @@ export default function CreateEvent({ topics = [] }) {
         }
     };
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setGroupImage(file);
+        }
+    };
+
     return (
         <div className="d-flex flex-column min-vh-100">
             <Head title="Create Event" />
@@ -49,8 +80,14 @@ export default function CreateEvent({ topics = [] }) {
             <div className="custom-card max-w-4xl mx-auto p-6 my-8 rounded shadow">
                 <form>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
-                    <p className="text-gray-600 mb-2 fs-6">My Group name</p>
-                    <hr />
+
+                    {/* Group Name Display */}
+                    <div className="mb-6">
+                        <InputLabel value="Group" />
+                        <p className="mb-6">
+                            {groups.find((group) => group.id === selectedGroup)?.name || 'Group not found'}
+                        </p>
+                    </div>
 
                     {/* Title */}
                     <div className="mb-6">
@@ -92,25 +129,40 @@ export default function CreateEvent({ topics = [] }) {
                     <div className="mb-6">
                         <InputLabel value="Duration" />
                         <select className="form-control custom-dropdown">
+                            <option>1 hour</option>
                             <option>2 hours</option>
                             <option>3 hours</option>
+                            <option>4 hours</option>
                         </select>
                     </div>
 
-                    {/* Featured Photo */}
+                    {/* Event Image Upload */}
                     <div className="mb-6">
-                        <InputLabel value="Featured photo" />
-                        <p className="text-sm text-gray-500 mb-2">
-                            Don't have a photo handy? Try using a free image from the Pexels photo library.
-                        </p>
-                        <PrimaryButton>Upload Photo</PrimaryButton>
+                        <InputLabel value="Event Image" />
+                        <div>
+                            <button
+                                type="button"
+                                className="btn mt-2 custom-btn px-3 py-1"
+                                style={{ fontSize: '14px' }} // Inline style to override font size
+                                onClick={() => document.getElementById('event-image-upload').click()}
+                            >
+                                Upload Image
+                            </button>
+                            <input
+                                id="event-image-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden" // Hide the file input
+                            />
+                        </div>
+                        {groupImage && (
+                            <p className="mt-2 text-sm text-gray-500">
+                                Selected file: {groupImage.name}
+                            </p>
+                        )}
                     </div>
 
-                    {/* Description */}
-                    <div className="mb-6">
-                        <InputLabel value="Description (required)" />
-                        <textarea className="form-control custom-textarea" rows="6" />
-                    </div>
 
                     {/* Topics */}
                     <div className="mb-6">
@@ -132,8 +184,8 @@ export default function CreateEvent({ topics = [] }) {
                                     key={topic.id}
                                     type="button"
                                     className={`px-4 py-2 rounded-full text-sm border-2 ${selectedTopics.includes(topic.id)
-                                            ? 'bg-teal-600 text-white border-teal-600'
-                                            : 'bg-teal-100 text-teal-600 border-teal-600'
+                                        ? 'bg-teal-600 text-white border-teal-600'
+                                        : 'bg-teal-100 text-teal-600 border-teal-600'
                                         }`}
                                     onClick={() => handleTopicChange(topic.id)}
                                 >

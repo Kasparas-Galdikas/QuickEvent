@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head } from '@inertiajs/react';
@@ -7,7 +6,7 @@ import Navbar from '@/Components/Navbar';
 import axios from 'axios';
 
 export default function CreateGroup() {
-    const { topics = [] } = usePage().props; // Access globally shared topics
+    const [topics, setTopics] = useState([]); // Dynamically fetched topics
     const [location, setLocation] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +16,21 @@ export default function CreateGroup() {
     const [groupDescription, setGroupDescription] = useState('');
     const [errors, setErrors] = useState({}); // Store validation errors
 
+    // Fetch topics from TopicsController
+    useEffect(() => {
+        const fetchTopics = async () => {
+            try {
+                const response = await axios.get('/topics');
+                setTopics(response.data);
+            } catch (error) {
+                console.error('Error fetching topics:', error);
+            }
+        };
+
+        fetchTopics();
+    }, []);
+
+    // Filter and paginate topics
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -26,6 +40,7 @@ export default function CreateGroup() {
         (currentPage + 1) * 15
     );
 
+    // Form navigation logic
     const handleNext = (e) => {
         e.preventDefault();
         const newErrors = {};
@@ -75,16 +90,15 @@ export default function CreateGroup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         console.log('Submitting form with data:', {
             location,
             groupName,
             groupDescription,
             topics: selectedTopics,
         });
-    
+
         try {
-            // Adjusted to use the correct route
             const response = await axios.post('/groups', {
                 location,
                 groupName,
@@ -103,9 +117,6 @@ export default function CreateGroup() {
             }
         }
     };
-    
-    
-    
 
     return (
         <div className="flex flex-col min-h-screen">
