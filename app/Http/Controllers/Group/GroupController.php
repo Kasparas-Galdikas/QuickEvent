@@ -11,32 +11,28 @@ use Illuminate\Support\Facades\Log;
 
 class GroupController extends Controller
 {
-    public function index()
+    public function show($id)
     {
-        $user = Auth::user();
+        // Log the incoming group ID for debugging
+        Log::info('Fetching group details', ['id' => $id]);
     
-        // Fetch groups related to the authenticated user without members count
-        $groups = Group::where('user_id', $user->id)
-            ->get()
-            ->map(function ($group) {
-                return [
-                    'id' => $group->id,
-                    'name' => $group->name,
-                    'description' => $group->description,
-                    'image_path' => $group->image_path, // Ensure this field exists
-                    // Remove 'member_count' as we are not using members
-                ];
-            });
+        // Attempt to fetch the group by ID
+        $group = Group::find($id);
     
-            return Inertia::render('Events/Events', [ // Match the component file name
-                'groups' => $groups,
-                'auth' => [
-                    'user' => $user->only(['id', 'name']),
-                ],
-            ]);
+        // Check if the group exists
+        if (!$group) {
+            Log::warning('Group not found', ['id' => $id]); // Log warning if group doesn't exist
+            return response()->json(['error' => 'Group not found'], 404);
+        }
+    
+        // Log the fetched group details for verification
+        Log::info('Group fetched successfully', ['group' => $group]);
+    
+        // Return the group details in the response
+        return response()->json(['group' => $group]);
     }
     
-    
+
 
     /**
      * Store a newly created group in storage.

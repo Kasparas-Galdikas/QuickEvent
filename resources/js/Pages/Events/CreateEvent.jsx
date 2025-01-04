@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,6 +8,7 @@ import Footer from '@/Components/Footer';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
 
 export default function CreateEvent({ groups = [], initialTopics = [] }) {
     const [startDate, setStartDate] = useState(new Date());
@@ -15,18 +16,23 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const [topics, setTopics] = useState(initialTopics);
+
     const { url } = usePage();
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [groupImage, setGroupImage] = useState(null);
+    const [errors, setErrors] = useState({}); // Store validation errors
 
-    // On initial load, parse `group_id` from query string, or fall back to the first group in the array.
+    // Constants for min/max topic selection
+    const MIN_TOPICS = 1;
+    const MAX_TOPICS = 5;
+
     useEffect(() => {
+        // Parse group_id from query string
         const queryParams = new URLSearchParams(url.split('?')[1]);
         const groupId = queryParams.get('group_id');
         setSelectedGroup(parseInt(groupId, 10) || (groups[0]?.id || null));
-    }, [url]);
+    }, [url, groups]);
 
-    // Fetch topics for the selected group
     useEffect(() => {
         if (selectedGroup) {
             axios
@@ -35,7 +41,6 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                 .catch((error) => console.error('Error fetching topics:', error));
         }
     }, [selectedGroup]);
-
     // Filter topics by search query
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -49,14 +54,21 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
 
     // Toggle topic selection
     const handleTopicChange = (topicId) => {
-        setSelectedTopics((prev) =>
-            prev.includes(topicId)
-                ? prev.filter((id) => id !== topicId)
-                : [...prev, topicId]
-        );
+        setSelectedTopics((prev) => {
+            // If user is removing an already selected topic
+            if (prev.includes(topicId)) {
+                return prev.filter((id) => id !== topicId);
+            }
+            // If user has max topics, do nothing
+            if (prev.length >= MAX_TOPICS) {
+                return prev;
+            }
+            // Otherwise, add the new topic
+            return [...prev, topicId];
+        });
     };
 
-    // Pagination for topics
+    // View more / back to start for topics pagination
     const handleViewMore = () => {
         const nextPage = currentPage + 1;
         if (nextPage * 15 < filteredTopics.length) {
@@ -74,31 +86,43 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
         }
     };
 
-    // Submit form
+    // Submit form with topic validation
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Client-side validation for topics
+        const newErrors = {};
+        if (selectedTopics.length < MIN_TOPICS) {
+            newErrors.topics = 'Please select at least one topic.';
+        } else if (selectedTopics.length > MAX_TOPICS) {
+            newErrors.topics = 'You can select up to five topics only.';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return; // Prevent form submission
+        } else {
+            setErrors({});
+        }
+
+        // Construct form data for submission
         const formData = new FormData();
-        // Required fields
         formData.append('group_id', selectedGroup);
         formData.append('title', document.getElementById('title').value);
         formData.append('description', document.getElementById('description').value);
-
-        // Convert date/time to ISO
         formData.append('start_date', startDate.toISOString());
+        formData.append('duration', document.getElementById('duration').value);
 
-        // IMPORTANT: Get numeric value from #duration (the select element)
-        const durationValue = document.getElementById('duration').value;
-        formData.append('duration', durationValue);
-
+        // Location from text input
         formData.append(
             'location',
             document.querySelector('input[placeholder="Search or add a location"]').value
         );
 
-        // Topics array
+        // Selected topics
         selectedTopics.forEach((topic) => {
             formData.append('topics[]', topic);
+            
         });
 
         // Optional image
@@ -110,12 +134,30 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
             await axios.post('/events', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            alert('Event created successfully!');
+            // Redirect to events page if successful
+            router.visit('/events');
         } catch (error) {
-            console.error('Error creating event:', error);
-            alert(`Failed to create event: ${error.response?.data.message || 'Unknown error'}`);
+            if (error.response?.data.errors) {
+                setErrors(error.response.data.errors); // Store server validation errors
+            } else {
+                console.error('Error creating event:', error);
+            }
         }
     };
+
+    // Calculate how many topics remain
+    const topicsSelected = selectedTopics.length;
+    const topicsRemaining = MAX_TOPICS - topicsSelected;
+
+    // Build dynamic topic message
+    let topicsMessage = 'Please select 1–5 topics.';
+    if (topicsSelected === 0) {
+        topicsMessage = 'Please select 1–5 topics.';
+    } else if (topicsSelected < MAX_TOPICS) {
+        topicsMessage = `You can select ${topicsRemaining} more topic${topicsRemaining === 1 ? '' : 's'}.`;
+    } else if (topicsSelected === MAX_TOPICS) {
+        topicsMessage = 'You have selected all 5 topics.';
+    }
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -126,27 +168,23 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                 <form onSubmit={handleSubmit}>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
 
-                    {/* Display the selected group */}
+                    {/* Group */}
                     <div className="mb-6">
                         <InputLabel value="Group" />
                         <p className="mb-6">
                             {groups.find((group) => group.id === selectedGroup)?.name || 'Group not found'}
                         </p>
+                        
                     </div>
 
-                    {/* Title Field */}
+                    {/* Title */}
                     <div className="mb-6">
                         <InputLabel htmlFor="title" value="Title (required)" />
-                        <TextInput
-                            id="title"
-                            type="text"
-                            className="w-full"
-                            maxLength="80"
-                            required
-                        />
+                        <TextInput id="title" type="text" className="w-full" maxLength="80" required />
+                        <InputError message={errors.title} />
                     </div>
 
-                    {/* Date and Time Fields */}
+                    {/* Date and Time */}
                     <div className="mb-6">
                         <InputLabel value="Date and Time" />
                         <div className="flex gap-4 items-center">
@@ -168,9 +206,10 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                             />
                             <span className="text-gray-700">EET</span>
                         </div>
+                        <InputError message={errors.start_date} />
                     </div>
 
-                    {/* Duration Dropdown - numeric values */}
+                    {/* Duration */}
                     <div className="mb-6">
                         <InputLabel value="Duration (required)" />
                         <select className="form-control custom-dropdown" id="duration" defaultValue="1">
@@ -179,6 +218,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                             <option value="3">3 hours</option>
                             <option value="4">4 hours</option>
                         </select>
+                        <InputError message={errors.duration} />
                     </div>
 
                     {/* Event Image */}
@@ -208,7 +248,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                         )}
                     </div>
 
-                    {/* Description Field */}
+                    {/* Description */}
                     <div className="mb-6">
                         <InputLabel htmlFor="description" value="Description (required)" />
                         <textarea
@@ -218,39 +258,43 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                             rows="4"
                             required
                         ></textarea>
+                        <InputError message={errors.description} />
                     </div>
 
                     {/* Topics */}
                     <div className="mb-6">
                         <InputLabel value="Topics" />
-                        <p className="text-sm text-gray-500 mb-2">You can add up to 5 topics.</p>
-                        <TextInput
-                            type="text"
-                            placeholder="Search topic"
-                            className="w-full"
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setCurrentPage(0);
-                            }}
-                        />
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            {displayedTopics.map((topic) => (
-                                <button
-                                    key={topic.id}
-                                    type="button"
-                                    className={`px-4 py-2 rounded-full text-sm border-2 ${
-                                        selectedTopics.includes(topic.id)
-                                            ? 'bg-teal-600 text-white border-teal-600'
-                                            : 'bg-teal-100 text-teal-600 border-teal-600'
-                                    }`}
-                                    onClick={() => handleTopicChange(topic.id)}
-                                >
-                                    {topic.name}
-                                </button>
-                            ))}
-                        </div>
+                        {/* Dynamic topics message */}
+                        <p className="text-sm text-gray-500 mb-2">
+                            {topicsMessage}
+                        </p>
 
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {displayedTopics.map((topic) => {
+                                // If user has 5 topics and this one isn't selected, disable it
+                                const isDisabled =
+                                    selectedTopics.length >= MAX_TOPICS &&
+                                    !selectedTopics.includes(topic.id);
+
+                                const isSelected = selectedTopics.includes(topic.id);
+
+                                return (
+                                    <button
+                                        key={topic.id}
+                                        type="button"
+                                        disabled={isDisabled}
+                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${
+                                            isSelected
+                                                ? 'bg-teal-600 text-white border-teal-600'
+                                                : 'bg-teal-100 text-teal-600 border-teal-600'
+                                        } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        onClick={() => handleTopicChange(topic.id)}
+                                    >
+                                        {topic.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
                         <button
                             type="button"
                             className="text-teal-600 mt-3"
@@ -260,6 +304,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                                 ? 'Back to Start'
                                 : 'View More'}
                         </button>
+                        <InputError message={errors.topics} />
                     </div>
 
                     {/* Location */}
@@ -270,6 +315,7 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                             placeholder="Search or add a location"
                             className="w-full"
                         />
+                        <InputError message={errors.location} />
                     </div>
 
                     {/* Buttons */}

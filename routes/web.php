@@ -6,18 +6,19 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Group\GroupController;
+use App\Http\Controllers\Event\EventController;
+use App\Http\Controllers\Event\EventsPageController; // <--- IMPORTANT: import your new controller
+use App\Http\Controllers\TopicsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Event\EventController;
-use App\Http\Controllers\TopicsController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
+| Here is where you can register web routes for your application. These 
+| routes are loaded by the RouteServiceProvider and all of them will 
 | be assigned to the "web" middleware group. Make something great!
 |
 */
@@ -53,15 +54,15 @@ Route::prefix('auth')->group(function () {
 });
 
 // Topics Routes
-Route::get('/topics', [TopicsController::class, 'index'])->name('topics.index'); 
+Route::get('/topics', [TopicsController::class, 'index'])->name('topics.index');
 Route::get('/topics/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter-by-group');
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
     // Events Routes
     Route::prefix('events')->group(function () {
-        // GET /events – Renders list of groups or events
-        Route::get('/', [GroupController::class, 'index'])->name('events.index'); 
+       
+        Route::get('/', [EventsPageController::class, 'showEventsPage'])->name('events.index');
 
         // GET /events/details – Some event details page
         Route::get('/details', function () {
@@ -83,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
             return Inertia::render('Groups/CreateGroup');
         })->name('groups.create');
 
-        Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+        Route::get('/groups/{id}', [GroupController::class, 'show'])->name('groups.show');
 
         Route::post('/', [GroupController::class, 'store'])->name('groups.store');
     });
@@ -106,5 +107,5 @@ Route::middleware(['auth'])->group(function () {
     })->name('Profile');
 });
 
-// Include the default authentication routes that come with Laravel (optional, if needed)
+// If you still need Laravel default auth routes (optional)
 require __DIR__ . '/auth.php';

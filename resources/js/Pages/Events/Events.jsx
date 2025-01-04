@@ -7,7 +7,7 @@ import 'react-calendar/dist/Calendar.css';
 import { router } from '@inertiajs/react';
 
 export default function Events() {
-    const { auth, groups } = usePage().props; // Fetching groups from Inertia shared data
+    const { auth, groups, events } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
 
     return (
@@ -17,9 +17,9 @@ export default function Events() {
 
             <div className="container">
                 <div className="mt-5">
-                    <h2 className='fs-1'>Welcome, {username} 👋</h2>
+                    <h2 className="fs-1">Welcome, {username} 👋</h2>
 
-                    {/* Horizontal layout for groups and tips */}
+                    {/* Horizontal layout for groups (left) and group events (right) */}
                     {groups.length > 0 && (
                         <div className="row mb-4">
                             {/* Left Column: Groups */}
@@ -28,7 +28,7 @@ export default function Events() {
 
                                 {groups.map((group) => (
                                     <div className="col-12 mb-4" key={group.id}>
-                                        <div className="card custom-card h-100">
+                                        <div className="card custom-card">
                                             <div className="card-body">
                                                 <div className="d-flex">
                                                     {/* Group Image */}
@@ -45,9 +45,10 @@ export default function Events() {
                                                         <div>
                                                             {/* Group Name */}
                                                             <h6 className="mb-2">{group.name}</h6>
+
                                                             {/* Member Info with Icon */}
                                                             <div className="d-flex align-items-center mb-2">
-                                                                <i className="fas fa-user-friends me-2"></i> {/* Font Awesome Icon */}
+                                                                <i className="fas fa-user-friends me-2"></i>
                                                                 <small>{group.member_count || 1} member(s)</small>
                                                             </div>
 
@@ -65,12 +66,14 @@ export default function Events() {
                                                                 {group.description}
                                                             </p>
                                                         </div>
+
+                                                        {/* Create Event Button */}
                                                         <button
                                                             className="btn custom-btn"
                                                             style={{ alignSelf: 'flex-start' }}
                                                             onClick={() => router.get(`/events/create?group_id=${group.id}`)}
                                                         >
-                                                            <i className="fas fa-calendar-plus me-2"></i> {/* Font Awesome Icon */}
+                                                            <i className="fas fa-calendar-plus me-2"></i>
                                                             Create event
                                                         </button>
                                                     </div>
@@ -80,22 +83,129 @@ export default function Events() {
                                     </div>
                                 ))}
                             </div>
-                            
-                            {/* Right Column: Tips */}
-                            <div className="col-md-4">
-                                <div className="card-body">
-                                    <div className="d-flex align-items-center mb-3">
-                                        <h5 className="card-title text-dark mb-0">Next event you're hosting</h5>
-                                        <i className="fas fa-calendar-alt ms-2" style={{ fontSize: '24px', color: 'black' }}></i> {/* Font Awesome Icon */}
+
+                         {/* Right Column: Events for each group */}
+<div className="col-md-4">
+    {groups.some((group) => group.events && group.events.length > 0) ? (
+        <>
+            <p className="lead fs-5 mt-2 mb-4">Next event you’re hosting</p>
+
+            {groups.map((group) =>
+                group.events && group.events.length > 0 ? (
+                    <div
+                        className="card custom-card mb-4"
+                        key={group.id}
+                        style={{
+                            height: '220px', // Set a fixed height for the card
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <div
+                            className="card-body"
+                            style={{
+                                height: '100%', // Fill the parent's height
+                                overflowY: 'auto', // Enable scrolling if content exceeds the height
+                                padding: '15px',
+                                borderRadius: '8px',
+                            }}
+                        >
+                            {group.events.map((event) => (
+                                <a
+                                    key={event.id}
+                                    href={`#`} // Replace # with the event URL
+                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                >
+                                    <div
+                                        className="d-flex align-items-start mb-4"
+                                        style={{
+                                            borderBottom: '1px solid #ddd',
+                                            paddingBottom: '8px',
+                                        }}
+                                    >
+                                        {/* Event Image */}
+                                        <div
+                                            style={{
+                                                width: '100px',
+                                                height: '70px',
+                                                marginRight: '8px',
+                                                overflow: 'hidden',
+                                                borderRadius: '8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: '#f0f0f0', // Optional: background for better visual
+                                            }}
+                                        >
+                                            <img
+                                                src={group.image_path || "https://via.placeholder.com/180"}
+                                                alt={event.title}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* Event Details */}
+                                        <div style={{ flex: 1 }}>
+                                            {/* Formatted Date */}
+                                            <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
+                                                {new Date(`${event.event_date}T${event.event_time}`).toLocaleString('en-US', {
+                                                    weekday: 'short',
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </p>
+                                            {/* Event Title */}
+                                            <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
+                                                {event.title}
+                                            </h6>
+                                            {/* Group Name */}
+                                            <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
+                                                Group: <strong>{group.name}</strong>
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p className="mb-2">Scheduling an event encourages more people to join your group.</p>
-                                    <p className="mb-2">Need help with your group? Are you an organizer who wants to help others succeed?</p>
-                                    <a href="#" className="text-primary">Join the Meetup Organizers Discord channel</a>
-                                </div>
-                            </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                ) : null
+            )}
+        </>
+    ) : (
+        <div className="mt-4">
+            <h5 className="text-muted mb-2">Next event you’re hosting</h5>
+            <p className="small mb-3">
+                Scheduling an event encourages more people to join your group.
+                Need help with your group? Are you an organizer who wants to help others succeed?
+            </p>
+            <a
+                href="https://discord.gg/organizers"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-link text-decoration-none p-0"
+                style={{ textAlign: 'left' }}
+            >
+                Join the Meetup Organizers Discord channel
+            </a>
+        </div>
+    )}
+</div>
+
+                            
                         </div>
                     )}
+
                 </div>
+
+                {/* Remaining Page Content */}
                 <p className="lead fs-3 mb-5">Upcoming Events</p>
 
                 <div className="row w-100">
@@ -144,40 +254,49 @@ export default function Events() {
                         </div>
 
                         <div className="d-flex flex-column align-items-center">
-                            {[1, 2, 3, 4].map((event) => (
-                                <div className="card custom-card mb-4 w-100" key={event} style={{ border: 'none' }}>
-                                    <div className="row g-0">
-                                        <div className="col-md-12">
-                                            <div className="card-body">
-                                                <h6 className="text-muted">Mon, Dec 23 - 10:00 PM EET</h6>
-                                                <hr />
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <img
-                                                src={`https://via.placeholder.com/300x200?text=Event+${event}`}
-                                                className="card-img"
-                                                alt={`Event ${event}`}
-                                                style={{ borderTopLeftRadius: '0.25rem', borderBottomLeftRadius: '0.25rem' }}
-                                            />
-                                        </div>
-                                        <div className="col-md-8">
-                                            <div className="card-body">
-                                                <h5 className="card-title">Let's Speak English Conversation Club!</h5>
-                                                <p className="card-text">English Conversation Practice • Berlin, DE</p>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <p className="mb-0">5 attendees</p>
+                            {events.length > 0 ? (
+                                events.map((event) => (
+                                    <div
+                                        className="card custom-card mb-4 w-100"
+                                        key={event.id}
+                                        style={{ border: 'none' }}
+                                    >
+                                        <div className="row g-0">
+                                            <div className="col-md-12">
+                                                <div className="card-body">
+                                                    <h6 className="text-muted">
+                                                        {new Date(event.event_date + 'T' + event.event_time).toLocaleString()}
+                                                    </h6>
+                                                    <hr />
                                                 </div>
-                                                <a href="/events/details" className="custom-btn btn mt-2">
-                                                    See Details
-                                                </a>
+                                            </div>
+
+                                            <div className="col-md-4">
+                                                <img
+                                                    src={event.image_path || 'https://via.placeholder.com/300x200?text=Event'}
+                                                    className="card-img"
+                                                    alt={event.title}
+                                                />
+                                            </div>
+
+                                            <div className="col-md-8">
+                                                <div className="card-body">
+                                                    <h5 className="card-title">{event.title}</h5>
+                                                    <p className="card-text">{event.description}</p>
+                                                    <p className="mb-0">Location: {event.location}</p>
+                                                    <a href={`/events/details/${event.id}`} className="custom-btn btn mt-2">
+                                                        See Details
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p>No upcoming events available</p>
+                            )}
                         </div>
+
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import TextInput from '@/Components/TextInput';
 import { Head } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 export default function CreateGroup() {
     const [topics, setTopics] = useState([]); // Dynamically fetched topics
@@ -90,14 +91,7 @@ export default function CreateGroup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        console.log('Submitting form with data:', {
-            location,
-            groupName,
-            groupDescription,
-            topics: selectedTopics,
-        });
-
+    
         try {
             const response = await axios.post('/groups', {
                 location,
@@ -105,18 +99,21 @@ export default function CreateGroup() {
                 groupDescription,
                 topics: selectedTopics,
             });
-            console.log('Server response:', response.data);
-            alert('Group created successfully!');
+    
+            // Redirect to events page
+            router.visit('/events');
         } catch (error) {
             console.error('Error creating group:', error);
+    
             if (error.response) {
-                console.error('Server response:', error.response.data);
-                alert(`Error: ${error.response.data.message || 'Failed to create group.'}`);
+                // Handle validation or server errors
+                setErrors(error.response.data.errors || {});
             } else {
                 alert('Network error. Please try again.');
             }
         }
     };
+    
 
     return (
         <div className="flex flex-col min-h-screen">
