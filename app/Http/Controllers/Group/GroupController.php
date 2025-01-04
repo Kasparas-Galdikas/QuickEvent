@@ -13,23 +13,20 @@ class GroupController extends Controller
 {
     public function show($id)
     {
-        // Log the incoming group ID for debugging
+        // Log the incoming request for debugging
         Log::info('Fetching group details', ['id' => $id]);
     
-        // Attempt to fetch the group by ID
+        // Fetch the group using the provided ID
         $group = Group::find($id);
     
         // Check if the group exists
         if (!$group) {
-            Log::warning('Group not found', ['id' => $id]); // Log warning if group doesn't exist
+            Log::warning('Group not found', ['id' => $id]);
             return response()->json(['error' => 'Group not found'], 404);
         }
     
-        // Log the fetched group details for verification
-        Log::info('Group fetched successfully', ['group' => $group]);
-    
-        // Return the group details in the response
-        return response()->json(['group' => $group]);
+        // Return the group data as JSON
+        return response()->json($group);
     }
     
 

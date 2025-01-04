@@ -16,31 +16,41 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const [topics, setTopics] = useState(initialTopics);
+    const [groupDetails, setGroupDetails] = useState(null); // State for group details
 
     const { url } = usePage();
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [groupImage, setGroupImage] = useState(null);
     const [errors, setErrors] = useState({}); // Store validation errors
+    
 
     // Constants for min/max topic selection
     const MIN_TOPICS = 1;
     const MAX_TOPICS = 5;
 
-    useEffect(() => {
-        // Parse group_id from query string
-        const queryParams = new URLSearchParams(url.split('?')[1]);
-        const groupId = queryParams.get('group_id');
-        setSelectedGroup(parseInt(groupId, 10) || (groups[0]?.id || null));
-    }, [url, groups]);
+ // Parse `group_id` from URL
+ useEffect(() => {
+    const queryParams = new URLSearchParams(url.split('?')[1]);
+    const groupId = queryParams.get('group_id');
+    setSelectedGroup(parseInt(groupId, 10) || null);
+}, [url]);
 
-    useEffect(() => {
-        if (selectedGroup) {
-            axios
-                .get('/topics/filter-by-group', { params: { group_id: selectedGroup } })
-                .then((response) => setTopics(response.data))
-                .catch((error) => console.error('Error fetching topics:', error));
-        }
-    }, [selectedGroup]);
+// Fetch group details
+useEffect(() => {
+    if (selectedGroup) {
+        axios
+            .get(`/groups/${selectedGroup}`)
+            .then((response) => setGroupDetails(response.data))
+            .catch((error) => console.error('Error fetching group details:', error));
+
+        // Fetch topics related to the group
+        axios
+            .get(`/topics/filter-by-group`, { params: { group_id: selectedGroup } })
+            .then((response) => setTopics(response.data))
+            .catch((error) => console.error('Error fetching topics:', error));
+    }
+}, [selectedGroup]);
+    
     // Filter topics by search query
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -168,13 +178,12 @@ export default function CreateEvent({ groups = [], initialTopics = [] }) {
                 <form onSubmit={handleSubmit}>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
 
-                    {/* Group */}
-                    <div className="mb-6">
+                   {/* Group */}
+                   <div className="mb-6">
                         <InputLabel value="Group" />
-                        <p className="mb-6">
-                            {groups.find((group) => group.id === selectedGroup)?.name || 'Group not found'}
+                        <p className="font-bold text-gray-500 mb-6">
+                            {groupDetails?.name || 'Loading group details...'}
                         </p>
-                        
                     </div>
 
                     {/* Title */}
