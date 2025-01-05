@@ -9,7 +9,14 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'location', 'user_id'];
+    protected $fillable = [
+        'name',
+        'description',
+        'location',
+        'user_id',
+        'image_path', 
+    ];
+    
 
     // Relationships
     public function user()

@@ -52,7 +52,7 @@ class TopicsController extends Controller
             })->get();
     
            
-            Log::info('Filtering topics by group', ['group_id' => $request->input('group_id')]);
+         
             return response()->json($topics);
         } catch (\Exception $e) {
             Log::error('Error fetching topics by group.', ['error' => $e->getMessage()]);

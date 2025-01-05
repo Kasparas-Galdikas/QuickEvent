@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react'; // Use Inertia's usePage hook
+import { Link, usePage } from '@inertiajs/react';
 import '../../css/Navbar.css';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Login from '@/Pages/Auth/Login';
@@ -7,8 +7,8 @@ import Register from '@/Pages/Auth/Register';
 import axios from 'axios';
 
 export default function Navbar() {
-    const { auth } = usePage().props; // Access user data from shared props
-    const user = auth.user;
+    const { auth, currentRoute } = usePage().props;
+    const user = auth?.user || null;
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -20,38 +20,12 @@ export default function Navbar() {
 
     const handleLogout = async () => {
         try {
-            // Perform logout request
             await axios.post('/logout');
-
-            // Refresh CSRF token
-            await refreshCsrfToken();
-
-            // Redirect to home page
             window.location.href = '/';
         } catch (error) {
             console.error('Error during logout:', error);
         }
     };
-
-    const refreshCsrfToken = async () => {
-        try {
-            await axios.get('/sanctum/csrf-cookie');
-
-            const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
-            const newCsrfToken = csrfMetaTag?.getAttribute('content');
-
-            if (newCsrfToken) {
-                axios.defaults.headers.common['X-CSRF-TOKEN'] = newCsrfToken;
-            } else {
-                console.error('CSRF token not found. Ensure the meta tag exists.');
-            }
-        } catch (error) {
-            console.error('Error refreshing CSRF token:', error);
-        }
-    };
-
-    // Check the current URL path
-    const currentPath = window.location.pathname;
 
     return (
         <>
@@ -62,7 +36,7 @@ export default function Navbar() {
                     </Link>
 
                     <button
-                        className="navbar-toggler d-lg-none"
+                        className="navbar-toggler"
                         type="button"
                         onClick={toggleMenu}
                         aria-expanded={isMenuOpen}
@@ -97,30 +71,25 @@ export default function Navbar() {
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (
                                 <>
-                                    {/* Conditionally render "Create Group" button */}
-                                    {currentPath !== '/groups/create' && (
-                                        <button
-                                            onClick={() => window.location.href = route('groups.create')}
-                                            className="btn btn-create-group me-3"
-                                        >
-                                            Create Group
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => window.location.href = route('groups.create')}
+                                        className="btn btn-create-group me-3"
+                                    >
+                                        Create Group
+                                    </button>
 
-                                    {/* Show the logged-in user's profile and logout options */}
                                     <div className="dropdown">
                                         <button
                                             className="btn btn-rounded dropdown-toggle"
                                             id="userDropdown"
                                             data-bs-toggle="dropdown"
-                                            data-bs-boundary="viewport"
                                             aria-expanded="false"
                                         >
                                             {user.name[0].toUpperCase()}
                                         </button>
-                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                        <ul className="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <Link href="/Profile" className="dropdown-item">Profile</Link>
+                                                <Link href={route('profile')} className="dropdown-item">Profile</Link>
                                             </li>
                                             <li>
                                                 <Link href="/events" className="dropdown-item">Explore Events</Link>
@@ -134,7 +103,6 @@ export default function Navbar() {
                                     </div>
                                 </>
                             ) : (
-                                // Show Log in and Sign up buttons if the user is not logged in
                                 <>
                                     <button
                                         className="btn btn-login me-3"
@@ -151,7 +119,6 @@ export default function Navbar() {
                                 </>
                             )}
                         </div>
-
                     </div>
                 </div>
             </nav>

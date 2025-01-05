@@ -10,51 +10,44 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 
-export default function CreateEvent({ groups = [], initialTopics = [] }) {
+export default function CreateEvent({ group_id = [], initialTopics = [] }) {
     const [startDate, setStartDate] = useState(new Date());
     const [selectedTopics, setSelectedTopics] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const [topics, setTopics] = useState(initialTopics);
-    const [groupDetails, setGroupDetails] = useState(null); // State for group details
-
-    const { url } = usePage();
-    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [groupDetails, setGroupDetails] = useState(null);
     const [groupImage, setGroupImage] = useState(null);
-    const [errors, setErrors] = useState({}); // Store validation errors
-    
+    const [errors, setErrors] = useState({});
+    const [filteredTopics, setFilteredTopics] = useState([]);
 
     // Constants for min/max topic selection
     const MIN_TOPICS = 1;
     const MAX_TOPICS = 5;
 
- // Parse `group_id` from URL
- useEffect(() => {
-    const queryParams = new URLSearchParams(url.split('?')[1]);
-    const groupId = queryParams.get('group_id');
-    setSelectedGroup(parseInt(groupId, 10) || null);
-}, [url]);
-
-// Fetch group details
-useEffect(() => {
-    if (selectedGroup) {
+  
+  // Fetch group details and related topics
+  useEffect(() => {
+    if (group_id) {
+        // Fetch group details
         axios
-            .get(`/groups/${selectedGroup}`)
+            .get(`/groups/${group_id}`)
             .then((response) => setGroupDetails(response.data))
             .catch((error) => console.error('Error fetching group details:', error));
 
         // Fetch topics related to the group
         axios
-            .get(`/topics/filter-by-group`, { params: { group_id: selectedGroup } })
-            .then((response) => setTopics(response.data))
+            .get(`/topics/filter-by-group`, { params: { group_id } })
+            .then((response) => {
+                setTopics(response.data);
+                setFilteredTopics(response.data); // Initialize filtered topics
+            })
             .catch((error) => console.error('Error fetching topics:', error));
     }
-}, [selectedGroup]);
-    
+}, [group_id]);
+
     // Filter topics by search query
-    const filteredTopics = topics.filter((topic) =>
-        topic.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+ 
 
     // Paginate displayed topics (15 per page)
     const displayedTopics = filteredTopics.slice(
@@ -117,7 +110,7 @@ useEffect(() => {
 
         // Construct form data for submission
         const formData = new FormData();
-        formData.append('group_id', selectedGroup);
+        formData.append('group_id', group_id);
         formData.append('title', document.getElementById('title').value);
         formData.append('description', document.getElementById('description').value);
         formData.append('start_date', startDate.toISOString());
@@ -132,7 +125,7 @@ useEffect(() => {
         // Selected topics
         selectedTopics.forEach((topic) => {
             formData.append('topics[]', topic);
-            
+
         });
 
         // Optional image
@@ -178,11 +171,11 @@ useEffect(() => {
                 <form onSubmit={handleSubmit}>
                     <h1 className="text-2xl font-bold mb-4">Create an Event</h1>
 
-                   {/* Group */}
-                   <div className="mb-6">
+                    {/* Group */}
+                    <div className="mb-6">
                         <InputLabel value="Group" />
                         <p className="font-bold text-gray-500 mb-6">
-                            {groupDetails?.name || 'Loading group details...'}
+                        {groupDetails ? groupDetails.name : 'Loading...'}
                         </p>
                     </div>
 
@@ -292,11 +285,10 @@ useEffect(() => {
                                         key={topic.id}
                                         type="button"
                                         disabled={isDisabled}
-                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${
-                                            isSelected
+                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${isSelected
                                                 ? 'bg-teal-600 text-white border-teal-600'
                                                 : 'bg-teal-100 text-teal-600 border-teal-600'
-                                        } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleTopicChange(topic.id)}
                                     >
                                         {topic.name}

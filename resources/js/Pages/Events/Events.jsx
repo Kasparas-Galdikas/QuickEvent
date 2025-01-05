@@ -32,12 +32,15 @@ export default function Events() {
                                             <div className="card-body">
                                                 <div className="d-flex">
                                                     {/* Group Image */}
-                                                    <div style={{ minWidth: '180px', height: '180px' }}>
+                                                    <div style={{ minWidth: '150px', height: '150px' }}>
                                                         <img
-                                                            src={group.image_path || "https://via.placeholder.com/180"}
+                                                            src={group.image_path || '/images/default-group.png'}
                                                             className="rounded w-100 h-100 object-fit-cover"
                                                             alt={group.name}
-                                                            style={{ backgroundColor: '#00a2c7' }}
+                                                            style={{
+                                                                border: '1px solid black',
+                                                                borderRadius: '8px',
+                                                            }}
                                                         />
                                                     </div>
                                                     {/* Group Info */}
@@ -71,7 +74,8 @@ export default function Events() {
                                                         <button
                                                             className="btn custom-btn"
                                                             style={{ alignSelf: 'flex-start' }}
-                                                            onClick={() => router.get(`/events/create?group_id=${group.id}`)}
+                                                            onClick={() => router.get(`/groups/set-group/${group.id}`)}
+
                                                         >
                                                             <i className="fas fa-calendar-plus me-2"></i>
                                                             Create event
@@ -84,122 +88,123 @@ export default function Events() {
                                 ))}
                             </div>
 
-                         {/* Right Column: Events for each group */}
-<div className="col-md-4">
-    {groups.some((group) => group.events && group.events.length > 0) ? (
-        <>
-            <p className="lead fs-5 mt-2 mb-4">Next event you’re hosting</p>
+                            {/* Right Column: Events for each group */}
+                            <div className="col-md-4">
+                                {groups.some((group) => group.events && group.events.length > 0) ? (
+                                    <>
+                                        <p className="lead fs-5 mt-2 mb-4">Next event you’re hosting</p>
 
-            {groups.map((group) =>
-                group.events && group.events.length > 0 ? (
-                    <div
-                        className="card custom-card mb-4"
-                        key={group.id}
-                        style={{
-                            height: '220px', // Set a fixed height for the card
-                            display: 'flex',
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <div
-                            className="card-body"
-                            style={{
-                                height: '100%', // Fill the parent's height
-                                overflowY: 'auto', // Enable scrolling if content exceeds the height
-                                padding: '15px',
-                                borderRadius: '8px',
-                            }}
-                        >
-                            {group.events.map((event) => (
-                                <a
-                                    key={event.id}
-                                    href={`#`} // Replace # with the event URL
-                                    style={{ textDecoration: 'none', color: 'inherit' }}
-                                >
-                                    <div
-                                        className="d-flex align-items-start mb-4"
-                                        style={{
-                                            borderBottom: '1px solid #ddd',
-                                            paddingBottom: '8px',
-                                        }}
-                                    >
-                                        {/* Event Image */}
-                                        <div
-                                            style={{
-                                                width: '100px',
-                                                height: '70px',
-                                                marginRight: '8px',
-                                                overflow: 'hidden',
-                                                borderRadius: '8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                backgroundColor: '#f0f0f0', // Optional: background for better visual
-                                            }}
+                                        {groups.map((group) =>
+                                            group.events && group.events.length > 0 ? (
+                                                <div
+                                                    className="card custom-card mb-4"
+                                                    key={group.id}
+                                                    style={{
+                                                        height: '220px', // Set a fixed height for the card
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                    }}
+                                                >
+                                                    <div
+                                                        className="card-body"
+                                                        style={{
+                                                            height: '100%',
+                                                            overflowY: 'auto',
+                                                            padding: '15px',
+                                                            borderRadius: '8px',
+                                                        }}
+                                                    >
+                                                        {group.events.map((event) => (
+                                                            <a
+                                                                key={event.id}
+                                                                href={`#`} // Replace # with the event URL
+                                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                                            >
+                                                                <div
+                                                                    className="d-flex align-items-start mb-4"
+                                                                    style={{
+                                                                        borderBottom: '1px solid #ddd',
+                                                                        paddingBottom: '8px',
+                                                                    }}
+                                                                >
+                                                                    {/* Event Image */}
+                                                                    <div
+                                                                        style={{
+                                                                            width: '130px',
+                                                                            height: '70px',
+                                                                            marginRight: '8px',
+                                                                            overflow: 'hidden',
+                                                                            borderRadius: '8px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            backgroundColor: '#f0f0f0', // Optional: background for better visual
+                                                                        }}
+                                                                    >
+                                                                        <img
+                                                                            src={event.image_path || '/images/default-event.png'}
+                                                                            alt={event.title}
+                                                                            style={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                objectFit: 'cover',
+                                                                                border: '1px solid black',
+                                                                                borderRadius: '8px',
+                                                                            }}
+                                                                        />
+                                                                    </div>
+
+                                                                    {/* Event Details */}
+                                                                    <div style={{ flex: 1 }}>
+                                                                        {/* Formatted Date */}
+                                                                        <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
+                                                                            {new Date(`${event.event_date}T${event.event_time}`).toLocaleString('en-US', {
+                                                                                weekday: 'short',
+                                                                                year: 'numeric',
+                                                                                month: 'short',
+                                                                                day: 'numeric',
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit',
+                                                                            })}
+                                                                        </p>
+                                                                        {/* Event Title */}
+                                                                        <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
+                                                                            {event.title}
+                                                                        </h6>
+                                                                        {/* Group Name */}
+                                                                        <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
+                                                                            Group: <strong>{group.name}</strong>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : null
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="mt-4">
+                                        <h5 className="text-muted mb-2">Next event you’re hosting</h5>
+                                        <p className="small mb-3">
+                                            Scheduling an event encourages more people to join your group.
+                                            Need help with your group? Are you an organizer who wants to help others succeed?
+                                        </p>
+                                        <a
+                                            href="https://discord.gg/organizers"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-link text-decoration-none p-0"
+                                            style={{ textAlign: 'left' }}
                                         >
-                                            <img
-                                                src={group.image_path || "https://via.placeholder.com/180"}
-                                                alt={event.title}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                }}
-                                            />
-                                        </div>
-
-                                        {/* Event Details */}
-                                        <div style={{ flex: 1 }}>
-                                            {/* Formatted Date */}
-                                            <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
-                                                {new Date(`${event.event_date}T${event.event_time}`).toLocaleString('en-US', {
-                                                    weekday: 'short',
-                                                    year: 'numeric',
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
-                                            {/* Event Title */}
-                                            <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
-                                                {event.title}
-                                            </h6>
-                                            {/* Group Name */}
-                                            <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
-                                                Group: <strong>{group.name}</strong>
-                                            </p>
-                                        </div>
+                                            Join the Meetup Organizers Discord channel
+                                        </a>
                                     </div>
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-                ) : null
-            )}
-        </>
-    ) : (
-        <div className="mt-4">
-            <h5 className="text-muted mb-2">Next event you’re hosting</h5>
-            <p className="small mb-3">
-                Scheduling an event encourages more people to join your group.
-                Need help with your group? Are you an organizer who wants to help others succeed?
-            </p>
-            <a
-                href="https://discord.gg/organizers"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-link text-decoration-none p-0"
-                style={{ textAlign: 'left' }}
-            >
-                Join the Meetup Organizers Discord channel
-            </a>
-        </div>
-    )}
-</div>
+                                )}
+                            </div>
 
-                            
+
                         </div>
                     )}
 
@@ -208,7 +213,7 @@ export default function Events() {
                 {/* Remaining Page Content */}
                 <p className="lead fs-3 mb-5">Upcoming Events</p>
 
-                <div className="row w-100">
+                <div className="row">
                     <div className="col-md-4 col-lg-3 mb-4">
                         <Calendar className="mx-auto" />
 
@@ -243,8 +248,8 @@ export default function Events() {
                         </div>
                     </div>
 
-                    <div className="col-md-8 col-lg-9">
-                        <div className="d-flex justify-content mb-3">
+                    <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}> {/* Slightly reduced width */}
+                        <div className="d-flex justify-content-start mb-3"> {/* Changed alignment */}
                             <select className="form-select w-auto">
                                 <option>Any type</option>
                                 <option>Online</option>
@@ -257,34 +262,48 @@ export default function Events() {
                             {events.length > 0 ? (
                                 events.map((event) => (
                                     <div
-                                        className="card custom-card mb-4 w-100"
+                                        className="card custom-card mb-3 w-100"
                                         key={event.id}
-                                        style={{ border: 'none' }}
+                                        style={{
+                                            border: 'none',
+                                            padding: '10px', // Added padding for smaller card
+                                            height: 'auto', // Ensure the height adjusts to content
+                                        }}
                                     >
-                                        <div className="row g-0">
+                                        <div className="row g-0 align-items-center"> {/* Ensures alignment */}
                                             <div className="col-md-12">
-                                                <div className="card-body">
+                                                <div className="card-body py-2"> {/* Reduced padding */}
                                                     <h6 className="text-muted">
                                                         {new Date(event.event_date + 'T' + event.event_time).toLocaleString()}
                                                     </h6>
                                                     <hr />
                                                 </div>
                                             </div>
-
                                             <div className="col-md-4">
                                                 <img
-                                                    src={event.image_path || 'https://via.placeholder.com/300x200?text=Event'}
+                                                    src={event.image_path || '/images/default-event.png'}
                                                     className="card-img"
                                                     alt={event.title}
+                                                    loading="lazy"
+                                                    style={{
+                                                        width: '230px',
+                                                        height: '130px',
+                                                        objectFit: 'cover',
+                                                        border: '1px solid black',
+                                                        borderRadius: '8px',
+                                                    }}
                                                 />
                                             </div>
 
+
                                             <div className="col-md-8">
-                                                <div className="card-body">
+                                                <div className="card-body py-2"> {/* Reduced padding */}
                                                     <h5 className="card-title">{event.title}</h5>
-                                                    <p className="card-text">{event.description}</p>
+                                                    <p className="card-text text-truncate" style={{ maxHeight: '3.6em', overflow: 'hidden' }}>
+                                                        {event.description}
+                                                    </p>
                                                     <p className="mb-0">Location: {event.location}</p>
-                                                    <a href={`/events/details/${event.id}`} className="custom-btn btn mt-2">
+                                                    <a href={`/events/details/${encodeURIComponent(event.title)}`} className="custom-btn btn mt-2">
                                                         See Details
                                                     </a>
                                                 </div>
@@ -296,8 +315,10 @@ export default function Events() {
                                 <p>No upcoming events available</p>
                             )}
                         </div>
-
                     </div>
+
+
+
                 </div>
             </div>
 
