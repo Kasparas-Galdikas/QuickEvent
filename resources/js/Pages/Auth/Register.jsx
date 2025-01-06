@@ -36,35 +36,39 @@ export default function Register({ show, onClose, openLoginModal }) {
     const handleRegister = async (e) => {
         e.preventDefault();
         setErrors({});
+    
+      try {
+    // Step 1: Check if the user exists and is not verified
+    const checkResponse = await axios.post('/check-user', { email: formData.email });
+    
+    if (checkResponse.data.requiresVerification) {
+        // If user exists but is not verified, show verification flow
+        setVerificationEmail(formData.email);
+        setShowVerifyEmail(true);
+        return; // Exit the function since no registration is needed
+    }
 
-        try {
-            // Check if the user exists and is not verified
-            const checkResponse = await axios.post('/check-user', { email: formData.email });
+    // Step 2: Register the user if not found or already verified
+    const registerResponse = await axios.post('/register', formData);
 
-            if (checkResponse.data.requiresVerification) {
-                // Open VerifyEmail modal directly if the user is already registered but not verified
-                setVerificationEmail(formData.email);
-                setShowVerifyEmail(true);
-                return;
-            }
+    // Step 3: After successful registration, initiate verification flow
+    setVerificationEmail(formData.email);
+    setShowVerifyEmail(true);
 
-            // Register new user if not found or verified
-            await axios.post('/register', formData);
-
-            // Set email for verification
-            setVerificationEmail(formData.email);
-
-            // Open VerifyEmail modal
-            setShowVerifyEmail(true);
-
-        } catch (error) {
-            if (error.response && error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            } else {
-                console.error('Unexpected error:', error);
-            }
+} catch (error) {
+    // Handle errors gracefully
+    if (error.response) {
+        // Handle API-specific errors (e.g., validation errors)
+        if (error.response.data.errors) {
+            setErrors(error.response.data.errors); // Display specific error messages
+        } else {
+            console.error('Server error:', error.response.data.message || 'Unknown error');
         }
-    };
+    } else {
+        // Handle unexpected errors (e.g., network issues)
+        console.error('Unexpected error:', error.message);
+    }
+}}
 
 
     const handleGoogleRegister = () => {

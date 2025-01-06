@@ -39,6 +39,15 @@ Route::prefix('auth')->group(function () {
     Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
 });
 
+    // Verification Code Routes
+    Route::get('/verify', function () {
+        return Inertia::render('Auth/VerifyEmail');
+    })->name('verify.page');
+    Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verify.code');
+    Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
+    Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
+
+
 // Topics Routes
 Route::prefix('topics')->group(function () {
     Route::get('/', [TopicsController::class, 'index'])->name('topics.index');
