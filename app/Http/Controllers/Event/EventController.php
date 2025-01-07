@@ -53,33 +53,29 @@ class EventController extends Controller
         return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
 
-    public function getEventDetails($id)
+    private function fetchEventBySlug($slug)
     {
-        // Fetch the event with its related group and user
-        $event = Event::with(['group.user']) // Assuming group has a user relation
-            ->findOrFail($id);
-
-        return $event;
+        return Event::with(['group.user', 'topics']) // Include topics relationship
+        ->where('slug', $slug)
+        ->first();
     }
+    
     public function show($slug)
     {
-        $event = Event::with(['group.user'])->where('slug', $slug)->first();
+        $event = $this->fetchEventBySlug($slug);
     
         if (!$event) {
             abort(404, 'Event not found');
         }
     
         return Inertia::render('Events/EventDetails', [
-            'auth' => auth()->user(),
-            'event' => $event,
-            'host' => $event->group->user->name ?? 'Unknown Host',
+            'event' => $event, // Event details
+            'host' => $event->group->user->name ?? 'Unknown Host', // Host name
+            'topics' => $event->topics, // Topics related to the event
+            'group' => $event->group, // Group details, including user_id
         ]);
+        
     }
     
     
-    
-    
-    
-
-
 }

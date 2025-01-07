@@ -54,6 +54,9 @@ Route::prefix('topics')->group(function () {
     Route::get('/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter-by-group');
 });
 
+//  unauthenticated routes for all users 
+Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
+
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
 
@@ -67,10 +70,6 @@ Route::middleware(['auth'])->group(function () {
     // Events Routes
     Route::prefix('events')->group(function () {
        
-        // Show event details
-        Route::get('/details/{slug}', [EventController::class, 'show'])->name('events.details');
-
-
         Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
     
         Route::get('/events/create', function () {

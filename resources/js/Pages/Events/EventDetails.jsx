@@ -5,9 +5,10 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 
 export default function EventDetails() {
-    const { auth, event, host } = usePage().props;
+    const { auth, event, host, topics } = usePage().props;
+
     // Debug props to ensure data is passed correctly
-    console.log({ auth, event, host });
+    console.log('Auth:', auth);
     return (
         <div className="min-h-screen flex flex-col">
             <Head title={event.title} />
@@ -48,11 +49,17 @@ export default function EventDetails() {
                         <div className="flex flex-grow flex-col lg:mt-5 lg:max-w-2xl">
                             {/* Event Image */}
                             <div className="mt-0 w-full lg:mt-8">
+
                                 <img
-                                    src="https://via.placeholder.com/800x400"
+                                    src={event.image_path || '/images/default-event.png'}
                                     alt="Event Cover"
-                                    className="w-full rounded-lg"
+                                    className="rounded-lg"
+                                    style={{
+                                        width: '800px', // Set the desired width
+                                        height: 'auto', // Maintain aspect ratio
+                                    }}
                                 />
+
                             </div>
 
                             {/* Event Details */}
@@ -60,17 +67,29 @@ export default function EventDetails() {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-semibold">Details</h2>
                                 </div>
-                                <div className="break-words mt-4">
+                                <div className="break-words">
                                     <p className="mb-4">
-                                        Daily conversational English meeting. We meet daily on Discord...
+                                        {event.description
+                                            ? event.description
+                                            : 'No description available for this event.'}
                                     </p>
 
-                                    <button
-                                        type="button"
-                                        className="text-teal-600 bg-teal-100 px-3 py-1 rounded-lg hover:bg-teal-200 transition-all"
-                                    >
-                                        Cycling
-                                    </button>
+                                    {topics && topics.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {topics.map((topic) => (
+                                                <button
+                                                    key={topic.id}
+                                                    type="button"
+                                                    className="text-teal-600 bg-teal-100 px-3 py-1 rounded-lg hover:bg-teal-200 transition-all"
+                                                >
+                                                    {topic.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p>No topics associated with this event.</p>
+                                    )}
+
                                 </div>
                             </div>
 
@@ -95,21 +114,50 @@ export default function EventDetails() {
                                     </div>
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Right Column - Event Info */}
                         <div className="w-full lg:mx-0 lg:ml-28 lg:mt-10 lg:w-90">
                             <div className="sticky top-24">
                                 <div className="custom-card p-6 rounded-2xl">
+
                                     {/* Date and Time */}
                                     <div className="flex gap-x-4 md:gap-x-4.5 lg:gap-x-5 mb-4">
                                         <div className="w-6 h-6 mt-1">
                                             <i className="fas fa-clock"></i>
                                         </div>
+                                        {/* Event Date and Time */}
                                         <div>
-                                            <div>Every week on Monday, Tuesday, Wednesday</div>
-                                            <div className="text-gray-600">6:00 PM to 7:00 PM</div>
+                                            {/* Display Date */}
+                                            <div>
+                                                {new Date(event.event_date).toLocaleDateString('en-US', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}
+                                            </div>
+
+                                            {/* Display Time Range with Custom Time Zone */}
+                                            <div className="text-gray-600">
+                                                {new Date(`1970-01-01T${event.event_time}`).toLocaleTimeString('en-US', {
+                                                    hour: 'numeric',
+                                                    minute: 'numeric',
+                                                })}
+                                                {' '}
+                                                to{' '}
+                                                {new Date(
+                                                    new Date(`1970-01-01T${event.event_time}`).getTime() + event.duration * 60 * 60 * 1000
+                                                ).toLocaleTimeString('en-US', {
+                                                    hour: 'numeric',
+                                                    minute: 'numeric',
+                                                })}
+                                                {' '}
+                                                EET
+                                            </div>
                                         </div>
+
                                     </div>
 
                                     {/* Location */}
@@ -125,13 +173,27 @@ export default function EventDetails() {
 
                                     {/* Action Buttons */}
                                     <div className="space-y-3 mt-6">
-                                        <button className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg ">
-                                            Attend Online
-                                        </button>
-                                        <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
-                                            Share
-                                        </button>
+                                        {auth && auth.user && auth.user.id === event.group.user_id ? (
+                                            // Display Edit button only for the host
+                                            <button
+                                                className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                onClick={() => router.get(`/events/edit/${event.id}`)}
+                                            >
+                                                Edit Event Information
+                                            </button>
+                                        ) : (
+                                            // Display Attend and Share buttons for non-hosts
+                                            <>
+                                                <button className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg">
+                                                    Attend Online
+                                                </button>
+                                                <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
+                                                    Share
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
+
                                 </div>
                             </div>
                         </div>

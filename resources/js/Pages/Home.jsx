@@ -9,6 +9,7 @@ export default function Events() {
     const { auth, groups, events } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
 
+
     return (
         <div className="d-flex flex-column min-vh-100">
             <Head title="Home" />
@@ -98,7 +99,7 @@ export default function Events() {
                                                     className="card custom-card mb-4"
                                                     key={group.id}
                                                     style={{
-                                                        height: '220px', // Set a fixed height for the card
+                                                        height: '220px',
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                     }}
@@ -113,76 +114,66 @@ export default function Events() {
                                                         }}
                                                     >
                                                         {group.events.map((event) => (
-                                                            <button
-                                                                key={event.id}
-                                                                onClick={() => router.get(`/events/details/${event.slug}`)}
+                                                            <div
+                                                                key={`group-event-${event.id}`}
+                                                                className="d-flex custom-hover align-items-start mb-2"
                                                                 style={{
-                                                                    background: 'none',
-                                                                    border: 'none',
-                                                                    padding: 0,
-                                                                    textAlign: 'left',
-                                                                    color: 'inherit',
+                                                                    borderBottom: '1px solid #ddd',
+                                                                    paddingBottom: '8px',
                                                                     cursor: 'pointer',
-                                                                    width: '100%',
                                                                 }}
+                                                                onClick={() => router.get(`/events/details/${event.slug}`)}
                                                             >
+                                                                {/* Event Image */}
                                                                 <div
-                                                                    className="d-flex align-items-start mb-4"
                                                                     style={{
-                                                                        borderBottom: '1px solid #ddd',
-                                                                        paddingBottom: '8px',
+                                                                        width: '130px',
+                                                                        height: '70px',
+                                                                        marginRight: '8px',
+                                                                        overflow: 'hidden',
+                                                                        borderRadius: '8px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        backgroundColor: '#f0f0f0',
                                                                     }}
                                                                 >
-                                                                    {/* Event Image */}
-                                                                    <div
+                                                                    <img
+                                                                        src={event.image_path || '/images/default-event.png'}
+                                                                        alt={event.title}
                                                                         style={{
-                                                                            width: '130px',
-                                                                            height: '70px',
-                                                                            marginRight: '8px',
-                                                                            overflow: 'hidden',
+                                                                            width: '100%',
+                                                                            height: '100%',
+                                                                            objectFit: 'cover',
+                                                                            border: '1px solid black',
                                                                             borderRadius: '8px',
-                                                                            display: 'flex',
-                                                                            alignItems: 'center',
-                                                                            justifyContent: 'center',
-                                                                            backgroundColor: '#f0f0f0',
                                                                         }}
-                                                                    >
-                                                                        <img
-                                                                            src={event.image_path || '/images/default-event.png'}
-                                                                            alt={event.title}
-                                                                            style={{
-                                                                                width: '100%',
-                                                                                height: '100%',
-                                                                                objectFit: 'cover',
-                                                                                border: '1px solid black',
-                                                                                borderRadius: '8px',
-                                                                            }}
-                                                                        />
-                                                                    </div>
-
-                                                                    {/* Event Details */}
-                                                                    <div style={{ flex: 1 }}>
-                                                                        <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
-                                                                            {new Date(
-                                                                                `${event.event_date}T${event.event_time}`
-                                                                            ).toLocaleString('en-US', {
-                                                                                weekday: 'short',
-                                                                                year: 'numeric',
-                                                                                month: 'short',
-                                                                                day: 'numeric',
-                                                                                hour: '2-digit',
-                                                                                minute: '2-digit',
-                                                                            })}
-                                                                        </p>
-                                                                        <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
-                                                                            {event.title}
-                                                                        </h6>
-                                                                        <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
-                                                                            Group: <strong>{group.name}</strong>
-                                                                        </p>
-                                                                    </div>
+                                                                    />
                                                                 </div>
-                                                            </button>
+
+                                                                {/* Event Details */}
+                                                                <div style={{ flex: 1 }}>
+                                                                    <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
+                                                                        {new Date(
+                                                                            `${event.event_date}T${event.event_time}`
+                                                                        ).toLocaleString('en-US', {
+                                                                            weekday: 'short',
+                                                                            year: 'numeric',
+                                                                            month: 'short',
+                                                                            day: 'numeric',
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit',
+                                                                        })}
+                                                                    </p>
+                                                                    <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
+                                                                        {event.title}
+                                                                    </h6>
+                                                                    <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
+                                                                        Group: <strong>{group.name}</strong>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
                                                         ))}
                                                     </div>
                                                 </div>
@@ -268,12 +259,14 @@ export default function Events() {
                             {events.length > 0 ? (
                                 events.map((event) => (
                                     <div
-                                        className="card custom-card mb-3 w-100"
-                                        key={event.id}
+                                        className="card custom-card custom-hover mb-3 w-100"
+                                        key={`global-event-${event.id}`}
+                                        onClick={() => router.get(`/events/details/${event.slug}`)} // Make the entire card clickable
                                         style={{
                                             border: 'none',
                                             padding: '10px',
                                             height: 'auto',
+                                            cursor: 'pointer', // Add pointer cursor for hover effect
                                         }}
                                     >
                                         <div className="row g-0 align-items-center">
@@ -293,32 +286,16 @@ export default function Events() {
                                                 />
                                             </div>
                                             <div className="col-md-8">
-                                                <button
-                                                    onClick={() => router.get(`/events/details/${event.slug}`)}
-                                                    style={{
-                                                        background: 'none',
-                                                        border: 'none',
-                                                        padding: 0,
-                                                        textAlign: 'left',
-                                                        color: 'inherit',
-                                                        cursor: 'pointer',
-                                                        width: '100%',
-                                                    }}
-                                                >
-                                                    <div className="card-body py-2">
-                                                        <h5 className="card-title">{event.title}</h5>
-                                                        <p
-                                                            className="card-text text-truncate"
-                                                            style={{ maxHeight: '3.6em', overflow: 'hidden' }}
-                                                        >
-                                                            {event.description}
-                                                        </p>
-                                                        <p className="mb-0">Location: {event.location}</p>
-                                                    </div>
-                                                </button>
-
-
-
+                                                <div className="card-body py-2">
+                                                    <h5 className="card-title">{event.title}</h5>
+                                                    <p
+                                                        className="card-text text-truncate"
+                                                        style={{ maxHeight: '3.6em', overflow: 'hidden' }}
+                                                    >
+                                                        {event.description}
+                                                    </p>
+                                                    <p className="mb-0">Location: {event.location}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -327,6 +304,7 @@ export default function Events() {
                                 <p>No upcoming events available</p>
                             )}
                         </div>
+
                     </div>
                 </div>
             </div>

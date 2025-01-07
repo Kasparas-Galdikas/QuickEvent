@@ -148,7 +148,15 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
 }
 
+.custom-hover {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; /* Smooth transition effect */
+}
 
+.custom-hover:hover {
+    background-color:rgb(247, 251, 231) !important; /* Darker shade for the hover effect */
+    color: #404a24 !important; /* Darker text color */
+    border-color: #727a30 !important; /* Darker border color */
+}
 
 /* Explore Categories */
 .categories {
