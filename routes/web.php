@@ -24,7 +24,7 @@ Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
 // Public Routes
 Route::get('/', function () {
-    return Inertia::render('Home');
+    return Inertia::render('LandingPage');
 });
 
 // Authentication Routes
@@ -39,13 +39,13 @@ Route::prefix('auth')->group(function () {
     Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
 });
 
-    // Verification Code Routes
-    Route::get('/verify', function () {
-        return Inertia::render('Auth/VerifyEmail');
-    })->name('verify.page');
-    Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verify.code');
-    Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
-    Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
+// Verification Code Routes
+Route::get('/verify', function () {
+    return Inertia::render('Auth/VerifyEmail');
+})->name('verify.page');
+Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verify.code');
+Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
+Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
 
 
 // Topics Routes
@@ -56,29 +56,27 @@ Route::prefix('topics')->group(function () {
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
-    
+
     // Events Routes
     Route::prefix('events')->group(function () {
-        
         Route::get('/', [EventsPageController::class, 'showEventsPage'])->name('events.index');
-        
-        Route::get('/details/{name}', fn($name) => Inertia::render('Events/EventDetails', ['eventName' => $name]))
-        ->name('events.details');
     
+        // Show event details
+        Route::get('/details/{slug}', [EventController::class, 'show'])->name('events.details');
 
-        // Updated CreateEvent route to use session-based group_id
+
         Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-
+    
         Route::get('/events/create', function () {
             $group_id = session('group_id'); // Fetch group_id from the session
             return Inertia::render('Events/CreateEvent', [
                 'group_id' => $group_id, // Pass group_id to Inertia
             ]);
         })->name('events.create');
-        
-
+    
         Route::post('/', [EventController::class, 'store'])->name('events.store');
     });
+    
 
     // Group Routes
     Route::prefix('groups')->group(function () {
@@ -93,16 +91,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Profile Routes
     Route::prefix('profile')->group(function () {
-       
+
         // These routes handle the edit, update, and delete functionalities
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
-    
 
-    // Dashboard
-    Route::get('/dashboard', fn() => Inertia::render('Dashboard'))->middleware('verified')->name('dashboard');
 });
 
 // Default Laravel auth routes

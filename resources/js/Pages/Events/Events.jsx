@@ -1,10 +1,9 @@
 import React from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { router } from '@inertiajs/react';
 
 export default function Events() {
     const { auth, groups, events } = usePage().props; // Fetch events from props
@@ -75,7 +74,6 @@ export default function Events() {
                                                             className="btn custom-btn"
                                                             style={{ alignSelf: 'flex-start' }}
                                                             onClick={() => router.get(`/groups/set-group/${group.id}`)}
-
                                                         >
                                                             <i className="fas fa-calendar-plus me-2"></i>
                                                             Create event
@@ -115,10 +113,18 @@ export default function Events() {
                                                         }}
                                                     >
                                                         {group.events.map((event) => (
-                                                            <a
+                                                            <button
                                                                 key={event.id}
-                                                                href={`#`} // Replace # with the event URL
-                                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                                                onClick={() => router.get(`/events/details/${encodeURIComponent(event.title)}`)}
+                                                                style={{
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    padding: 0,
+                                                                    textAlign: 'left',
+                                                                    color: 'inherit',
+                                                                    cursor: 'pointer',
+                                                                    width: '100%',
+                                                                }}
                                                             >
                                                                 <div
                                                                     className="d-flex align-items-start mb-4"
@@ -138,7 +144,7 @@ export default function Events() {
                                                                             display: 'flex',
                                                                             alignItems: 'center',
                                                                             justifyContent: 'center',
-                                                                            backgroundColor: '#f0f0f0', // Optional: background for better visual
+                                                                            backgroundColor: '#f0f0f0',
                                                                         }}
                                                                     >
                                                                         <img
@@ -156,9 +162,10 @@ export default function Events() {
 
                                                                     {/* Event Details */}
                                                                     <div style={{ flex: 1 }}>
-                                                                        {/* Formatted Date */}
                                                                         <p className="text-muted small mb-1" style={{ fontSize: '0.85rem' }}>
-                                                                            {new Date(`${event.event_date}T${event.event_time}`).toLocaleString('en-US', {
+                                                                            {new Date(
+                                                                                `${event.event_date}T${event.event_time}`
+                                                                            ).toLocaleString('en-US', {
                                                                                 weekday: 'short',
                                                                                 year: 'numeric',
                                                                                 month: 'short',
@@ -167,17 +174,15 @@ export default function Events() {
                                                                                 minute: '2-digit',
                                                                             })}
                                                                         </p>
-                                                                        {/* Event Title */}
                                                                         <h6 className="mb-1" style={{ fontSize: '0.9rem' }}>
                                                                             {event.title}
                                                                         </h6>
-                                                                        {/* Group Name */}
                                                                         <p className="small mb-0" style={{ fontSize: '0.85rem' }}>
                                                                             Group: <strong>{group.name}</strong>
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                            </a>
+                                                            </button>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -188,8 +193,8 @@ export default function Events() {
                                     <div className="mt-4">
                                         <h5 className="text-muted mb-2">Next event you’re hosting</h5>
                                         <p className="small mb-3">
-                                            Scheduling an event encourages more people to join your group.
-                                            Need help with your group? Are you an organizer who wants to help others succeed?
+                                            Scheduling an event encourages more people to join your group. Need help with
+                                            your group? Are you an organizer who wants to help others succeed?
                                         </p>
                                         <a
                                             href="https://discord.gg/organizers"
@@ -201,13 +206,12 @@ export default function Events() {
                                             Join the Meetup Organizers Discord channel
                                         </a>
                                     </div>
+
+
                                 )}
                             </div>
-
-
                         </div>
                     )}
-
                 </div>
 
                 {/* Remaining Page Content */}
@@ -218,7 +222,7 @@ export default function Events() {
                         <Calendar className="mx-auto" />
 
                         <div className="card custom-card mt-4">
-                            <div className="card-body">
+                            <div className="card-body" style={{ marginBottom: '20px' }}>
                                 <h5 className="card-title text-center text-dark">Your Next Events</h5>
                                 <p className="text-center">You have not registered for any events yet.</p>
                                 <div className="d-flex justify-content-center">
@@ -228,28 +232,30 @@ export default function Events() {
                         </div>
 
                         <div className="card custom-card mt-4">
-                            <div className="card-body">
-                                <h5 className="card-title text-center text-dark">Your Groups</h5>
-                                <p className="text-center">You have not joined any groups</p>
+                            <div className="card-body" style={{ marginBottom: '20px' }}>
+                                <h5 className="card-title text-center text-dark"> Groups you’re part of</h5>
+                                <p className="text-center">You have not registered for any events yet.</p>
                                 <div className="d-flex justify-content-center">
-                                    <button className="btn btn-link">Discover groups</button>
+                                    <button className="custom-btn btn btn-primary">View All</button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="card custom-card mt-4">
-                            <div className="card-body">
-                                <h5 className="card-title text-center text-dark">Your Interests</h5>
-                                <p className="text-center">You have not added any interests</p>
+                            <div className="card-body" style={{ marginBottom: '20px' }}>
+                                <h5 className="card-title text-center text-dark">Your interests</h5>
+                                <p className="text-center">You have not registered for any events yet.</p>
                                 <div className="d-flex justify-content-center">
-                                    <button className="btn btn-link">Select interests</button>
+                                    <button className="custom-btn btn btn-primary">View All</button>
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
 
-                    <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}> {/* Slightly reduced width */}
-                        <div className="d-flex justify-content-start mb-3"> {/* Changed alignment */}
+                    <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}>
+                        <div className="d-flex justify-content-start mb-3">
                             <select className="form-select w-auto">
                                 <option>Any type</option>
                                 <option>Online</option>
@@ -266,19 +272,11 @@ export default function Events() {
                                         key={event.id}
                                         style={{
                                             border: 'none',
-                                            padding: '10px', // Added padding for smaller card
-                                            height: 'auto', // Ensure the height adjusts to content
+                                            padding: '10px',
+                                            height: 'auto',
                                         }}
                                     >
-                                        <div className="row g-0 align-items-center"> {/* Ensures alignment */}
-                                            <div className="col-md-12">
-                                                <div className="card-body py-2"> {/* Reduced padding */}
-                                                    <h6 className="text-muted">
-                                                        {new Date(event.event_date + 'T' + event.event_time).toLocaleString()}
-                                                    </h6>
-                                                    <hr />
-                                                </div>
-                                            </div>
+                                        <div className="row g-0 align-items-center">
                                             <div className="col-md-4">
                                                 <img
                                                     src={event.image_path || '/images/default-event.png'}
@@ -294,19 +292,33 @@ export default function Events() {
                                                     }}
                                                 />
                                             </div>
-
-
                                             <div className="col-md-8">
-                                                <div className="card-body py-2"> {/* Reduced padding */}
-                                                    <h5 className="card-title">{event.title}</h5>
-                                                    <p className="card-text text-truncate" style={{ maxHeight: '3.6em', overflow: 'hidden' }}>
-                                                        {event.description}
-                                                    </p>
-                                                    <p className="mb-0">Location: {event.location}</p>
-                                                    <a href={`/events/details/${encodeURIComponent(event.title)}`} className="custom-btn btn mt-2">
-                                                        See Details
-                                                    </a>
-                                                </div>
+                                                <button
+                                                    onClick={() => router.get(`/events/details/${event.slug}`)}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        padding: 0,
+                                                        textAlign: 'left',
+                                                        color: 'inherit',
+                                                        cursor: 'pointer',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <div className="card-body py-2">
+                                                        <h5 className="card-title">{event.title}</h5>
+                                                        <p
+                                                            className="card-text text-truncate"
+                                                            style={{ maxHeight: '3.6em', overflow: 'hidden' }}
+                                                        >
+                                                            {event.description}
+                                                        </p>
+                                                        <p className="mb-0">Location: {event.location}</p>
+                                                    </div>
+                                                </button>
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -316,9 +328,6 @@ export default function Events() {
                             )}
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
 

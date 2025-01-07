@@ -7,7 +7,7 @@ import Footer from '../Components/Footer';
 export default function Home() {
     return (
         <div className=" d-flex flex-column min-vh-100">
-            <Head title="Home - QuickEvent" />
+            <Head title="QuickEvent | Find Local Groups" />
 
             {/* Navbar */}
             <Navbar />

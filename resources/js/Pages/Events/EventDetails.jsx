@@ -5,26 +5,26 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 
 export default function EventDetails() {
-    const { auth } = usePage().props;
-    const username = auth?.user?.name || 'Guest';
-
+    const { auth, event, host } = usePage().props;
+    // Debug props to ensure data is passed correctly
+    console.log({ auth, event, host });
     return (
         <div className="min-h-screen flex flex-col">
-            <Head title="Event Details" />
+            <Head title={event.title} />
             <Navbar />
 
-            {/* Event Header Section - Meetup style */}
-            <div className="px-5 w-full custom-card  border-b border-gray-200 py-2 lg:py-6">
+            {/* Event Header Section */}
+            <div className="px-5 w-full custom-card border-b border-gray-200 py-2 lg:py-6">
                 <div className="max-w-5xl mx-auto">
                     <h1 className="text-3xl font-bold leading-snug overflow-hidden overflow-ellipsis">
-                        English Conversation Meeting
+                        {event.title}
                     </h1>
-                    
-                    {/* Host Information - Meetup style */}
-                    <a className="block w-fit hover:no-underline">
+
+                    {/* Host Information */}
+                    <div className="block w-fit hover:no-underline">
                         <div className="mt-4 flex lg:mt-5">
                             <div>
-                                <img 
+                                <img
                                     src="https://via.placeholder.com/48"
                                     alt="Host"
                                     className="rounded-full w-12 h-12 object-cover"
@@ -32,12 +32,13 @@ export default function EventDetails() {
                             </div>
                             <div className="ml-6">
                                 <div className="text-gray-600">Hosted By</div>
-                                <div className="font-medium">{username}</div>
+                                <div className="font-medium">{host}</div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 </div>
             </div>
+
 
             {/* Main Content Section - Meetup style */}
             <div className="flex w-full flex-col items-center justify-between border-t border-gray-200 pb-6 lg:px-5">
@@ -47,7 +48,7 @@ export default function EventDetails() {
                         <div className="flex flex-grow flex-col lg:mt-5 lg:max-w-2xl">
                             {/* Event Image */}
                             <div className="mt-0 w-full lg:mt-8">
-                                <img 
+                                <img
                                     src="https://via.placeholder.com/800x400"
                                     alt="Event Cover"
                                     className="w-full rounded-lg"
@@ -63,6 +64,13 @@ export default function EventDetails() {
                                     <p className="mb-4">
                                         Daily conversational English meeting. We meet daily on Discord...
                                     </p>
+
+                                    <button
+                                        type="button"
+                                        className="text-teal-600 bg-teal-100 px-3 py-1 rounded-lg hover:bg-teal-200 transition-all"
+                                    >
+                                        Cycling
+                                    </button>
                                 </div>
                             </div>
 
@@ -76,7 +84,7 @@ export default function EventDetails() {
                                     <div className="grid grid-cols-4 gap-4">
                                         {[1, 2, 3, 4].map((attendee) => (
                                             <div key={attendee} className="text-center">
-                                                <img 
+                                                <img
                                                     src={`https://via.placeholder.com/64`}
                                                     alt={`Attendee ${attendee}`}
                                                     className="w-16 h-16 rounded-full mx-auto mb-2"
@@ -117,7 +125,7 @@ export default function EventDetails() {
 
                                     {/* Action Buttons */}
                                     <div className="space-y-3 mt-6">
-                                        <button className ="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg ">
+                                        <button className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg ">
                                             Attend Online
                                         </button>
                                         <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
