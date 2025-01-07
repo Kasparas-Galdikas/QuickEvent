@@ -137,8 +137,8 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
             await axios.post('/events', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            // Redirect to events page if successful
-            router.visit('/events');
+            // Redirect to Home page if successful
+            router.visit('/Home');
         } catch (error) {
             if (error.response?.data.errors) {
                 setErrors(error.response.data.errors); // Store server validation errors

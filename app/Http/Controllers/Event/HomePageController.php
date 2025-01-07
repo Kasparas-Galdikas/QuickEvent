@@ -7,12 +7,12 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class EventsPageController extends Controller
+class HomePageController extends Controller
 {
     /**
      * Display the dedicated events page.
      */
-    public function showEventsPage()
+    public function showHomePage()
     {
         $user = Auth::user();
 
@@ -23,7 +23,7 @@ class EventsPageController extends Controller
         $events = Event::orderBy('event_date', 'asc')->get();
 
         // Return the Inertia page with all required data
-        return Inertia::render('Events/Events', [
+        return Inertia::render('Home', [
             'auth'   => [
                 'user' => $user,
             ],

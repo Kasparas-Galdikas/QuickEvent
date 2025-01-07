@@ -37,8 +37,8 @@ class GoogleAuthController extends Controller
             // Log in the user
             Auth::login($user);
 
-            // Redirect to /events
-            return redirect('/events');
+            // Redirect to /Home
+            return redirect('/Home');
         } catch (\Exception $e) {
             // Redirect back to the register page with an error message
             return redirect('/register')->withErrors('Google login failed.');

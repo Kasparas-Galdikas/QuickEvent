@@ -50,7 +50,7 @@ class EventController extends Controller
         }
 
         // Redirect to the events page with a success message
-        return redirect()->route('events.index')->with('success', 'Event created successfully!');
+        return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
 
     public function getEventDetails($id)

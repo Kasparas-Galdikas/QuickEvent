@@ -87,8 +87,13 @@ class RegisteredUserController extends Controller
         // Log in the user
         Auth::login($user);
     
-        return response()->json(['message' => 'Email verified successfully.'], 200);
+        // Send the redirection URL
+        return response()->json([
+            'message' => 'Email verified successfully.',
+            'redirect_url' => route('Home'),
+        ], 200);
     }
+    
 
     /**
      * Check if the user exists and requires verification.

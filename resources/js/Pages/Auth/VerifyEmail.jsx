@@ -24,19 +24,22 @@ export default function VerifyEmail({ email }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         try {
             const response = await axios.post('/verify', {
-                email: email, // Include the email from props
+                email: email,
                 verification_code: formData.verification_code,
             });
-           
-            setIsVerified(true); // Mark the user as verified
-            window.location.href = '/events'; // Redirect after verification
+    
+            setIsVerified(true);
+    
+            // Use the redirect URL provided by the backend
+            const redirectUrl = response.data.redirect_url || '/';
+            window.location.href = redirectUrl;
         } catch (error) {
-            setIsVerified(false); // Mark the user as not verified
+            setIsVerified(false);
             if (error.response) {
-                console.error('Error response data:', error.response.data); // Backend error details
+                console.error('Error response data:', error.response.data);
                 setErrors(error.response.data.errors || { verification_code: 'Unexpected error occurred.' });
             } else {
                 console.error('Unexpected error:', error);
@@ -44,6 +47,7 @@ export default function VerifyEmail({ email }) {
             }
         }
     };
+    
 
     const handleResendCode = async () => {
         try {

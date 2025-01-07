@@ -100,8 +100,8 @@ export default function CreateGroup() {
                 topics: selectedTopics,
             });
     
-            // Redirect to events page
-            router.visit('/events');
+            // Redirect to Home page
+            router.visit('/Home');
         } catch (error) {
             console.error('Error creating group:', error);
     

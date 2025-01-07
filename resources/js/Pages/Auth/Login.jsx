@@ -47,7 +47,7 @@ export default function Login({ show, onClose, status }) {
                 setShowVerifyEmail(true); // Show the VerifyEmail modal
             } else {
                 onClose(); // Close the Login modal on success
-                window.location.href = '/events'; // Redirect to events
+                window.location.href = '/Home'; // Redirect to Home
             }
         } catch (error) {
             if (error.response && error.response.status === 422) {

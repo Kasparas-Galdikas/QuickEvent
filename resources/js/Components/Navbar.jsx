@@ -92,7 +92,7 @@ export default function Navbar() {
                                                 <Link href={route('profile')} className="dropdown-item">Profile</Link>
                                             </li>
                                             <li>
-                                                <Link href="/events" className="dropdown-item">Explore Events</Link>
+                                                <Link href="/Home" className="dropdown-item">Explore Events</Link>
                                             </li>
                                             <li>
                                                 <button className="dropdown-item" onClick={handleLogout}>

@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Event\EventController;
-use App\Http\Controllers\Event\EventsPageController;
+use App\Http\Controllers\Event\HomePageController;
 use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TopicsController;
@@ -57,10 +57,16 @@ Route::prefix('topics')->group(function () {
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
 
+     // Home Routes
+    Route::prefix('Home')->group(function () {
+
+    Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
+
+});
+
     // Events Routes
     Route::prefix('events')->group(function () {
-        Route::get('/', [EventsPageController::class, 'showEventsPage'])->name('events.index');
-    
+       
         // Show event details
         Route::get('/details/{slug}', [EventController::class, 'show'])->name('events.details');
 

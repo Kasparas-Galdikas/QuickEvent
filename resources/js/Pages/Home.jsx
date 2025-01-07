@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
-import Navbar from '../../Components/Navbar';
-import Footer from '../../Components/Footer';
+import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
@@ -11,7 +11,7 @@ export default function Events() {
 
     return (
         <div className="d-flex flex-column min-vh-100">
-            <Head title="Events" />
+            <Head title="Home" />
             <Navbar />
 
             <div className="container">
@@ -115,7 +115,7 @@ export default function Events() {
                                                         {group.events.map((event) => (
                                                             <button
                                                                 key={event.id}
-                                                                onClick={() => router.get(`/events/details/${encodeURIComponent(event.title)}`)}
+                                                                onClick={() => router.get(`/events/details/${event.slug}`)}
                                                                 style={{
                                                                     background: 'none',
                                                                     border: 'none',
