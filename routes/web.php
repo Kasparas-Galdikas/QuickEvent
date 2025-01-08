@@ -12,6 +12,7 @@ use App\Http\Controllers\TopicsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Http\Controllers\OAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,8 @@ use Illuminate\Http\Request;
 
 // Profile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
+
+Route::get('/oauth/callback', [OAuthController::class, 'handleCallback']);
 
 // Public Routes
 Route::get('/', function () {
@@ -56,32 +59,36 @@ Route::prefix('topics')->group(function () {
 
 //  unauthenticated routes for all users 
 Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
+Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
+
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
 
-     // Home Routes
+    // Home Routes
     Route::prefix('Home')->group(function () {
+        Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
 
-    Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
-
-});
+    });
 
     // Events Routes
+
+    Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
+
     Route::prefix('events')->group(function () {
-       
+
         Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-    
+
         Route::get('/events/create', function () {
             $group_id = session('group_id'); // Fetch group_id from the session
             return Inertia::render('Events/CreateEvent', [
                 'group_id' => $group_id, // Pass group_id to Inertia
             ]);
         })->name('events.create');
-    
+
         Route::post('/', [EventController::class, 'store'])->name('events.store');
     });
-    
+
 
     // Group Routes
     Route::prefix('groups')->group(function () {

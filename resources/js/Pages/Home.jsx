@@ -1,13 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { useInView } from 'react-intersection-observer';
 
 export default function Events() {
-    const { auth, groups, events } = usePage().props; // Fetch events from props
+    const { auth, groups, events: initialEvents, pagination } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
+
+    const [events, setEvents] = useState(initialEvents || []); // Initialize events with initial data
+    const [currentPage, setCurrentPage] = useState(pagination?.current_page || 1); // Track the current page
+    const [hasMore, setHasMore] = useState(currentPage < pagination?.last_page); // Check if more pages are available
+    const [loading, setLoading] = useState(false); // Prevent duplicate fetch calls
+
+    const { ref, inView } = useInView(); // Detect when the loader comes into view
+
+    useEffect(() => {
+        if (inView && hasMore && !loading) {
+            loadMoreEvents();
+        }
+    }, [inView]);
+    
+
+    const fetchMoreEvents = async (page) => {
+        console.log(`Fetching events for page: ${page}`);
+        try {
+            const response = await axios.get(`/api/events?page=${page}`);
+            console.log('API Response:', response.data);
+    
+            if (response?.data?.events) {
+                return {
+                    events: response.data.events,
+                    pagination: response.data.pagination,
+                };
+            } else {
+                console.error("Unexpected API response:", response);
+                return {
+                    events: [],
+                    pagination: {},
+                };
+            }
+        } catch (error) {
+            console.error("Error fetching more events:", error);
+            return {
+                events: [],
+                pagination: {},
+            };
+        }
+    };
+    
+    const loadMoreEvents = async () => {
+        console.log('Triggered loadMoreEvents');
+        setLoading(true);
+    
+        try {
+            const { events: newEvents, pagination: newPagination } = await fetchMoreEvents(currentPage + 1);
+    
+            if (newEvents.length > 0) {
+                console.log(`Loaded ${newEvents.length} events`);
+                setEvents((prevEvents) => [...prevEvents, ...newEvents]);
+                setCurrentPage(newPagination.current_page);
+                setHasMore(newPagination.current_page < newPagination.last_page);
+            } else {
+                console.log('No more events available');
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Error loading more events:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    
+    
 
 
     return (
@@ -256,54 +324,61 @@ export default function Events() {
                         </div>
 
                         <div className="d-flex flex-column align-items-center">
-                            {events.length > 0 ? (
-                                events.map((event) => (
-                                    <div
-                                        className="card custom-card custom-hover mb-3 w-100"
-                                        key={`global-event-${event.id}`}
-                                        onClick={() => router.get(`/events/details/${event.slug}`)} // Make the entire card clickable
-                                        style={{
-                                            border: 'none',
-                                            padding: '10px',
-                                            height: 'auto',
-                                            cursor: 'pointer', // Add pointer cursor for hover effect
-                                        }}
-                                    >
-                                        <div className="row g-0 align-items-center">
-                                            <div className="col-md-4">
-                                                <img
-                                                    src={event.image_path || '/images/default-event.png'}
-                                                    className="card-img"
-                                                    alt={event.title}
-                                                    loading="lazy"
-                                                    style={{
-                                                        width: '230px',
-                                                        height: '130px',
-                                                        objectFit: 'cover',
-                                                        border: '1px solid black',
-                                                        borderRadius: '8px',
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-md-8">
-                                                <div className="card-body py-2">
-                                                    <h5 className="card-title">{event.title}</h5>
-                                                    <p
-                                                        className="card-text text-truncate"
-                                                        style={{ maxHeight: '3.6em', overflow: 'hidden' }}
-                                                    >
-                                                        {event.description}
-                                                    </p>
-                                                    <p className="mb-0">Location: {event.location}</p>
-                                                </div>
+                        {events.length > 0 ? (
+                            events.map((event) => (
+                                <div
+                                    className="card custom-card custom-hover mb-3 w-100"
+                                    key={`global-event-${event.id}`}
+                                    onClick={() => router.get(`/events/details/${event.slug}`)} // Make the entire card clickable
+                                    style={{
+                                        border: 'none',
+                                        padding: '10px',
+                                        height: 'auto',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <div className="row g-0 align-items-center">
+                                        <div className="col-md-4">
+                                            <img
+                                                src={event.image_path || '/images/default-event.png'}
+                                                className="card-img"
+                                                alt={event.title}
+                                                loading="lazy"
+                                                style={{
+                                                    width: '230px',
+                                                    height: '130px',
+                                                    objectFit: 'cover',
+                                                    border: '1px solid black',
+                                                    borderRadius: '8px',
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="col-md-8">
+                                            <div className="card-body py-2">
+                                                <h5 className="card-title">{event.title}</h5>
+                                                <p
+                                                    className="card-text text-truncate"
+                                                    style={{ maxHeight: '3.6em', overflow: 'hidden' }}
+                                                >
+                                                    {event.description}
+                                                </p>
+                                                <p className="mb-0">Location: {event.location}</p>
                                             </div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <p>No upcoming events available</p>
-                            )}
-                        </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No upcoming events available</p>
+                        )}
+
+                        {/* Infinite Scroll Loader */}
+                        {hasMore && (
+                            <div ref={ref} className="text-center my-4">
+                                {loading ? <p>Loading more events...</p> : <p>Scroll down to load more events</p>}
+                            </div>
+                        )}
+                    </div>
 
                     </div>
                 </div>

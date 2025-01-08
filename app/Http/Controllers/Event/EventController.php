@@ -7,6 +7,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 class EventController extends Controller
 {
 
@@ -53,9 +54,34 @@ class EventController extends Controller
         return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
 
+      /**
+     * Register the authenticated user as an attendee for an event.
+     */
+    public function attend($eventId)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $event = Event::findOrFail($eventId);
+
+        // Check if the user has already joined the event
+        if ($event->attendees()->where('user_id', $user->id)->exists()) {
+            return response()->json(['message' => 'You are already attending this event'], 409);
+        }
+
+        // Register the user as an attendee
+        $event->attendees()->attach($user->id, ['joined_at' => now()]);
+
+        return response()->json(['message' => 'You are now attending this event'], 200);
+    }
+
+
     private function fetchEventBySlug($slug)
     {
-        return Event::with(['group.user', 'topics']) // Include topics relationship
+        return Event::with(['group.user', 'topics', 'attendees']) // Include attendees relationship
         ->where('slug', $slug)
         ->first();
     }
@@ -68,14 +94,19 @@ class EventController extends Controller
             abort(404, 'Event not found');
         }
     
+        // Extract attendees' basic details
+        $attendees = $event->attendees()->select('users.id', 'users.name', 'users.email')->get();
+    
         return Inertia::render('Events/EventDetails', [
             'event' => $event, // Event details
             'host' => $event->group->user->name ?? 'Unknown Host', // Host name
             'topics' => $event->topics, // Topics related to the event
             'group' => $event->group, // Group details, including user_id
+            'attendees' => $attendees, // Pass attendees to the front-end
         ]);
-        
     }
+    
+    
     
     
 }

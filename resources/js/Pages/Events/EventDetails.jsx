@@ -5,7 +5,24 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 
 export default function EventDetails() {
-    const { auth, event, host, topics } = usePage().props;
+    const { auth, event, host, topics, attendees } = usePage().props;
+
+    function attendEvent(eventId) {
+        axios
+            .post(`/events/${eventId}/attend`)
+            .then(response => {
+                alert(response.data.message);
+            })
+            .catch(error => {
+                if (error.response) {
+                    alert(error.response.data.message);
+                } else {
+                    console.error(error);
+                    alert('An error occurred while attending the event.');
+                }
+            });
+    }
+
 
     // Debug props to ensure data is passed correctly
     console.log('Auth:', auth);
@@ -50,15 +67,17 @@ export default function EventDetails() {
                             {/* Event Image */}
                             <div className="mt-0 w-full lg:mt-8">
 
-                                <img
-                                    src={event.image_path || '/images/default-event.png'}
-                                    alt="Event Cover"
-                                    className="rounded-lg"
-                                    style={{
-                                        width: '800px', // Set the desired width
-                                        height: 'auto', // Maintain aspect ratio
-                                    }}
-                                />
+                            <img
+    src={event.image_path || '/images/default-event.png'}
+    alt="Event Cover"
+    className="rounded-lg"
+    style={{
+        width: '800px', // Set the desired width
+        height: 'auto', // Maintain aspect ratio
+        border: '1px solid black', // Add a 1px black border
+    }}
+/>
+
 
                             </div>
 
@@ -93,27 +112,44 @@ export default function EventDetails() {
                                 </div>
                             </div>
 
-                            {/* Attendees Section */}
-                            <div className="px-6 sm:px-4 xl:px-0 mt-5 w-full">
-                                <div className="custom-card p-6 rounded-lg">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-semibold">Attendees (12)</h2>
-                                        <button className="text-green-600 hover:underline">See all</button>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-4">
-                                        {[1, 2, 3, 4].map((attendee) => (
-                                            <div key={attendee} className="text-center">
-                                                <img
-                                                    src={`https://via.placeholder.com/64`}
-                                                    alt={`Attendee ${attendee}`}
-                                                    className="w-16 h-16 rounded-full mx-auto mb-2"
-                                                />
-                                                <p className="text-sm font-medium">Member</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+  {/* Attendees Section */}
+<div className="px-6 sm:px-4 xl:px-0 mt-5 w-full">
+    <div className="custom-card p-6 rounded-lg">
+        <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">
+                Attendees ({attendees && attendees.length > 0 ? attendees.length : 0})
+            </h2>
+            <button className="text-green-600 hover:underline">
+                See all
+            </button>
+        </div>
+        {attendees && attendees.length > 0 ? (
+            <div className="grid grid-cols-4 gap-4">
+                {attendees.map((attendee) => (
+                    <div key={attendee.id} className="text-center">
+                        <img
+                            src={`https://via.placeholder.com/64`} // Replace with actual profile image if available
+                            alt={`Attendee ${attendee.name}`}
+                            className="w-16 h-16 rounded-full mx-auto mb-2"
+                        />
+                        <p className="text-sm font-medium">{attendee.name}</p>
+                    </div>
+                ))}
+            </div>
+        ) : auth && auth.user && auth.user.id === event.group.user_id ? (
+            <p className="text-gray-500 text-center mt-4">
+                You are the host of this event. No attendees have joined yet.
+            </p>
+        ) : (
+            <p className="text-gray-500 text-center mt-4">
+                No attendees yet. Be the first to join this event!
+            </p>
+        )}
+    </div>
+</div>
+
+
+
 
                         </div>
 
@@ -184,9 +220,14 @@ export default function EventDetails() {
                                         ) : (
                                             // Display Attend and Share buttons for non-hosts
                                             <>
-                                                <button className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg">
+
+                                                <button
+                                                    className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg"
+                                                    onClick={() => attendEvent(event.id)} // Pass the event ID dynamically
+                                                >
                                                     Attend Online
                                                 </button>
+
                                                 <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
                                                     Share
                                                 </button>

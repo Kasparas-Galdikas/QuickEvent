@@ -31,7 +31,7 @@ export default function Navbar() {
         <>
             <nav className="navbar navbar-expand-lg navbar-custom">
                 <div className="container-fluid">
-                    <Link href="/" className="navbar-brand d-flex align-items-center">
+                    <Link href="/Home" className="navbar-brand d-flex align-items-center">
                         <ApplicationLogo alt="QuickEvent Logo" />
                     </Link>
 
