@@ -13,11 +13,14 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'build/*'], // Add your asset path here
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'], // Your frontend URL
+    'allowed_origins' => [
+        'http://localhost:5173',  // Local frontend URL
+        'https://www.quickevent.xyz', // Deployed production domain
+    ],
 
     'allowed_origins_patterns' => [],
 
