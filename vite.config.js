@@ -10,7 +10,16 @@ export default defineConfig({
         }),
         react(),
     ],
+    server: {
+        host: true, // Ensures the dev server uses your machine's network IP
+        https: true, // Enforces HTTPS in the local dev server
+    },
     build: {
-        sourcemap: true, // Enable source maps
+        sourcemap: true, // Enable source maps for debugging
+    },
+    resolve: {
+        alias: {
+            '@': '/resources/js', // Adjust the alias to match your project structure
+        },
     },
 });
