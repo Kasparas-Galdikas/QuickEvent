@@ -23,8 +23,6 @@ use App\Http\Controllers\OAuthController;
 // Profile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
-Route::get('/oauth/callback', [OAuthController::class, 'handleCallback']);
-
 // Public Routes
 Route::get('/', function () {
     return Inertia::render('LandingPage');
