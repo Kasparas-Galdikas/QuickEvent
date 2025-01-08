@@ -27,12 +27,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Prefetch Vite assets
-        Vite::prefetch(concurrency: 3);
-
         // Enforce HTTPS in production
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
+        }
+
+        // Prefetch Vite assets if available
+        if (method_exists(Vite::class, 'prefetch')) {
+            Vite::prefetch(concurrency: 3);
         }
 
         // Share global data with Inertia
@@ -42,13 +44,15 @@ class AppServiceProvider extends ServiceProvider
                     'user' => Auth::check() ? Auth::user()->only(['id', 'name', 'email']) : null,
                 ];
             },
-           
+            'app' => [
+                'name' => config('app.name'),
+            ],
         ]);
 
         // Use Bootstrap styling for pagination
         Paginator::useBootstrap();
 
-        // Share app name with all views
+        // Share app name with all Blade views
         View::share('appName', config('app.name'));
     }
 }
