@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\OAuthController;
+use App\Http\Controllers\Group\GroupDetailsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
     });
 
+    Route::prefix('groups')->group(function () {
+        // ... kiti maršrutai
+        Route::get('/show/{id}', [GroupDetailsController::class, 'show'])
+            ->name('groups.show')
+            ->where('id', '[0-9]+'); // užtikrina, kad id būtų skaičius
+    });
+    
     // Profile Routes
     Route::prefix('profile')->group(function () {
 

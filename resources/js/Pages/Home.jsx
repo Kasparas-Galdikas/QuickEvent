@@ -95,64 +95,65 @@ export default function Events() {
                                 <p className="lead fs-3 mb-4">Groups you organize</p>
 
                                 {groups.map((group) => (
-                                    <div className="col-12 mb-4" key={group.id}>
-                                        <div className="card custom-card">
-                                            <div className="card-body">
-                                                <div className="d-flex">
-                                                    {/* Group Image */}
-                                                    <div style={{ minWidth: '150px', height: '150px' }}>
-                                                        <img
-                                                            src={group.image_path || '/images/default-group.png'}
-                                                            className="rounded w-100 h-100 object-fit-cover"
-                                                            alt={group.name}
-                                                            style={{
-                                                                border: '1px solid black',
-                                                                borderRadius: '8px',
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    {/* Group Info */}
-                                                    <div className="d-flex flex-column ms-4" style={{ minHeight: '180px' }}>
-                                                        <div>
-                                                            {/* Group Name */}
-                                                            <h6 className="mb-2">{group.name}</h6>
+    <div className="col-12 mb-4" key={group.id}>
+        <div className="card custom-card">
+            <div 
+                className="card-body custom-hover" 
+                onClick={() => router.get(`/groups/show/${group.id}`)}
+                style={{ cursor: 'pointer', padding: '20px' }}
+            >
+                <div className="d-flex">
+                    {/* Group Image */}
+                    <div style={{ minWidth: '150px', height: '150px', flexShrink: 0 }}>
+                        <img
+                            src={group.image_path || '/images/default-group.png'}
+                            className="rounded w-100 h-100 object-fit-cover"
+                            alt={group.name}
+                            style={{
+                                border: '1px solid black',
+                                borderRadius: '8px',
+                            }}
+                        />
+                    </div>
+                    {/* Group Info */}
+                    <div className="d-flex flex-column ms-4" style={{ flex: 1, minWidth: 0 }}>
+                        <div>
+                            <h6 className="mb-2">{group.name}</h6>
+                            <div className="d-flex align-items-center mb-2">
+                                <i className="fas fa-user-friends me-2"></i>
+                                <small>{group.member_count || 1} member(s)</small>
+                            </div>
+                            <p style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: '3',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                lineHeight: '1.5',
+                                margin: '0 0 16px 0',
+                                maxWidth: '100%'
+                            }}>
+                                {group.description}
+                            </p>
+                        </div>
 
-                                                            {/* Member Info with Icon */}
-                                                            <div className="d-flex align-items-center mb-2">
-                                                                <i className="fas fa-user-friends me-2"></i>
-                                                                <small>{group.member_count || 1} member(s)</small>
-                                                            </div>
-
-                                                            {/* Group Description */}
-                                                            <p
-                                                                className="mb-4"
-                                                                style={{
-                                                                    display: '-webkit-box',
-                                                                    WebkitLineClamp: '3',
-                                                                    WebkitBoxOrient: 'vertical',
-                                                                    overflow: 'hidden',
-                                                                    textOverflow: 'ellipsis',
-                                                                }}
-                                                            >
-                                                                {group.description}
-                                                            </p>
-                                                        </div>
-
-                                                        {/* Create Event Button */}
-                                                        <button
-                                                            className="btn custom-btn"
-                                                            style={{ alignSelf: 'flex-start' }}
-                                                            onClick={() => router.get(`/groups/set-group/${group.id}`)}
-                                                        >
-                                                            <i className="fas fa-calendar-plus me-2"></i>
-                                                            Create event
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                        {/* Create Event Button */}
+                        <button
+                            className="btn custom-btn"
+                            style={{ alignSelf: 'flex-start' }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.get(`/groups/set-group/${group.id}`)
+                            }}
+                        >
+                            <i className="fas fa-calendar-plus me-2"></i>
+                            Create event
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+))}
                             </div>
 
                             {/* Right Column: Events for each group */}
