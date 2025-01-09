@@ -11,9 +11,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TopicsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Http\Controllers\OAuthController;
 use App\Http\Controllers\Group\GroupDetailsController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,13 +20,19 @@ use App\Http\Controllers\Group\GroupDetailsController;
 |--------------------------------------------------------------------------
 */
 
+
 // Profile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
-// Public Routes
+// Public Routes unauthenticated for all users 
 Route::get('/', function () {
     return Inertia::render('LandingPage');
 });
+
+Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
+
+Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
+
 
 // Authentication Routes
 Route::prefix('auth')->group(function () {
@@ -55,10 +60,6 @@ Route::prefix('topics')->group(function () {
     Route::get('/', [TopicsController::class, 'index'])->name('topics.index');
     Route::get('/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter-by-group');
 });
-
-//  unauthenticated routes for all users 
-Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
-Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
 
 
 // Authenticated Routes

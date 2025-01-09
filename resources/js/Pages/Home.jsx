@@ -6,6 +6,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useInView } from 'react-intersection-observer';
 
+
 export default function Events() {
     const { auth, groups, events: initialEvents, pagination } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
@@ -325,6 +326,9 @@ export default function Events() {
                         </div>
 
                         <div className="d-flex flex-column align-items-center">
+
+                       
+
                         {events.length > 0 ? (
                             events.map((event) => (
                                 <div
@@ -384,6 +388,7 @@ export default function Events() {
                     </div>
                 </div>
             </div>
+          
 
             <Footer />
         </div>
