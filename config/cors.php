@@ -17,10 +17,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:5173',  // Local frontend URL
-        'https://www.quickevent.xyz', // Deployed production domain
-    ],
+ 'allowed_origins' => ['http://127.0.0.1:5173', 'https://127.0.0.1:5173', 'http://localhost:5173'],
 
     'allowed_origins_patterns' => [],
 
@@ -30,5 +27,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false, // Set to true if using cookies or credentials
+    'supports_credentials' => true, // Set to true if using cookies or credentials
 ];
