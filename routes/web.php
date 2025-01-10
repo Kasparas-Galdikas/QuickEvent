@@ -87,26 +87,24 @@ Route::middleware(['auth'])->group(function () {
         })->name('events.create');
 
         Route::post('/', [EventController::class, 'store'])->name('events.store');
+        
+    
     });
+
 
 
     // Group Routes
-    Route::prefix('groups')->group(function () {
-        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
-        Route::get('/create', fn() => Inertia::render('Groups/CreateGroup'))->name('groups.create');
-        Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show');
-        Route::post('/', [GroupController::class, 'store'])->name('groups.store');
+Route::prefix('groups')->middleware('auth')->group(function () {
+    Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/create', fn() => Inertia::render('Groups/CreateGroup'))->name('groups.create');
+    Route::post('/', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
+    Route::get('/show/{id}', [GroupDetailsController::class, 'show'])->name('groups.show')->where('id', '[0-9]+');
+    Route::get('/{groupId}/events', [EventController::class, 'getGroupEvents'])->name('groups.events');
+    Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show');
+});
 
-        // New route to set group_id in the session
-        Route::get('/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-    });
 
-    Route::prefix('groups')->group(function () {
-        // ... kiti maršrutai
-        Route::get('/show/{id}', [GroupDetailsController::class, 'show'])
-            ->name('groups.show')
-            ->where('id', '[0-9]+'); // užtikrina, kad id būtų skaičius
-    });
     
     // Profile Routes
     Route::prefix('profile')->group(function () {

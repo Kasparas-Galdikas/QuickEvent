@@ -53,6 +53,17 @@ class EventController extends Controller
         // Redirect to the events page with a success message
         return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
+    //PAKEISTI PAKEISTI PAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTI
+    public function getGroupEvents($groupId)
+{
+    $events = Event::where('group_id', $groupId)
+        ->orderBy('event_date', 'asc')
+        ->orderBy('event_time', 'asc')
+        ->with(['topics', 'attendees'])
+        ->get();
+
+    return response()->json($events);
+}
 
       /**
      * Register the authenticated user as an attendee for an event.
@@ -110,3 +121,4 @@ class EventController extends Controller
     
     
 }
+

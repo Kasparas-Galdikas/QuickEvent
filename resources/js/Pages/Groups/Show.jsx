@@ -1,11 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
+import axios from 'axios';
 
 export default function Show() {
     const { group } = usePage().props;
     const [showUploadModal, setShowUploadModal] = useState(false);
+
+// PRIDĖKITE ŠIAS EILUTES:
+const [activeTab, setActiveTab] = useState('about');
+const [events, setEvents] = useState([]);
+const [loading, setLoading] = useState(false);
+
+// PRIDĖKITE ŠĮ useEffect:
+useEffect(() => {
+    if (activeTab === 'events') {
+        loadEvents();
+    }
+}, [activeTab]);
+
+// PRIDĖKITE ŠIĄ FUNKCIJĄ:
+const loadEvents = async () => {
+    setLoading(true);
+    try {
+        const response = await axios.get(`/groups/${group.id}/events`);
+        setEvents(response.data);
+    } catch (error) {
+        console.error('Error loading events:', error);
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
@@ -52,19 +80,19 @@ export default function Show() {
                                         
                                         <div className="d-flex align-items-center">
                                             <i className="fas fa-user-friends me-2"></i>
-                                            <span>1 narys · Vieša grupė</span>
+                                            <span>1 member · Public group</span>
                                         </div>
                                         
                                         <div className="d-flex align-items-center">
                                             <i className="fas fa-calendar me-2"></i>
-                                            <span>Organizuoja <strong>{group.user?.name}</strong></span>
+                                            <span>Host <strong>{group.user?.name}</strong></span>
                                         </div>
                                     </div>
 
                                     <div className="mt-4">
                                         <button className="btn custom-btn">
                                             <i className="fas fa-comment me-2"></i>
-                                            Susisiekti su nariais
+                                            Contact members
                                         </button>
                                     </div>
                                 </div>
@@ -72,64 +100,157 @@ export default function Show() {
                         </div>
                     </div>
 
-                    {/* Navigation */}
-                    <div className="card custom-card mb-4">
-                        <div className="card-body">
-                            <ul className="nav">
-                                <li className="nav-item">
-                                    <a className="nav-link active" href="#about">Apie</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="#events">Renginiai</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="#members">Nariai</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="#photos">Nuotraukos</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="#discussions">Diskusijos</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="row">
-                        {/* Left Column */}
-                        <div className="col-md-8">
-                            <div className="card custom-card mb-4">
-                                <div className="card-body">
-                                    <h2 className="fs-4 mb-4">Apie mus</h2>
-                                    <p>{group.description}</p>
-                                </div>
-                            </div>
-
-                            <div className="card custom-card">
-                                <div className="card-body">
-                                    <h2 className="fs-4 mb-4">Artėjantys renginiai</h2>
-                                    <div className="text-center py-4">
-                                        <p>Kada kitas renginys?</p>
-                                        <p>Nariai domisi, bet nieko nesuplanuota.</p>
-                                        <a href="#" className="text-primary">Pradėti diskusiją</a>
+                   {/* Navigation */}
+<div className="card custom-card mb-4">
+    <div className="card-body">
+        <ul className="nav">
+            <li className="nav-item">
+                <a 
+                    className={`nav-link ${activeTab === 'about' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('about')}
+                    style={{ cursor: 'pointer' }}
+                >
+                    About
+                </a>
+            </li>
+            <li className="nav-item">
+                <a 
+                    className={`nav-link ${activeTab === 'events' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('events')}
+                    style={{ cursor: 'pointer' }}
+                >
+                    Events
+                </a>
+            </li>
+            <li className="nav-item">
+                <a 
+                    className={`nav-link ${activeTab === 'members' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('members')}
+                    style={{ cursor: 'pointer' }}
+                >
+                    Members
+                </a>
+            </li>
+            <li className="nav-item">
+                <a 
+                    className={`nav-link ${activeTab === 'photos' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('photos')}
+                    style={{ cursor: 'pointer' }}
+                >
+                    Pictures
+                </a>
+            </li>
+            <li className="nav-item">
+                <a 
+                    className={`nav-link ${activeTab === 'discussions' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('discussions')}
+                    style={{ cursor: 'pointer' }}
+                >
+                    Discussions
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{/* Left Column */}
+<div className="row">
+    <div className="col-md-8">
+        {activeTab === 'about' && (
+            <div className="card custom-card mb-4">
+                <div className="card-body">
+                    <h2 className="fs-4 mb-4">About us</h2>
+                    <p>{group.description}</p>
+                </div>
+            </div>
+        )}
+        
+        {activeTab === 'events' && (
+            <div className="card custom-card">
+                <div className="card-body">
+                    <h2 className="fs-4 mb-4">Events</h2>
+                    {loading ? (
+                        <div className="text-center py-4">Loading...</div>
+                    ) : events.length > 0 ? (
+                        events.map((event) => (
+                            <div key={event.id} className="mb-4 border-bottom pb-4">
+                                <div className="d-flex">
+                                    <img 
+                                        src={event.image_path || "/images/default-event.png"} 
+                                        alt={event.title}
+                                        className="rounded"
+                                        style={{ width: '120px', height: '80px', objectFit: 'cover' }}
+                                    />
+                                    <div className="ms-3">
+                                        <h5>{event.title}</h5>
+                                        <p className="mb-1">
+                                            <i className="fas fa-calendar me-2"></i>
+                                            {new Date(event.event_date).toLocaleDateString()}
+                                            {' '}
+                                            {event.event_time}
+                                        </p>
+                                        <p className="mb-1">
+                                            <i className="fas fa-map-marker-alt me-2"></i>
+                                            {event.location}
+                                        </p>
+                                        <p className="mb-0">
+                                            <i className="fas fa-users me-2"></i>
+                                            {event.attendees?.length || 0} attendees
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-4">
+                            <p>No events scheduled yet.</p>
                         </div>
+                    )}
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'members' && (
+            <div className="card custom-card">
+                <div className="card-body">
+                    <h2 className="fs-4 mb-4">Members</h2>
+                    <p>Members section coming soon...</p>
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'photos' && (
+            <div className="card custom-card">
+                <div className="card-body">
+                    <h2 className="fs-4 mb-4">Pictures</h2>
+                    <p>Pictures section coming soon...</p>
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'discussions' && (
+            <div className="card custom-card">
+                <div className="card-body">
+                    <h2 className="fs-4 mb-4">Discussions</h2>
+                    <p>Discussions section coming soon...</p>
+                </div>
+            </div>
+        )}
+    </div>
+
 
                         {/* Right Column */}
                         <div className="col-md-4">
                             {/* Organizatoriaus kortelė */}
                             <div className="card custom-card mb-4">
                                 <div className="card-body">
-                                    <h2 className="fs-4 mb-4">Organizatorius</h2>
+                                    <h2 className="fs-4 mb-4">Host</h2>
                                     <div className="d-flex items-center gap-3">
                                         <div className="rounded-circle bg-secondary" style={{ width: '64px', height: '64px' }}></div>
                                         <div>
                                             <p className="fw-bold mb-1">{group.user?.name}</p>
                                             <button className="btn btn-link p-0">
                                                 <i className="fas fa-comment me-1"></i>
-                                                Žinutė
+                                                Message
                                             </button>
                                         </div>
                                     </div>
@@ -140,8 +261,8 @@ export default function Show() {
                             <div className="card custom-card">
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <h2 className="fs-4 m-0">Nariai (1)</h2>
-                                        <a href="#" className="text-primary">Visi</a>
+                                        <h2 className="fs-4 m-0">Members (1)</h2>
+                                        <a href="#" className="text-primary">All</a>
                                     </div>
                                     
                                     {/* Organizatoriaus įrašas narių sąraše */}
@@ -149,7 +270,7 @@ export default function Show() {
                                         <div className="rounded-circle bg-secondary" style={{ width: '48px', height: '48px' }}></div>
                                         <div className="ms-3">
                                             <p className="mb-0 fw-semibold">{group.user?.name}</p>
-                                            <small className="text-muted">Organizatorius</small>
+                                            <small className="text-muted">Host</small>
                                         </div>
                                     </div>
                                 </div>
