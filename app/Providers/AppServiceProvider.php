@@ -231,22 +231,43 @@ class AppServiceProvider extends ServiceProvider
             'other',
             'school'
         ];
-
+    
         $offset = 0;
         $limit = 50;
         $totalFetched = 0;
         $processedIds = [];
-
+    
         while ($totalFetched < $remainingEvents) {
-            $events = $this->fetchEventsFromAPI($remainingEvents, $offset, $limit, $labels);
+            // Adjust batch size to avoid over-fetching
+            $batchLimit = min($limit, $remainingEvents - $totalFetched);
+    
+            // Fetch events from the API
+            $events = $this->fetchEventsFromAPI($remainingEvents, $offset, $batchLimit, $labels);
             if (empty($events)) {
+                break; // Exit if no events are returned
+            }
+    
+            // Process fetched events and increment total fetched count
+            $totalFetched += $this->processEvents($events, $processedIds);
+    
+            // Log progress
+            Log::info('Fetch progress:', [
+                'offset' => $offset,
+                'batchLimit' => $batchLimit,
+                'totalFetched' => $totalFetched,
+                'remainingEvents' => $remainingEvents,
+            ]);
+    
+            // Break early if the target count is reached
+            if ($totalFetched >= $remainingEvents) {
                 break;
             }
-
-            $totalFetched += $this->processEvents($events, $processedIds);
-            $offset += $limit;
+    
+            // Increment the offset for the next batch
+            $offset += $batchLimit;
         }
     }
+    
 
     /**
      * Fetch events from the PredictHQ API.
@@ -265,7 +286,9 @@ class AppServiceProvider extends ServiceProvider
             'limit' => $batchLimit,
             'sort' => 'start',
             'offset' => $offset,
+            'start.gte' => now()->toIso8601String(), // Fetch only events starting from now
         ];
+        
 
         Log::info('Sending request to PredictHQ API.', [
             'offset' => $offset,
