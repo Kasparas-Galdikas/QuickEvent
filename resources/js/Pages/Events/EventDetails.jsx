@@ -67,16 +67,16 @@ export default function EventDetails() {
                             {/* Event Image */}
                             <div className="mt-0 w-full lg:mt-8">
 
-                            <img
-    src={event.image_path || '/images/default-event.png'}
-    alt="Event Cover"
-    className="rounded-lg"
-    style={{
-        width: '800px', // Set the desired width
-        height: 'auto', // Maintain aspect ratio
-        border: '1px solid black', // Add a 1px black border
-    }}
-/>
+                                <img
+                                    src={event.image_path || '/images/default-event.png'}
+                                    alt="Event Cover"
+                                    className="rounded-lg"
+                                    style={{
+                                        width: '800px', // Set the desired width
+                                        height: 'auto', // Maintain aspect ratio
+                                        border: '1px solid black', // Add a 1px black border
+                                    }}
+                                />
 
 
                             </div>
@@ -112,44 +112,42 @@ export default function EventDetails() {
                                 </div>
                             </div>
 
-  {/* Attendees Section */}
-<div className="px-6 sm:px-4 xl:px-0 mt-5 w-full">
-    <div className="custom-card p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-                Attendees ({attendees && attendees.length > 0 ? attendees.length : 0})
-            </h2>
-            <button className="text-green-600 hover:underline">
-                See all
-            </button>
-        </div>
-        {attendees && attendees.length > 0 ? (
-            <div className="grid grid-cols-4 gap-4">
-                {attendees.map((attendee) => (
-                    <div key={attendee.id} className="text-center">
-                        <img
-                            src={`https://via.placeholder.com/64`} // Replace with actual profile image if available
-                            alt={`Attendee ${attendee.name}`}
-                            className="w-16 h-16 rounded-full mx-auto mb-2"
-                        />
-                        <p className="text-sm font-medium">{attendee.name}</p>
-                    </div>
-                ))}
-            </div>
-        ) : auth && auth.user && auth.user.id === event.group.user_id ? (
-            <p className="text-gray-500 text-center mt-4">
-                You are the host of this event. No attendees have joined yet.
-            </p>
-        ) : (
-            <p className="text-gray-500 text-center mt-4">
-                No attendees yet. Be the first to join this event!
-            </p>
-        )}
-    </div>
-</div>
+                            {/* Attendees Section */}
+                            <div className="px-6 sm:px-4 xl:px-0 mt-5 w-full">
+                                <div className="custom-card p-6 rounded-lg">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-xl font-semibold">
+                                            Attendees ({attendees && attendees.length > 0 ? attendees.length : 0})
+                                        </h2>
+                                        <button className="text-green-600 hover:underline">
+                                            See all
+                                        </button>
+                                    </div>
+                                    {attendees && attendees.length > 0 ? (
+                                        <div className="grid grid-cols-4 gap-4">
+                                            {attendees.map((attendee) => (
+                                                <div key={attendee.id} className="text-center">
+                                                    <img
+                                                        src={`https://via.placeholder.com/64`} // Replace with actual profile image if available
+                                                        alt={`Attendee ${attendee.name}`}
+                                                        className="w-16 h-16 rounded-full mx-auto mb-2"
+                                                    />
+                                                    <p className="text-sm font-medium">{attendee.name}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : auth?.user && auth.user.id === event?.group?.user_id ? (
+                                        <p className="text-gray-500 text-center mt-4">
+                                            You are the host of this event. No attendees have joined yet.
+                                        </p>
+                                    ) : (
+                                        <p className="text-gray-500 text-center mt-4">
+                                            No attendees yet. Be the first to join this event!
+                                        </p>
+                                    )}
 
-
-
+                                </div>
+                            </div>
 
                         </div>
 
@@ -209,7 +207,7 @@ export default function EventDetails() {
 
                                     {/* Action Buttons */}
                                     <div className="space-y-3 mt-6">
-                                        {auth && auth.user && auth.user.id === event.group.user_id ? (
+                                    {auth?.user && auth.user.id === event?.group?.user_id ? (
                                             // Display Edit button only for the host
                                             <button
                                                 className="w-full custom-btn py-3 px-4 rounded-lg"

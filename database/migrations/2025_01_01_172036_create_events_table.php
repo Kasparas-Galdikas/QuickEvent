@@ -6,21 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateEventsTable extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up()
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id(); // Primary key
             $table->string('title'); // Event title
+            $table->string('slug')->unique(); // Unique slug for the event
             $table->date('event_date'); // Event date
             $table->time('event_time'); // Event time
             $table->integer('duration'); // Duration in minutes
             $table->text('description'); // Event description
             $table->string('location'); // Event location
             $table->string('image_path')->nullable(); // Optional image path for the event
+            $table->string('status')->default('pending'); // Status of the event
+            $table->unsignedBigInteger('group_id')->nullable(); // Foreign key for group
             $table->timestamps(); // Created at and updated at timestamps
+
+            // Foreign key constraint
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('set null');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down()
     {
         Schema::dropIfExists('events');
