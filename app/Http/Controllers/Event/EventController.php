@@ -52,20 +52,22 @@ class EventController extends Controller
 
         // Redirect to the events page with a success message
         return redirect()->route('Home')->with('success', 'Event created successfully!');
+
+
     }
-    //PAKEISTI PAKEISTI PAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTIPAKEISTI
+
     public function getGroupEvents($groupId)
-{
-    $events = Event::where('group_id', $groupId)
-        ->orderBy('event_date', 'asc')
-        ->orderBy('event_time', 'asc')
-        ->with(['topics', 'attendees'])
-        ->get();
+    {
+        $events = Event::where('group_id', $groupId)
+            ->orderBy('event_date', 'asc')
+            ->orderBy('event_time', 'asc')
+            ->with(['topics', 'attendees'])
+            ->get();
 
-    return response()->json($events);
-}
+        return response()->json($events);
+    }
 
-      /**
+    /**
      * Register the authenticated user as an attendee for an event.
      */
     public function attend($eventId)
@@ -93,21 +95,21 @@ class EventController extends Controller
     private function fetchEventBySlug($slug)
     {
         return Event::with(['group.user', 'topics', 'attendees']) // Include attendees relationship
-        ->where('slug', $slug)
-        ->first();
+            ->where('slug', $slug)
+            ->first();
     }
-    
+
     public function show($slug)
     {
         $event = $this->fetchEventBySlug($slug);
-    
+
         if (!$event) {
             abort(404, 'Event not found');
         }
-    
+
         // Extract attendees' basic details
         $attendees = $event->attendees()->select('users.id', 'users.name', 'users.email')->get();
-    
+
         return Inertia::render('Events/EventDetails', [
             'event' => $event, // Event details
             'host' => $event->group->user->name ?? 'Unknown Host', // Host name
@@ -116,9 +118,9 @@ class EventController extends Controller
             'attendees' => $attendees, // Pass attendees to the front-end
         ]);
     }
-    
-    
-    
-    
+
+
+
+
 }
 

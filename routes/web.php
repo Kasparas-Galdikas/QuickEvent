@@ -13,18 +13,16 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Group\GroupDetailsController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
 
-
 // Profile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
-// Public Routes unauthenticated for all users 
+// Public Routes unauthenticated for all users
 Route::get('/', function () {
     return Inertia::render('LandingPage');
 });
@@ -33,15 +31,14 @@ Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('ev
 
 Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
 
-
 // Authentication Routes
 Route::prefix('auth')->group(function () {
-    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login.form');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout.action');
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register.form');
     Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'sendResetLinkEmail'])->name('password.email.custom');
     Route::get('/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.redirect');
     Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
 });
@@ -54,13 +51,11 @@ Route::post('/verify', [RegisteredUserController::class, 'verify'])->name('verif
 Route::post('/resend-verification-code', [RegisteredUserController::class, 'resend'])->name('verification.resend');
 Route::post('/check-user', [RegisteredUserController::class, 'checkUser'])->name('check.user');
 
-
 // Topics Routes
 Route::prefix('topics')->group(function () {
     Route::get('/', [TopicsController::class, 'index'])->name('topics.index');
-    Route::get('/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter-by-group');
+    Route::get('/filter-by-group', [TopicsController::class, 'filterByGroup'])->name('topics.filter.by.group');
 });
-
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -68,53 +63,38 @@ Route::middleware(['auth'])->group(function () {
     // Home Routes
     Route::prefix('Home')->group(function () {
         Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
-
     });
 
     // Events Routes
-
     Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
-
     Route::prefix('events')->group(function () {
-
-        Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-
-        Route::get('/events/create', function () {
+        Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('events.groups.setGroupId');
+        Route::get('/create', function () {
             $group_id = session('group_id'); // Fetch group_id from the session
             return Inertia::render('Events/CreateEvent', [
                 'group_id' => $group_id, // Pass group_id to Inertia
             ]);
         })->name('events.create');
-
         Route::post('/', [EventController::class, 'store'])->name('events.store');
-        
-    
     });
 
-
-
     // Group Routes
-Route::prefix('groups')->middleware('auth')->group(function () {
-    Route::get('/', [GroupController::class, 'index'])->name('groups.index');
-    Route::get('/create', fn() => Inertia::render('Groups/CreateGroup'))->name('groups.create');
-    Route::post('/', [GroupController::class, 'store'])->name('groups.store');
-    Route::get('/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-    Route::get('/show/{id}', [GroupDetailsController::class, 'show'])->name('groups.show')->where('id', '[0-9]+');
-    Route::get('/{groupId}/events', [EventController::class, 'getGroupEvents'])->name('groups.events');
-    Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show');
-});
+    Route::prefix('groups')->group(function () {
+        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+        Route::get('/create', fn() => Inertia::render('Groups/CreateGroup'))->name('groups.create');
+        Route::post('/', [GroupController::class, 'store'])->name('groups.store');
+        Route::get('/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
+        Route::get('/show/{id}', [GroupDetailsController::class, 'show'])->name('groups.show.details')->where('id', '[0-9]+');
+        Route::get('/{groupId}/events', [EventController::class, 'getGroupEvents'])->name('groups.events');
+        Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show.group')->where('id', '[0-9]+');
+    });
 
-
-    
     // Profile Routes
     Route::prefix('profile')->group(function () {
-
-        // These routes handle the edit, update, and delete functionalities
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
-
 });
 
 // Default Laravel auth routes
