@@ -5,44 +5,94 @@ import Footer from '../Components/Footer';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useInView } from 'react-intersection-observer';
-
+import axios from 'axios';
 
 export default function Events() {
     const { auth, groups, events: initialEvents, pagination } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
 
+    // Normalize date to ensure comparison consistency
+    const normalizeDate = (date) => {
+        const normalized = new Date(date);
+        normalized.setHours(0, 0, 0, 0);
+        return normalized;
+    };
+
+    // States for general events
     const [events, setEvents] = useState(initialEvents || []); // Initialize events with initial data
     const [currentPage, setCurrentPage] = useState(pagination?.current_page || 1); // Track the current page
     const [hasMore, setHasMore] = useState(currentPage < pagination?.last_page); // Check if more pages are available
     const [loading, setLoading] = useState(false); // Prevent duplicate fetch calls
 
-    const { ref, inView } = useInView(); // Detect when the loader comes into view
 
+    // States for calendar-specific events
+    const [selectedDate, setSelectedDate] = useState(() => normalizeDate(new Date())); // Default to today's date
+    const [calendarEvents, setCalendarEvents] = useState([]); // Calendar-specific events
+    const [calendarPage, setCalendarPage] = useState(1); // Page for calendar-specific events
+    const [calendarHasMore, setCalendarHasMore] = useState(false); // Whether more events are available for the selected date
+    const [calendarLoading, setCalendarLoading] = useState(false); // Loading state for calendar-specific events
+
+    // Infinite scroll refs for both general and calendar events
+    const { ref: generalRef, inView: generalInView } = useInView();
+    const { ref: calendarRef, inView: calendarInView } = useInView();
+
+    // Load more general events when scrolled into view
     useEffect(() => {
-        if (inView && hasMore && !loading) {
+        if (generalInView && hasMore && !loading && calendarEvents.length === 0) {
             loadMoreEvents();
         }
-    }, [inView]);
-    
+    }, [generalInView]);
+
+    // Load more calendar-specific events when scrolled into view
+    useEffect(() => {
+        if (calendarInView && calendarHasMore && !calendarLoading) {
+            fetchEventsForCalendar(selectedDate, calendarPage + 1);
+        }
+    }, [calendarInView]);
+
+    // Fetch events for the calendar, paginated
+    const fetchEventsForCalendar = async (date, page = 1) => {
+        setCalendarLoading(true);
+        try {
+            const response = await axios.get('/api/calendar-events', {
+                params: {
+                    date: date.toISOString(),
+                    page,
+                    perPage: 10,
+                },
+            });
+
+            if (response?.data?.events) {
+                setCalendarEvents((prev) =>
+                    page === 1 ? response.data.events : [...prev, ...response.data.events]
+                );
+                setCalendarPage(page);
+                setCalendarHasMore(page < response.data.pagination.last_page);
+            } else {
+                setCalendarEvents([]);
+                setCalendarHasMore(false);
+            }
+        } catch (error) {
+            console.error('Error fetching calendar events:', error);
+        } finally {
+            setCalendarLoading(false);
+        }
+    };
 
     const fetchMoreEvents = async (page) => {
-        console.log(`Fetching events for page: ${page}`);
         try {
             const response = await axios.get(`/api/events?page=${page}`);
-            console.log('API Response:', response.data);
-    
+
             if (response?.data?.events) {
                 return {
                     events: response.data.events,
                     pagination: response.data.pagination,
                 };
-            } else {
-                console.error("Unexpected API response:", response);
-                return {
-                    events: [],
-                    pagination: {},
-                };
             }
+            return {
+                events: [],
+                pagination: {},
+            };
         } catch (error) {
             console.error("Error fetching more events:", error);
             return {
@@ -51,21 +101,19 @@ export default function Events() {
             };
         }
     };
-    
+
     const loadMoreEvents = async () => {
-        console.log('Triggered loadMoreEvents');
+        if (loading) return;
         setLoading(true);
-    
+
         try {
             const { events: newEvents, pagination: newPagination } = await fetchMoreEvents(currentPage + 1);
-    
+
             if (newEvents.length > 0) {
-                console.log(`Loaded ${newEvents.length} events`);
                 setEvents((prevEvents) => [...prevEvents, ...newEvents]);
                 setCurrentPage(newPagination.current_page);
                 setHasMore(newPagination.current_page < newPagination.last_page);
             } else {
-                console.log('No more events available');
                 setHasMore(false);
             }
         } catch (error) {
@@ -74,9 +122,16 @@ export default function Events() {
             setLoading(false);
         }
     };
-    
-    
-    
+
+    const groupedEvents = React.useMemo(() => {
+        const source = calendarEvents.length > 0 ? calendarEvents : events; // Use calendarEvents if available
+        return source.reduce((groups, event) => {
+            const eventDate = normalizeDate(event.event_date).toDateString();
+            if (!groups[eventDate]) groups[eventDate] = [];
+            groups[eventDate].push(event);
+            return groups;
+        }, {});
+    }, [events, calendarEvents]);
 
 
     return (
@@ -96,65 +151,65 @@ export default function Events() {
                                 <p className="lead fs-3 mb-4">Groups you organize</p>
 
                                 {groups.map((group) => (
-    <div className="col-12 mb-4" key={group.id}>
-        <div className="card custom-card">
-            <div 
-                className="card-body custom-hover" 
-                onClick={() => router.get(`/groups/show/${group.id}`)}
-                style={{ cursor: 'pointer', padding: '20px' }}
-            >
-                <div className="d-flex">
-                    {/* Group Image */}
-                    <div style={{ minWidth: '150px', height: '150px', flexShrink: 0 }}>
-                        <img
-                            src={group.image_path || '/images/default-group.png'}
-                            className="rounded w-100 h-100 object-fit-cover"
-                            alt={group.name}
-                            style={{
-                                border: '1px solid black',
-                                borderRadius: '8px',
-                            }}
-                        />
-                    </div>
-                    {/* Group Info */}
-                    <div className="d-flex flex-column ms-4" style={{ flex: 1, minWidth: 0 }}>
-                        <div>
-                            <h6 className="mb-2">{group.name}</h6>
-                            <div className="d-flex align-items-center mb-2">
-                                <i className="fas fa-user-friends me-2"></i>
-                                <small>{group.member_count || 1} member(s)</small>
-                            </div>
-                            <p style={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: '3',
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                lineHeight: '1.5',
-                                margin: '0 0 16px 0',
-                                maxWidth: '100%'
-                            }}>
-                                {group.description}
-                            </p>
-                        </div>
+                                    <div className="col-12 mb-4" key={group.id}>
+                                        <div className="card custom-card">
+                                            <div
+                                                className="card-body custom-hover"
+                                                onClick={() => router.get(`/groups/show/${group.id}`)}
+                                                style={{ cursor: 'pointer', padding: '20px' }}
+                                            >
+                                                <div className="d-flex">
+                                                    {/* Group Image */}
+                                                    <div style={{ minWidth: '150px', height: '150px', flexShrink: 0 }}>
+                                                        <img
+                                                            src={group.image_path || '/images/default-group.png'}
+                                                            className="rounded w-100 h-100 object-fit-cover"
+                                                            alt={group.name}
+                                                            style={{
+                                                                border: '1px solid black',
+                                                                borderRadius: '8px',
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {/* Group Info */}
+                                                    <div className="d-flex flex-column ms-4" style={{ flex: 1, minWidth: 0 }}>
+                                                        <div>
+                                                            <h6 className="mb-2">{group.name}</h6>
+                                                            <div className="d-flex align-items-center mb-2">
+                                                                <i className="fas fa-user-friends me-2"></i>
+                                                                <small>{group.member_count || 1} member(s)</small>
+                                                            </div>
+                                                            <p style={{
+                                                                display: '-webkit-box',
+                                                                WebkitLineClamp: '3',
+                                                                WebkitBoxOrient: 'vertical',
+                                                                overflow: 'hidden',
+                                                                lineHeight: '1.5',
+                                                                margin: '0 0 16px 0',
+                                                                maxWidth: '100%'
+                                                            }}>
+                                                                {group.description}
+                                                            </p>
+                                                        </div>
 
-                        {/* Create Event Button */}
-                        <button
-                            className="btn custom-btn"
-                            style={{ alignSelf: 'flex-start' }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.get(`/groups/set-group/${group.id}`)
-                            }}
-                        >
-                            <i className="fas fa-calendar-plus me-2"></i>
-                            Create event
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-))}
+                                                        {/* Create Event Button */}
+                                                        <button
+                                                            className="btn custom-btn"
+                                                            style={{ alignSelf: 'flex-start' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                router.get(`/groups/set-group/${group.id}`)
+                                                            }}
+                                                        >
+                                                            <i className="fas fa-calendar-plus me-2"></i>
+                                                            Create event
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
                             {/* Right Column: Events for each group */}
@@ -280,7 +335,19 @@ export default function Events() {
 
                 <div className="row">
                     <div className="col-md-4 col-lg-3 mb-4">
-                        <Calendar className="mx-auto" />
+                        <Calendar
+                            className="mx-auto"
+                            onChange={(date) => {
+                                const normalizedDate = normalizeDate(date);
+                                setSelectedDate(normalizedDate);
+                                setCalendarEvents([]);
+                                setCalendarPage(1);
+                                setCalendarHasMore(false);
+                                fetchEventsForCalendar(normalizedDate);
+                            }}
+                            value={selectedDate}
+                        />
+
 
                         <div className="card custom-card mt-4">
                             <div className="card-body" style={{ marginBottom: '20px' }}>
@@ -326,69 +393,137 @@ export default function Events() {
                         </div>
 
                         <div className="d-flex flex-column align-items-center">
-
-                       
-
-                        {events.length > 0 ? (
-                            events.map((event) => (
-                                <div
-                                    className="card custom-card custom-hover mb-3 w-100"
-                                    key={`global-event-${event.id}`}
-                                    onClick={() => router.get(`/events/details/${event.slug}`)} // Make the entire card clickable
-                                    style={{
-                                        border: 'none',
-                                        padding: '10px',
-                                        height: 'auto',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    <div className="row g-0 align-items-center">
-                                        <div className="col-md-4">
-                                            <img
-                                                src={event.image_path || '/images/default-event.png'}
-                                                className="card-img"
-                                                alt={event.title}
-                                                loading="lazy"
-                                                style={{
-                                                    width: '230px',
-                                                    height: '130px',
-                                                    objectFit: 'cover',
-                                                    border: '1px solid black',
-                                                    borderRadius: '8px',
-                                                }}
-                                            />
-                                        </div>
-                                        <div className="col-md-8">
-                                            <div className="card-body py-2">
-                                                <h5 className="card-title">{event.title}</h5>
-                                                <p
-                                                    className="card-text text-truncate"
-                                                    style={{ maxHeight: '3.6em', overflow: 'hidden' }}
+                            {Object.entries(groupedEvents)
+                                .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
+                                .filter(([date]) => normalizeDate(date) >= selectedDate)
+                                .map(([date, groupedEvents], index) => (
+                                    <div key={date} className="w-100">
+                                        {/* Display 'No events planned' message for the selected date */}
+                                        {index === 0 && normalizeDate(date) > selectedDate && (
+                                            <div className="w-100">
+                                                <h6
+                                                    className="text-start text-muted mb-3 fw-bold"
+                                                    style={{ marginLeft: '10px' }}
                                                 >
-                                                    {event.description}
-                                                </p>
-                                                <p className="mb-0">Location: {event.location}</p>
+                                                    {selectedDate.toLocaleDateString('en-US', {
+                                                        weekday: 'long',
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                    })}
+                                                </h6>
+                                                <p className="text-center">No events planned for this date</p>
+                                                <hr />
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No upcoming events available</p>
-                        )}
+                                        )}
 
-                        {/* Infinite Scroll Loader */}
-                        {hasMore && (
-                            <div ref={ref} className="text-center my-4">
-                                {loading ? <p>Loading more events...</p> : <p>Scroll down to load more events</p>}
-                            </div>
-                        )}
-                    </div>
+                                        <h6
+                                            className="text-start text-muted mb-3 fw-bold"
+                                            style={{ marginLeft: '10px' }}
+                                        >
+                                            {new Date(date).toDateString() === new Date().toDateString()
+                                                ? 'Today'
+                                                : new Date(date).toLocaleDateString('en-US', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}
+                                        </h6>
+                                        <hr />
+
+                                        {groupedEvents.map((event) => (
+                                            <div
+                                                className="card custom-card custom-hover mb-3 w-100"
+                                                key={`global-event-${event.id}`}
+                                                onClick={() => router.get(`/events/details/${event.slug}`)}
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '10px',
+                                                    height: 'auto',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                <div className="row g-0 align-items-center">
+                                                    <div className="col-md-4">
+                                                        <img
+                                                            src={event.image_path || '/images/default-event.png'}
+                                                            className="card-img"
+                                                            alt={event.title}
+                                                            loading="lazy"
+                                                            style={{
+                                                                width: '230px',
+                                                                height: '130px',
+                                                                objectFit: 'cover',
+                                                                border: '1px solid black',
+                                                                borderRadius: '8px',
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="col-md-8">
+                                                        <div className="card-body py-2">
+                                                            <h5 className="card-title">{event.title}</h5>
+                                                            <p
+                                                                className="card-text text-truncate"
+                                                                style={{
+                                                                    maxHeight: '3.6em',
+                                                                    overflow: 'hidden',
+                                                                }}
+                                                            >
+                                                                {event.description}
+                                                            </p>
+                                                            <p className="mb-0">Location: {event.location}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+
+                            {/* Display message if no events are planned */}
+                            {Object.entries(groupedEvents)
+                                .filter(([date]) => normalizeDate(date) >= selectedDate)
+                                .length === 0 && (
+                                    <div className="w-100">
+                                        <h6
+                                            className="text-start text-muted mb-3 fw-bold"
+                                            style={{ marginLeft: '10px' }}
+                                        >
+                                            {selectedDate.toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })}
+                                        </h6>
+                                        <p className="text-center">No events planned for this date</p>
+                                        <hr />
+                                    </div>
+                                )}
+
+                            {/* Infinite scroll loader */}
+                            {calendarEvents.length > 0 && calendarHasMore && (
+                                <div ref={calendarRef} className="text-center my-4">
+                                    {calendarLoading ? (
+                                        <p>Loading more events...</p>
+                                    ) : (
+                                        <p>Scroll down to load more events</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {calendarEvents.length === 0 && hasMore && (
+                                <div ref={generalRef} className="text-center my-4">
+                                    {loading ? <p>Loading more events...</p> : <p>Scroll down to load more events</p>}
+                                </div>
+                            )}
+                        </div>
+
 
                     </div>
                 </div>
             </div>
-          
 
             <Footer />
         </div>

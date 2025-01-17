@@ -28,8 +28,9 @@ Route::get('/', function () {
 });
 
 Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
-
+//Home routes to fetch events for infinite scroll and calendar
 Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
+Route::get('/api/calendar-events', [HomePageController::class, 'fetchEventsForCalendar']);
 
 // Authentication Routes
 Route::prefix('auth')->group(function () {
