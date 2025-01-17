@@ -92,6 +92,13 @@
     transition: all 0.2s ease;
 }
 
+/* Active Item */
+.navbar-custom .dropdown-item.active {
+    background-color: rgb(232, 240, 214); /* Light gray background */
+    font-weight: bold;        /* Bold text for active item */
+    color: #8d9440;           /* Optional: Change text color for active item */
+}
+
 .navbar-custom .dropdown-item:hover {
     background-color: rgb(235, 240, 225); /* Light hover background */
     color: #8d9440; /* Highlighted text */

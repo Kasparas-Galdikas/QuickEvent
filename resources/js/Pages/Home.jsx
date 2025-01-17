@@ -8,7 +8,7 @@ import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
 import UserAtendedEvents from '@/Components/UserAtendedEvents';
 
-export default function Events() {
+export default function Home() {
     const { auth, groups, events: initialEvents, pagination } = usePage().props; // Fetch events from props
     const username = auth?.user?.name || 'Guest';
 

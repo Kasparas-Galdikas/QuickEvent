@@ -1,18 +1,54 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useEffect, useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
+import Register from './Auth/Register';
+import axios from 'axios';
 
 export default function Home() {
+    const { auth } = usePage().props; // Access the logged-in user info via Inertia
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+    const [events, setEvents] = useState([]);
+
+    const openRegisterModal = () => setShowRegisterModal(true);
+    const closeRegisterModal = () => setShowRegisterModal(false);
+
+
+
+    // Redirect logged-in users to the dashboard
+    useEffect(() => {
+        if (auth.user) {
+            window.location.href = '/Home'; // Redirect to dashboard
+        }
+    }, [auth.user]);
+
+    useEffect(() => {
+        // Fetch upcoming events
+        axios.get('/events/upcoming')
+            .then((response) => {
+                setEvents(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching events:', error);
+            });
+    }, []);
+
     return (
-        <div className=" d-flex flex-column min-vh-100">
+        <div className="d-flex flex-column min-vh-100">
             <Head title="QuickEvent | Find Local Groups" />
 
-            {/* Navbar */}
             <Navbar />
 
-            {/* header Section */}
+            {/* Register Modal */}
+            <Register
+                show={showRegisterModal}
+                onClose={closeRegisterModal}
+
+            />
+
+            {/* Header Section */}
             <header className="header py-5">
                 <div className="container d-flex align-items-center">
                     <div className="row w-100">
@@ -35,9 +71,9 @@ export default function Home() {
                             >
                                 Whatever your interest, from hiking and reading to networking and skill sharing, there are thousands of people who share it on QuickEvent.
                             </p>
-                            <a
-                                href="/register"
-                                className=" custom-btn btn btn-outline-primary fw-bold mt-4"
+                            <button
+                                onClick={openRegisterModal}
+                                className="custom-btn btn btn-outline-primary fw-bold mt-4"
                                 style={{
                                     alignSelf: 'flex-start',
                                     padding: '8px 16px',
@@ -46,7 +82,7 @@ export default function Home() {
                                 }}
                             >
                                 Join QuickEvent
-                            </a>
+                            </button>
                         </div>
                         <div className="col-lg-6 text-center">
                             <img
@@ -63,70 +99,88 @@ export default function Home() {
             {/* Upcoming Events Section */}
             <section className="events py-5">
                 <div className="container">
-                    <h2 className="mb-4 fw-bold">Upcoming Online Events</h2>
+                    <h2 className="mb-4 fw-bold">Upcoming Events</h2>
+                    <div className="row row-cols-1 row-cols-md-4 g-4">
+                        {events.map((event) => (
+                            <div className="col" key={event.id}>
+                                <a
+                                    href={`/events/details/${event.slug}`}
+                                    className="text-decoration-none text-dark"
+                                >
+                                    <div className="card custom-card custom-hover event-card h-100">
+                                        {/* Event Image */}
+                                        <img
+                                            src={event.image_path || '/images/default-event.png'}
+                                            onError={(e) => {
+                                                e.target.onerror = null; // Prevent infinite loop
+                                                e.target.src = '/images/default-event.png'; // Fallback image path
+                                            }}
+                                            className="card-img-top border border-dark rounded"
+                                            alt={event.title}
+                                        />
 
-                    <div className="row">
-                        {[1, 2, 3, 4].map((event) => (
-                            <div className="col-md-3 mb-4" key={event}>
-                                <div className="card event-card">
-                                    <img
-                                        src={`https://via.placeholder.com/300x200?text=Event+${event}`}
-                                        className="card-img-top"
-                                        alt={`Event ${event}`}
-                                    />
-                                    <div className="card-body">
-                                        <h5 className="card-title fw-bold">Event {event} Title</h5>
-                                        <p className="card-text">Tue, Dec 24 - 4:00 PM EET</p>
-                                        <a href="/events/1" className=" custom-btn btn btn-outline-primary btn-sm">
-                                            See Details
-                                        </a>
+                                        {/* Event Details */}
+                                        <div className="card-body d-flex flex-column justify-content-between text-center">
+                                            <h5 className="card-title fw-bold">{event.title}</h5>
+                                            <p className="card-text mb-1">
+                                                {/* Format Event Date */}
+                                                {new Intl.DateTimeFormat('en-US', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                }).format(new Date(event.event_date))} - {event.event_time}
+                                            </p>
+                                            <p className="card-text text-muted">Location: {event.location}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
+
             {/* Join QuickEvent Section */}
-            <section className="py-5 text-center">
-                <div className="container">
-                    <h2 className="mb-3 fw-bold">Join QuickEvent</h2>
-                    <p className="lead">
-                        People use QuickEvent to meet new people, learn new things, find support, get out of their comfort zones, and pursue their passions, together. Membership is free.
-                    </p>
-                    <a href="/register" className=" custom-btn btn btn-primary btn-lg">Sign up</a>
-                </div>
-            </section>
+            <section className="py-5">
+                <div className="container custom-card p-5">
+                    <div className="row align-items-center">
+                        {/* Left Column: Text */}
+                        <div className="col-lg-6 text-start">
+                            <h2 className="mb-3 fw-bold fs-4">Join QuickEvent</h2>
+                            <p className="lead fs-6">
+                                People use QuickEvent to meet new people, learn new things, find support,
+                                get out of their comfort zones, and pursue their passions — together.
+                            </p>
+                            <button
+                                onClick={openRegisterModal}
+                                className="custom-btn btn"
+                                style={{
+                                    minWidth: '200px',      // Ensures the button has a longer width
+                                }}
+                            >
+                                Sign up
+                            </button>
 
-            {/* Explore Categories Section */}
-            <section className="categories py-5">
-                <div className="row justify-content-center">
-                    {[
-                        { name: "Travel and Outdoor", icon: "bi bi-tree", link: "/travel-outdoor" },
-                        { name: "Social Activities", icon: "bi bi-people", link: "/social-activities" },
-                        { name: "Hobbies and Passions", icon: "bi bi-heart", link: "/hobbies-passions" },
-                        { name: "Sports and Fitness", icon: "bi bi-bicycle", link: "/sports-fitness" },
-                        { name: "Health and Wellbeing", icon: "bi bi-heart-pulse", link: "/health-wellbeing" },
-                        { name: "Technology", icon: "bi bi-laptop", link: "/technology" },
-                        { name: "Art and Culture", icon: "bi bi-palette", link: "/art-culture" },
-                        { name: "Games", icon: "bi bi-controller", link: "/games" },
-                    ].map((category) => (
-                        <div className="col-auto mb-3" key={category.name}>
-                            <a href={category.link} className="text-decoration-none">
-                                <div className="category-cube">
-                                    <i className={`${category.icon} mb-2`}></i>
-                                    <h6 className="card-title mt-1">{category.name}</h6>
-                                </div>
-                            </a>
                         </div>
-                    ))}
+                        {/* Right Column: Image */}
+                        <div className="col-lg-6 d-flex justify-content-end">
+                            <img
+                                src="https://www.meetup.com/_next/image/?url=%2Fimages%2FindexPage%2Fjoin%2Fjoin_meetup.webp&w=750&q=75"
+                                alt="QuickEvent Hands"
+                                className="img-fluid"
+                                style={{
+                                    width: '400px',  // Explicit width
+                                    height: 'auto',  // Maintain aspect ratio
+                                    objectFit: 'contain', // Ensures proper scaling inside defined dimensions
+                                }}
+                            />
+                        </div>
+                    </div>
                 </div>
-
-
             </section>
 
-            {/* Footer */}
             <Footer />
         </div>
     );

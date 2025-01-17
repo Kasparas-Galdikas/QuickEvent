@@ -129,59 +129,58 @@ export default function Show() {
                                                 </button>
 
                                                 <button
-    className="btn custom-btn w-100"
-    onClick={() => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Are you sure you want to delete this group? This action cannot be undone.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'custom-confirm-button',
-                cancelButton: 'custom-cancel-button',
-                popup: 'custom-popup', // Apply custom popup class
-            },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.delete(`/groups/${group.id}`, {
-                    onSuccess: () => {
-                        Swal.fire({
-                            title: 'Deleted!',
-                            text: 'The group has been deleted.',
-                            icon: 'success',
-                            confirmButtonText: 'OK',
-                            customClass: {
-                                confirmButton: 'custom-confirm-button',
-                                popup: 'custom-popup', // Reuse the same custom popup class
-                            },
-                        }).then(() => {
-                            router.visit('/Home'); // Redirect to Home after confirmation
-                        });
-                    },
-                    onError: (error) => {
-                        console.error('Error deleting group:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Failed to delete the group. Please try again later.',
-                            icon: 'error',
-                            confirmButtonText: 'OK',
-                            customClass: {
-                                confirmButton: 'custom-confirm-button',
-                                popup: 'custom-popup', // Reuse the same custom popup class
-                            },
-                        });
-                    },
-                });
-            }
-        });
-    }}
->
-    <i className="fas fa-trash-alt me-2"></i>
-    Remove Group
-</button>
-
+                                                    className="btn custom-btn w-100"
+                                                    onClick={() => {
+                                                        Swal.fire({
+                                                            title: 'Are you sure?',
+                                                            text: 'Are you sure you want to delete this group? This action cannot be undone.',
+                                                            icon: 'warning',
+                                                            showCancelButton: true,
+                                                            confirmButtonText: 'Yes, delete it!',
+                                                            cancelButtonText: 'Cancel',
+                                                            customClass: {
+                                                                confirmButton: 'custom-confirm-button',
+                                                                cancelButton: 'custom-cancel-button',
+                                                                popup: 'custom-popup', // Apply custom popup class
+                                                            },
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                router.delete(`/groups/${group.id}`, {
+                                                                    onSuccess: () => {
+                                                                        Swal.fire({
+                                                                            title: 'Deleted!',
+                                                                            text: 'The group has been deleted.',
+                                                                            icon: 'success',
+                                                                            confirmButtonText: 'OK',
+                                                                            customClass: {
+                                                                                confirmButton: 'custom-confirm-button',
+                                                                                popup: 'custom-popup', // Reuse the same custom popup class
+                                                                            },
+                                                                        }).then(() => {
+                                                                            router.visit('/Home'); // Redirect to Home after confirmation
+                                                                        });
+                                                                    },
+                                                                    onError: (error) => {
+                                                                        console.error('Error deleting group:', error);
+                                                                        Swal.fire({
+                                                                            title: 'Error!',
+                                                                            text: 'Failed to delete the group. Please try again later.',
+                                                                            icon: 'error',
+                                                                            confirmButtonText: 'OK',
+                                                                            customClass: {
+                                                                                confirmButton: 'custom-confirm-button',
+                                                                                popup: 'custom-popup', // Reuse the same custom popup class
+                                                                            },
+                                                                        });
+                                                                    },
+                                                                });
+                                                            }
+                                                        });
+                                                    }}
+                                                >
+                                                    <i className="fas fa-trash-alt me-2"></i>
+                                                    Remove Group
+                                                </button>
 
                                             </>
                                         )}

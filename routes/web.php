@@ -22,12 +22,14 @@ use App\Http\Controllers\Group\GroupDetailsController;
 // Profile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
-// Public Routes unauthenticated for all users
+// Public Routes unauthenticated
 Route::get('/', function () {
     return Inertia::render('LandingPage');
 });
+// Upcomming event route 
+Route::get('/events/upcoming', [EventController::class, 'getUpcomingEvents']);
 
-  // Attendence Routes
+
 // Attendance Routes
 Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
 Route::delete('/events/{id}/attend', [EventController::class, 'unattend'])->name('events.unattend');
@@ -36,7 +38,7 @@ Route::get('/user-attended-events', [EventController::class, 'getUserAttendedEve
 Route::get('/events/{id}/attendees', [EventController::class, 'getEventAttendees']);
 
 
-  //Event Path route 
+//Event Path route 
 Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
 
 //Home routes to fetch events for infinite scroll and calendar

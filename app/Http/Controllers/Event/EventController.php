@@ -72,6 +72,20 @@ class EventController extends Controller
         return response()->json($events);
     }
 
+    public function getUpcomingEvents()
+{
+    // Fetch the next 4 events closest to the current date and time
+    $events = Event::whereDate('event_date', '>=', now()->toDateString())
+        ->orderBy('event_date', 'asc')
+        ->orderBy('event_time', 'asc')
+        ->take(4)
+        ->get();
+
+    return response()->json($events);
+}
+
+
+
     /**
      * Register the authenticated user as an attendee for an event.
      */

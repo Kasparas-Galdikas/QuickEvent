@@ -89,10 +89,20 @@ export default function Navbar() {
                                         </button>
                                         <ul className="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <Link href={route('profile')} className="dropdown-item">Profile</Link>
+                                                <Link
+                                                    href={route('profile')}
+                                                    className={`dropdown-item ${route().current('profile') ? 'active' : ''}`}
+                                                >
+                                                    Profile
+                                                </Link>
                                             </li>
                                             <li>
-                                                <Link href="/Home" className="dropdown-item">Explore Events</Link>
+                                                <Link
+                                                    href="/Home"
+                                                    className={`dropdown-item ${window.location.pathname === '/Home' ? 'active' : ''}`}
+                                                >
+                                                    Explore Events
+                                                </Link>
                                             </li>
                                             <li>
                                                 <button className="dropdown-item" onClick={handleLogout}>
@@ -100,6 +110,7 @@ export default function Navbar() {
                                                 </button>
                                             </li>
                                         </ul>
+
                                     </div>
                                 </>
                             ) : (

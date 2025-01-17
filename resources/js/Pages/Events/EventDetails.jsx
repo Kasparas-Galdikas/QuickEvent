@@ -5,6 +5,8 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import Swal from "sweetalert2";
 import { router } from '@inertiajs/react';
+import Register from "../Auth/Register";
+import axios from 'axios';
 
 export default function EventDetails() {
     const { auth, event, host, topics } = usePage().props; // Remove attendees from here
@@ -12,6 +14,11 @@ export default function EventDetails() {
     const [attendees, setAttendees] = useState([]); // State to manage attendees list
     const startDateTime = new Date(`${event.event_date}T${event.event_time}`);
     const endDateTime = new Date(startDateTime.getTime() + event.duration * 60 * 60 * 1000);
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+    const openRegisterModal = () => setShowRegisterModal(true);
+    const closeRegisterModal = () => setShowRegisterModal(false);
+  
 
     useEffect(() => {
         // Check if the user is attending the event
@@ -108,8 +115,8 @@ export default function EventDetails() {
                 });
         }
     }
-    
-    
+
+
 
     // Fetch updated attendees
     function fetchUpdatedAttendees(eventId, setAttendees) {
@@ -134,6 +141,14 @@ export default function EventDetails() {
                     <h1 className="text-3xl font-bold leading-snug overflow-hidden overflow-ellipsis">
                         {event.title}
                     </h1>
+
+                    {/* Registration Modal */}
+                    <Register
+                        show={showRegisterModal}
+                        onClose={closeRegisterModal}
+                     
+                    />
+
 
                     {/* Host Information */}
                     <div className="block w-fit hover:no-underline">
@@ -297,34 +312,50 @@ export default function EventDetails() {
                                         </div>
                                     </div>
 
-                                    {/* Action Buttons */}
                                     <div className="space-y-3 mt-6">
+                                        {/* CASE 1: Authenticated + Host */}
                                         {auth?.user && auth.user.id === event?.group?.user_id ? (
-                                            // Display Edit button only for the host
                                             <button
                                                 className="w-full custom-btn py-3 px-4 rounded-lg"
                                                 onClick={() => router.get(`/events/edit/${event.id}`)}
                                             >
                                                 Edit Event Information
                                             </button>
-                                        ) : (
-                                            // Display Attend and Share buttons for non-hosts
+                                        ) : auth?.user ? (
+                                            /* CASE 2: Authenticated but NOT Host */
                                             <>
                                                 <button
-                                                    className={`w-full custom-btn py-3 px-4 rounded-lg ${isAttending ? "bg-gray-400" : "bg-green-600"
+                                                    className={`w-full custom-btn py-3 px-4 rounded-lg ${isAttending ? 'bg-gray-400' : 'bg-green-600'
                                                         }`}
                                                     onClick={() =>
                                                         toggleAttendance(event.id, isAttending, setIsAttending, setAttendees)
                                                     }
                                                 >
-                                                    {isAttending ? "Attending" : "Attend Online"}
+                                                    {isAttending ? 'Attending' : 'Attend Online'}
                                                 </button>
                                                 <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
                                                     Share
                                                 </button>
                                             </>
+                                        ) : (
+                                            /* CASE 3: NOT Authenticated (Trigger the modals) */
+                                            <>
+                                                <button
+                                                    className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                    onClick={openRegisterModal}
+                                                >
+                                                    Register to Attend
+                                                </button>
+                                                <button
+                                                    className="w-full custom-btn py-3 px-4 rounded-lg bg-white"
+                                                    onClick={openRegisterModal}
+                                                >
+                                                    Register to Share
+                                                </button>
+                                            </>
                                         )}
                                     </div>
+
 
 
                                 </div>
