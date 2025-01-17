@@ -3,6 +3,7 @@ import { Head, usePage, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function Show() {
     const { group, auth } = usePage().props;  // auth
@@ -118,31 +119,73 @@ export default function Show() {
                                             Contact members
                                         </button>
                                         {auth && auth.user && auth.user.id === group.user_id && (
-    <>
-        <button
-            className="btn custom-btn mb-2 w-100"
-            onClick={() => router.get(`/groups/edit/${group.id}`)}
-        >
-            <i className="fas fa-edit me-2"></i>
-            Edit Group
-        </button>
-        <button
-            className="btn custom-btn w-100"
-            onClick={() => {
-                if (window.confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
-                    router.delete(`/groups/${group.id}`, {
-                        onSuccess: () => {
-                            router.visit('/Home');  // Changed to redirect to Home
-                        },
-                    });
-                }
-            }}
-        >
-            <i className="fas fa-trash-alt me-2"></i>
-            Remove Group
-        </button>
-    </>
-)}
+                                            <>
+                                                <button
+                                                    className="btn custom-btn mb-2 w-100"
+                                                    onClick={() => router.get(`/groups/edit/${group.id}`)}
+                                                >
+                                                    <i className="fas fa-edit me-2"></i>
+                                                    Edit Group
+                                                </button>
+
+                                                <button
+    className="btn custom-btn w-100"
+    onClick={() => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to delete this group? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'custom-confirm-button',
+                cancelButton: 'custom-cancel-button',
+                popup: 'custom-popup', // Apply custom popup class
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(`/groups/${group.id}`, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'The group has been deleted.',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'custom-confirm-button',
+                                popup: 'custom-popup', // Reuse the same custom popup class
+                            },
+                        }).then(() => {
+                            router.visit('/Home'); // Redirect to Home after confirmation
+                        });
+                    },
+                    onError: (error) => {
+                        console.error('Error deleting group:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to delete the group. Please try again later.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'custom-confirm-button',
+                                popup: 'custom-popup', // Reuse the same custom popup class
+                            },
+                        });
+                    },
+                });
+            }
+        });
+    }}
+>
+    <i className="fas fa-trash-alt me-2"></i>
+    Remove Group
+</button>
+
+
+                                            </>
+                                        )}
+
                                     </div>
 
                                 </div>
