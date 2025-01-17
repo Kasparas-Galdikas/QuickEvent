@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Topic;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class GroupDetailsController extends Controller
 {
@@ -65,6 +66,7 @@ class GroupDetailsController extends Controller
             'description' => $group->description,
             'location' => $group->location,
             'image_path' => null,
+            'user_id' => $group->user_id,
             'user' => [
                 'id' => $group->user->id,
                 'name' => $group->user->name
@@ -85,4 +87,42 @@ class GroupDetailsController extends Controller
         session(['group_id' => $id]);
         return redirect()->route('events.create');
     }
+
+    public function edit($id)
+    {
+        $group = Group::with(['topics'])->findOrFail($id);
+        
+        // Check if user has permission to edit
+        if (auth()->id() !== $group->user_id) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        return Inertia::render('Groups/EditGroup', [
+            'group' => $group,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+{
+    $group = Group::findOrFail($id);
+    
+    // Check if user has permission to update
+    if (auth()->id() !== $group->user_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // Validate the request
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'location' => 'required|string|max:255',
+    ]);
+
+    // Update group
+    $group->update($validated);
+
+    // Use the correct route name - either 'groups.show.details' or 'groups.show.group'
+    return redirect()->route('groups.show.details', $group->id)
+        ->with('success', 'Group updated successfully');
+}
 }

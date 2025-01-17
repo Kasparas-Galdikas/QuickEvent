@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
-
+import { router } from '@inertiajs/react';
 export default function EventDetails() {
     const { auth, event, host, topics, attendees } = usePage().props;
 
@@ -206,33 +206,50 @@ export default function EventDetails() {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="space-y-3 mt-6">
-                                    {auth?.user && auth.user.id === event?.group?.user_id ? (
-                                            // Display Edit button only for the host
-                                            <button
-                                                className="w-full custom-btn py-3 px-4 rounded-lg"
-                                                onClick={() => router.get(`/events/edit/${event.id}`)}
-                                            >
-                                                Edit Event Information
-                                            </button>
-                                        ) : (
-                                            // Display Attend and Share buttons for non-hosts
-                                            <>
-
-                                                <button
-                                                    className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg"
-                                                    onClick={() => attendEvent(event.id)} // Pass the event ID dynamically
-                                                >
-                                                    Attend Online
-                                                </button>
-
-                                                <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
-                                                    Share
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-
+<div className="space-y-3 mt-6">
+    {auth?.user && event?.group && auth.user.id === event.group.user_id ? (
+        <>
+            <button
+                className="w-full custom-btn py-3 px-4 rounded-lg"
+                onClick={() => router.visit(`/events/edit/${event.id}`)}
+            >
+                Edit Event Information
+            </button>
+            {/* Remove Button */}
+            <button
+                className="w-full custom-btn py-3 px-4 rounded-lg bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                    if(confirm('Are you sure you want to delete this event?')) {
+                        axios.delete(`/events/${event.id}`)
+                            .then(() => {
+                                router.visit('/Home'); // Redirect to home after deletion
+                            })
+                            .catch((error) => {
+                                console.error('Error deleting event:', error);
+                                alert('Failed to delete event');
+                            });
+                    }
+                }}
+            >
+                <i className="fas fa-trash me-1"></i>
+                Remove Event
+            </button>
+        </>
+    ) : (
+        // Display Attend and Share buttons for non-hosts
+        <>
+            <button
+                className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg"
+                onClick={() => attendEvent(event.id)}
+            >
+                Attend Online
+            </button>
+            <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
+                Share
+            </button>
+        </>
+    )}
+</div>
                                 </div>
                             </div>
                         </div>

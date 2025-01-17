@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
-import axios from 'axios';
 
 export default function EditGroup({ group }) {
     const [groupData, setGroupData] = useState({
@@ -21,25 +20,18 @@ export default function EditGroup({ group }) {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         
-        try {
-            const formData = new FormData();
-            formData.append('_method', 'PUT');
-            formData.append('name', groupData.name);
-            formData.append('description', groupData.description);
-            formData.append('location', groupData.location);
-
-            await axios.post(`/groups/${group.id}`, formData);
-            router.visit(`/groups/show/${group.id}`);
-        } catch (error) {
-            if (error.response?.data.errors) {
-                setErrors(error.response.data.errors);
-            } else {
-                console.error('Error updating group:', error);
+        // Updated URL to include 'groups' in the path
+        router.put(`/groups/${group.id}`, groupData, {
+            onSuccess: () => {
+                console.log('Group updated successfully');
+            },
+            onError: (errors) => {
+                setErrors(errors);
             }
-        }
+        });
     };
 
     return (

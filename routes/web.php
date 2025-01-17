@@ -66,18 +66,24 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
     });
 
-    // Events Routes
-    Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
-    Route::prefix('events')->group(function () {
-        Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('events.groups.setGroupId');
-        Route::get('/create', function () {
-            $group_id = session('group_id'); // Fetch group_id from the session
-            return Inertia::render('Events/CreateEvent', [
-                'group_id' => $group_id, // Pass group_id to Inertia
-            ]);
-        })->name('events.create');
-        Route::post('/', [EventController::class, 'store'])->name('events.store');
-    });
+     // Events Routes
+Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
+
+Route::prefix('events')->group(function () {
+    Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
+    
+    Route::get('/events/create', function () {
+        $group_id = session('group_id');
+        return Inertia::render('Events/CreateEvent', [
+            'group_id' => $group_id,
+        ]);
+    })->name('events.create');
+
+    Route::post('/', [EventController::class, 'store'])->name('events.store');
+    Route::delete('/{id}', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/{id}', [EventController::class, 'update'])->name('events.update');  // Pridėtas naujas maršrutas
+});
 
     // Group Routes
     Route::prefix('groups')->group(function () {
@@ -88,6 +94,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/show/{id}', [GroupDetailsController::class, 'show'])->name('groups.show.details')->where('id', '[0-9]+');
         Route::get('/{groupId}/events', [EventController::class, 'getGroupEvents'])->name('groups.events');
         Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show.group')->where('id', '[0-9]+');
+        Route::get('/edit/{id}', [GroupDetailsController::class, 'edit'])->name('groups.edit');
+        Route::put('/{id}', [GroupDetailsController::class, 'update'])->name('groups.update');
+    
     });
 
     // Profile Routes
