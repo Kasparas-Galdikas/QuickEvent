@@ -116,12 +116,20 @@ class GroupDetailsController extends Controller
         'name' => 'required|string|max:255',
         'description' => 'required|string',
         'location' => 'required|string|max:255',
+        'topics' => 'required|array|min:1', // Add validation for topics
+        'topics.*' => 'exists:topics,id'
     ]);
 
-    // Update group
-    $group->update($validated);
+    // Update group basic info
+    $group->update([
+        'name' => $validated['name'],
+        'description' => $validated['description'],
+        'location' => $validated['location'],
+    ]);
 
-    // Use the correct route name - either 'groups.show.details' or 'groups.show.group'
+    // Sync topics
+    $group->topics()->sync($request->topics);
+
     return redirect()->route('groups.show.details', $group->id)
         ->with('success', 'Group updated successfully');
 }
