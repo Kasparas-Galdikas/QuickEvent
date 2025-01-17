@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Log;
 
 class GroupController extends Controller
 {
+    // Add this new index method
+    public function index()
+    {
+        $groups = Group::with(['user', 'topics'])->get();
+        
+        return Inertia::render('Groups/Index', [
+            'groups' => $groups
+        ]);
+    }
     public function show($id)
     {
         // Fetch the group using the provided ID
@@ -73,5 +82,5 @@ class GroupController extends Controller
         return redirect()->route('events.create');
     }
     
-    
+ 
 }

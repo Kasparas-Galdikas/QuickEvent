@@ -217,23 +217,23 @@ export default function EventDetails() {
             </button>
             {/* Remove Button */}
             <button
-                className="w-full custom-btn py-3 px-4 rounded-lg bg-red-600 hover:bg-red-700"
-                onClick={() => {
-                    if(confirm('Are you sure you want to delete this event?')) {
-                        axios.delete(`/events/${event.id}`)
-                            .then(() => {
-                                router.visit('/Home'); // Redirect to home after deletion
-                            })
-                            .catch((error) => {
-                                console.error('Error deleting event:', error);
-                                alert('Failed to delete event');
-                            });
-                    }
-                }}
-            >
-                <i className="fas fa-trash me-1"></i>
-                Remove Event
-            </button>
+    className="w-full custom-btn py-3 px-4 rounded-lg"
+    onClick={() => {
+        if(confirm('Are you sure you want to delete this event?')) {
+            axios.delete(`/events/${event.id}`)
+                .then(() => {
+                    router.visit('/Home');
+                })
+                .catch((error) => {
+                    console.error('Error deleting event:', error);
+                    alert('Failed to delete event');
+                });
+        }
+    }}
+>
+    <i className="fas fa-trash me-2"></i>
+    Remove Event
+</button>
         </>
     ) : (
         // Display Attend and Share buttons for non-hosts

@@ -96,8 +96,9 @@ Route::prefix('events')->group(function () {
         Route::get('/{id}', [GroupController::class, 'show'])->name('groups.show.group')->where('id', '[0-9]+');
         Route::get('/edit/{id}', [GroupDetailsController::class, 'edit'])->name('groups.edit');
         Route::put('/{id}', [GroupDetailsController::class, 'update'])->name('groups.update');
-    
+        Route::delete('/{id}', [GroupDetailsController::class, 'destroy'])->name('groups.destroy');
     });
+    
 
     // Profile Routes
     Route::prefix('profile')->group(function () {

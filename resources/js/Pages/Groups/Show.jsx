@@ -118,14 +118,31 @@ export default function Show() {
                                             Contact members
                                         </button>
                                         {auth && auth.user && auth.user.id === group.user_id && (
-                                            <button
-                                                className="btn custom-btn w-100"
-                                                onClick={() => router.get(`/groups/edit/${group.id}`)}
-                                            >
-                                                <i className="fas fa-edit me-2"></i>
-                                                Edit Group
-                                            </button>
-                                        )}
+    <>
+        <button
+            className="btn custom-btn mb-2 w-100"
+            onClick={() => router.get(`/groups/edit/${group.id}`)}
+        >
+            <i className="fas fa-edit me-2"></i>
+            Edit Group
+        </button>
+        <button
+            className="btn custom-btn w-100"
+            onClick={() => {
+                if (window.confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+                    router.delete(`/groups/${group.id}`, {
+                        onSuccess: () => {
+                            router.visit('/Home');  // Changed to redirect to Home
+                        },
+                    });
+                }
+            }}
+        >
+            <i className="fas fa-trash-alt me-2"></i>
+            Remove Group
+        </button>
+    </>
+)}
                                     </div>
 
                                 </div>

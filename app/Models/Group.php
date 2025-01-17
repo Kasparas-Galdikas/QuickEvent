@@ -33,5 +33,14 @@ class Group extends Model
     {
         return $this->belongsToMany(Topic::class, 'group_topic', 'group_id', 'topic_id');
     }
-    
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::deleting(function($group) {
+            // Delete all associated events when group is deleted
+            $group->events()->delete();
+        });
+    }
+
 }

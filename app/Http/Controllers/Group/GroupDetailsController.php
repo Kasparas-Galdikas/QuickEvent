@@ -125,4 +125,22 @@ class GroupDetailsController extends Controller
     return redirect()->route('groups.show.details', $group->id)
         ->with('success', 'Group updated successfully');
 }
+   //destroy method
+   public function destroy($id)
+{
+    $group = Group::findOrFail($id);
+    
+    if (auth()->id() !== $group->user_id) {
+        abort(403);
+    }
+
+    if ($group->image_path) {
+        Storage::delete($group->image_path);
+    }
+
+    // Delete the group (events will be automatically deleted due to the boot method)
+    $group->delete();
+
+    return to_route('Home');
+}
 }
