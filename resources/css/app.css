@@ -163,3 +163,40 @@ body {
 
     padding: 1rem;
 }
+
+.custom-popup {
+    background-color:rgb(249, 241, 208); /* Vanilla color */
+    border: none; /* Optional: Remove border for a clean look */
+    color: #333; /* Ensure text is readable */
+}
+
+/* Confirm button styling */
+.custom-confirm-button {
+    background-color: #5cb85c !important; /* Green */
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 10px 20px !important;
+    cursor: pointer !important;
+}
+
+.custom-confirm-button:hover {
+    background-color: #4cae4c !important;
+}
+
+/* Cancel button styling */
+.custom-cancel-button {
+    background-color: rgb(225, 225, 188) !important; /* Vanilla background */
+    color: #333 !important; /* Dark text */
+    border: 1px solid #ccc !important;
+    font-weight: bold !important;
+    border-radius: 5px !important;
+    padding: 10px 20px !important;
+    cursor: pointer !important;
+}
+
+.custom-cancel-button:hover {
+    background-color: rgb(225, 225, 188) !important; /* Lighter and softer shade */
+    transition: background-color 0.3s ease !important; /* Smooth transition effect */
+}

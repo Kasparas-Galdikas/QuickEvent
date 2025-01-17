@@ -27,10 +27,22 @@ Route::get('/', function () {
     return Inertia::render('LandingPage');
 });
 
+  // Attendence Routes
+// Attendance Routes
+Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
+Route::delete('/events/{id}/attend', [EventController::class, 'unattend'])->name('events.unattend');
+Route::get('/events/{id}/is-attending', [EventController::class, 'isAttending'])->name('events.isAttending');
+Route::get('/user-attended-events', [EventController::class, 'getUserAttendedEvents'])->name('user.attended.events');
+Route::get('/events/{id}/attendees', [EventController::class, 'getEventAttendees']);
+
+
+  //Event Path route 
 Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('events.details');
+
 //Home routes to fetch events for infinite scroll and calendar
 Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
 Route::get('/api/calendar-events', [HomePageController::class, 'fetchEventsForCalendar']);
+
 
 // Authentication Routes
 Route::prefix('auth')->group(function () {
@@ -66,24 +78,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [HomePageController::class, 'showHomePage'])->name('Home');
     });
 
-     // Events Routes
-Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('events.attend');
+    Route::prefix('events')->group(function () {
+        Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
 
-Route::prefix('events')->group(function () {
-    Route::get('/groups/set-group/{id}', [GroupController::class, 'setGroupId'])->name('groups.setGroupId');
-    
-    Route::get('/events/create', function () {
-        $group_id = session('group_id');
-        return Inertia::render('Events/CreateEvent', [
-            'group_id' => $group_id,
-        ]);
-    })->name('events.create');
+        Route::get('/events/create', function () {
+            $group_id = session('group_id');
+            return Inertia::render('Events/CreateEvent', [
+                'group_id' => $group_id,
+            ]);
+        })->name('events.create');
 
-    Route::post('/', [EventController::class, 'store'])->name('events.store');
-    Route::delete('/{id}', [EventController::class, 'destroy'])->name('events.destroy');
-    Route::get('/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
-    Route::put('/{id}', [EventController::class, 'update'])->name('events.update');  // Pridėtas naujas maršrutas
-});
+        Route::post('/', [EventController::class, 'store'])->name('events.store');
+        Route::delete('/{id}', [EventController::class, 'destroy'])->name('events.destroy');
+        Route::get('/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
+        Route::put('/{id}', [EventController::class, 'update'])->name('events.update');  // Pridėtas naujas maršrutas
+    });
 
     // Group Routes
     Route::prefix('groups')->group(function () {
@@ -98,7 +107,7 @@ Route::prefix('events')->group(function () {
         Route::put('/{id}', [GroupDetailsController::class, 'update'])->name('groups.update');
         Route::delete('/{id}', [GroupDetailsController::class, 'destroy'])->name('groups.destroy');
     });
-    
+
 
     // Profile Routes
     Route::prefix('profile')->group(function () {

@@ -75,6 +75,9 @@ class Event extends Model
      */
     public function attendees()
     {
-        return $this->belongsToMany(User::class)->withPivot('joined_at', 'left_at')->withTimestamps();
+        return $this->belongsToMany(User::class, 'event_user', 'event_id', 'user_id')
+                    ->withPivot('joined_at', 'left_at') // Include pivot data
+                    ->whereNull('event_user.left_at');  // Only include active attendees
     }
+    
 }

@@ -6,6 +6,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
+import UserAtendedEvents from '@/Components/UserAtendedEvents';
 
 export default function Events() {
     const { auth, groups, events: initialEvents, pagination } = usePage().props; // Fetch events from props
@@ -348,38 +349,8 @@ export default function Events() {
                             value={selectedDate}
                         />
 
-
-                        <div className="card custom-card mt-4">
-                            <div className="card-body" style={{ marginBottom: '20px' }}>
-                                <h5 className="card-title text-center text-dark">Your Next Events</h5>
-                                <p className="text-center">You have not registered for any events yet.</p>
-                                <div className="d-flex justify-content-center">
-                                    <button className="custom-btn btn btn-primary">View All</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card custom-card mt-4">
-                            <div className="card-body" style={{ marginBottom: '20px' }}>
-                                <h5 className="card-title text-center text-dark"> Groups you’re part of</h5>
-                                <p className="text-center">You have not registered for any events yet.</p>
-                                <div className="d-flex justify-content-center">
-                                    <button className="custom-btn btn btn-primary">View All</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card custom-card mt-4">
-                            <div className="card-body" style={{ marginBottom: '20px' }}>
-                                <h5 className="card-title text-center text-dark">Your interests</h5>
-                                <p className="text-center">You have not registered for any events yet.</p>
-                                <div className="d-flex justify-content-center">
-                                    <button className="custom-btn btn btn-primary">View All</button>
-                                </div>
-                            </div>
-                        </div>
-
-
+                       <UserAtendedEvents/>
+                        
                     </div>
 
                     <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}>

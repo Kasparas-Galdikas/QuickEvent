@@ -9,6 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
+import { format } from 'date-fns-tz';
 
 export default function EditEvent({ event, topics: initialTopics }) {
     const [startDate, setStartDate] = useState(new Date(event.event_date + 'T' + event.event_time));
@@ -79,62 +80,74 @@ export default function EditEvent({ event, topics: initialTopics }) {
         }
     };
 
-    // Submit form with topic validation
+    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Client-side validation for topics
+    
+        // Client-side validation
         const newErrors = {};
+        if (!formData.title) newErrors.title = 'Title is required.';
+        if (!formData.description) newErrors.description = 'Description is required.';
+        if (!formData.location) newErrors.location = 'Location is required.';
+        if (!formData.duration || isNaN(formData.duration) || formData.duration < 1) {
+            newErrors.duration = 'Duration must be a valid number greater than 0.';
+        }
         if (selectedTopics.length < MIN_TOPICS) {
             newErrors.topics = 'Please select at least one topic.';
         } else if (selectedTopics.length > MAX_TOPICS) {
             newErrors.topics = 'You can select up to five topics only.';
         }
-
+    
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
-
-        // Construct form data for submission
+    
+        // Convert start date to EET
+        const formattedDate = format(startDate, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Europe/Vilnius' });
+    
+        // Construct form data
         const updateFormData = new FormData();
-        updateFormData.append('_method', 'PUT'); // Laravel method spoofing
+        updateFormData.append('_method', 'PUT');
         updateFormData.append('title', formData.title);
         updateFormData.append('description', formData.description);
-        updateFormData.append('start_date', startDate.toISOString());
+        updateFormData.append('start_date', formattedDate);
         updateFormData.append('duration', formData.duration);
         updateFormData.append('location', formData.location);
-
+    
         selectedTopics.forEach((topic) => {
             updateFormData.append('topics[]', topic);
         });
-
+    
         if (groupImage) {
             updateFormData.append('image', groupImage);
         }
-
+    
         try {
             await axios.post(`/events/${event.id}`, updateFormData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
             router.visit('/Home');
         } catch (error) {
             if (error.response?.data.errors) {
                 setErrors(error.response.data.errors);
             } else {
+                setErrors({ general: 'An unexpected error occurred. Please try again.' });
                 console.error('Error updating event:', error);
             }
         }
     };
+    
 
     // Calculate how many topics remain
     const topicsSelected = selectedTopics.length;
     const topicsRemaining = MAX_TOPICS - topicsSelected;
-    let topicsMessage = topicsSelected === 0 
-        ? 'Please select 1–5 topics.' 
-        : topicsSelected < MAX_TOPICS 
-        ? `You can select ${topicsRemaining} more topic${topicsRemaining === 1 ? '' : 's'}.`
-        : 'You have selected all 5 topics.';
+    let topicsMessage = topicsSelected === 0
+        ? 'Please select 1–5 topics.'
+        : topicsSelected < MAX_TOPICS
+            ? `You can select ${topicsRemaining} more topic${topicsRemaining === 1 ? '' : 's'}.`
+            : 'You have selected all 5 topics.';
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -168,37 +181,43 @@ export default function EditEvent({ event, topics: initialTopics }) {
                         <InputError message={errors.title} />
                     </div>
 
-                    {/* Date and Time */}
-                    <div className="mb-6">
-                        <InputLabel value="Date and Time" />
-                        <div className="flex gap-4 items-center">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                className="form-control custom-date-time"
-                                dateFormat="MMMM d, yyyy"
-                            />
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                className="form-control custom-date-time custom-time-box"
-                                showTimeSelect
-                                showTimeSelectOnly
-                                timeIntervals={15}
-                                timeCaption="Time"
-                                dateFormat="h:mm aa"
-                            />
-                            <span className="text-gray-700">EET</span>
-                        </div>
-                        <InputError message={errors.start_date} />
-                    </div>
+                  {/* Date and Time */}
+<div className="mb-6">
+    <InputLabel value="Date and Time" />
+    <div className="flex gap-4 items-center">
+        {/* Date Picker */}
+        <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            className="form-control custom-date-time"
+            dateFormat="yyyy-MM-dd"
+        />
+
+        {/* Time Picker */}
+        <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            className="form-control custom-date-time custom-time-box"
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            dateFormat="HH:mm" // 24-hour format
+            timeFormat="HH:mm"
+        />
+
+        <span className="text-gray-700">EET</span>
+    </div>
+    <InputError message={errors.start_date} />
+</div>
+
 
                     {/* Duration */}
                     <div className="mb-6">
                         <InputLabel value="Duration (required)" />
-                        <select 
-                            className="form-control custom-dropdown" 
-                            id="duration" 
+                        <select
+                            className="form-control custom-dropdown"
+                            id="duration"
                             value={formData.duration}
                             onChange={handleChange}
                         >
@@ -216,9 +235,9 @@ export default function EditEvent({ event, topics: initialTopics }) {
                         <div>
                             {event.image_path && (
                                 <div className="mb-3">
-                                    <img 
-                                        src={event.image_path} 
-                                        alt="Current event image" 
+                                    <img
+                                        src={event.image_path}
+                                        alt="Current event image"
                                         className="rounded w-48 h-32 object-cover"
                                     />
                                 </div>
@@ -281,11 +300,10 @@ export default function EditEvent({ event, topics: initialTopics }) {
                                         key={topic.id}
                                         type="button"
                                         disabled={isDisabled}
-                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${
-                                            isSelected
+                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${isSelected
                                                 ? 'bg-teal-600 text-white border-teal-600'
                                                 : 'bg-teal-100 text-teal-600 border-teal-600'
-                                        } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleTopicChange(topic.id)}
                                     >
                                         {topic.name}
@@ -321,8 +339,8 @@ export default function EditEvent({ event, topics: initialTopics }) {
 
                     {/* Buttons */}
                     <div className="flex justify-between mt-8">
-                        <PrimaryButton 
-                            type="button" 
+                        <PrimaryButton
+                            type="button"
                             onClick={() => router.visit(`/events/details/${event.slug}`)}
                         >
                             Cancel

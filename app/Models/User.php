@@ -59,4 +59,13 @@ class User extends Authenticatable
     {
         $this->events()->updateExistingPivot($event->id, ['left_at' => now()]);
     }
+
+    public function attendedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_user', 'user_id', 'event_id')
+                    ->withPivot('joined_at', 'left_at') // Include pivot data
+                    ->whereNull('event_user.left_at');  // Only include active events
+    }
+    
+
 }

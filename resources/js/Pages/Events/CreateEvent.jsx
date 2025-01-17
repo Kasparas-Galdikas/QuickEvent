@@ -25,29 +25,29 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
     const MIN_TOPICS = 1;
     const MAX_TOPICS = 5;
 
-  
-  // Fetch group details and related topics
-  useEffect(() => {
-    if (group_id) {
-        // Fetch group details
-        axios
-            .get(`/groups/${group_id}`)
-            .then((response) => setGroupDetails(response.data))
-            .catch((error) => console.error('Error fetching group details:', error));
 
-        // Fetch topics related to the group
-        axios
-            .get(`/topics/filter-by-group`, { params: { group_id } })
-            .then((response) => {
-                setTopics(response.data);
-                setFilteredTopics(response.data); // Initialize filtered topics
-            })
-            .catch((error) => console.error('Error fetching topics:', error));
-    }
-}, [group_id]);
+    // Fetch group details and related topics
+    useEffect(() => {
+        if (group_id) {
+            // Fetch group details
+            axios
+                .get(`/groups/${group_id}`)
+                .then((response) => setGroupDetails(response.data))
+                .catch((error) => console.error('Error fetching group details:', error));
+
+            // Fetch topics related to the group
+            axios
+                .get(`/topics/filter-by-group`, { params: { group_id } })
+                .then((response) => {
+                    setTopics(response.data);
+                    setFilteredTopics(response.data); // Initialize filtered topics
+                })
+                .catch((error) => console.error('Error fetching topics:', error));
+        }
+    }, [group_id]);
 
     // Filter topics by search query
- 
+
 
     // Paginate displayed topics (15 per page)
     const displayedTopics = filteredTopics.slice(
@@ -175,7 +175,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                     <div className="mb-6">
                         <InputLabel value="Group" />
                         <p className="font-bold text-gray-500 mb-6">
-                        {groupDetails ? groupDetails.name : 'Loading...'}
+                            {groupDetails ? groupDetails.name : 'Loading...'}
                         </p>
                     </div>
 
@@ -190,12 +190,15 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                     <div className="mb-6">
                         <InputLabel value="Date and Time" />
                         <div className="flex gap-4 items-center">
+                            {/* Date Picker */}
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => setStartDate(date)}
                                 className="form-control custom-date-time"
                                 dateFormat="MMMM d, yyyy"
                             />
+
+                            {/* Time Picker with EET Adjustments */}
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => setStartDate(date)}
@@ -204,12 +207,28 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                 showTimeSelectOnly
                                 timeIntervals={15}
                                 timeCaption="Time"
-                                dateFormat="h:mm aa"
+                                dateFormat="HH:mm" // Display hours in 24-hour format
+                                timeFormat="HH:mm" // Use 24-hour format
+                                renderCustomHeader={({ date, changeTime }) => {
+                                    const eetTime = new Intl.DateTimeFormat("en-US", {
+                                        timeZone: "Europe/Athens",
+                                        hour: "numeric",
+                                        minute: "numeric",
+                                        hour12: false,
+                                    }).format(date);
+                                    return (
+                                        <div className="text-center font-medium text-gray-700">
+                                            Current EET Time: {eetTime}
+                                        </div>
+                                    );
+                                }}
                             />
+
                             <span className="text-gray-700">EET</span>
                         </div>
                         <InputError message={errors.start_date} />
                     </div>
+
 
                     {/* Duration */}
                     <div className="mb-6">
@@ -286,8 +305,8 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                         type="button"
                                         disabled={isDisabled}
                                         className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${isSelected
-                                                ? 'bg-teal-600 text-white border-teal-600'
-                                                : 'bg-teal-100 text-teal-600 border-teal-600'
+                                            ? 'bg-teal-600 text-white border-teal-600'
+                                            : 'bg-teal-100 text-teal-600 border-teal-600'
                                             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleTopicChange(topic.id)}
                                     >

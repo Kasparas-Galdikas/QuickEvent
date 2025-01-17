@@ -1,31 +1,128 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { Head } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
+import Swal from "sweetalert2";
 import { router } from '@inertiajs/react';
-export default function EventDetails() {
-    const { auth, event, host, topics, attendees } = usePage().props;
 
-    function attendEvent(eventId) {
+export default function EventDetails() {
+    const { auth, event, host, topics } = usePage().props; // Remove attendees from here
+    const [isAttending, setIsAttending] = useState(false);
+    const [attendees, setAttendees] = useState([]); // State to manage attendees list
+    const startDateTime = new Date(`${event.event_date}T${event.event_time}`);
+    const endDateTime = new Date(startDateTime.getTime() + event.duration * 60 * 60 * 1000);
+
+    useEffect(() => {
+        // Check if the user is attending the event
         axios
-            .post(`/events/${eventId}/attend`)
-            .then(response => {
-                alert(response.data.message);
+            .get(`/events/${event.id}/is-attending`)
+            .then((response) => {
+                setIsAttending(response.data.isAttending);
             })
-            .catch(error => {
-                if (error.response) {
-                    alert(error.response.data.message);
-                } else {
-                    console.error(error);
-                    alert('An error occurred while attending the event.');
+            .catch((error) => {
+                console.error("Error checking attendance status:", error);
+            });
+
+        // Fetch the initial list of attendees
+        fetchUpdatedAttendees(event.id, setAttendees);
+    }, [event.id]);
+
+    function toggleAttendance(eventId, isAttending, setIsAttending, setAttendees) {
+        if (isAttending) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to stop attending this event?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, leave",
+                cancelButtonText: "Cancel",
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: "custom-confirm-button",
+                    cancelButton: "custom-cancel-button",
+                    popup: "custom-popup", // Add a custom popup class
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios
+                        .delete(`/events/${eventId}/attend`)
+                        .then(() => {
+                            Swal.fire({
+                                title: "Removed",
+                                text: "You have stopped attending the event.",
+                                icon: "success",
+                                confirmButtonText: "OK",
+                                customClass: {
+                                    confirmButton: "custom-confirm-button",
+                                    popup: "custom-popup", // Add the custom popup class
+                                },
+                            });
+                            setIsAttending(false);
+                            fetchUpdatedAttendees(eventId, setAttendees);
+                        })
+                        .catch((error) => {
+                            console.error("Error stopping attendance:", error);
+                            Swal.fire({
+                                title: "Error",
+                                text: "Failed to stop attending the event.",
+                                icon: "error",
+                                confirmButtonText: "OK",
+                                customClass: {
+                                    confirmButton: "custom-confirm-button",
+                                    popup: "custom-popup", // Add the custom popup class
+                                },
+                            });
+                        });
                 }
+            });
+        } else {
+            axios
+                .post(`/events/${eventId}/attend`)
+                .then(() => {
+                    Swal.fire({
+                        title: "Joined",
+                        text: "You are now attending this event.",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "custom-confirm-button",
+                            popup: "custom-popup", // Add the custom popup class
+                        },
+                    });
+                    setIsAttending(true);
+                    fetchUpdatedAttendees(eventId, setAttendees);
+                })
+                .catch((error) => {
+                    console.error("Error attending event:", error);
+                    Swal.fire({
+                        title: "Error",
+                        text: "Failed to attend the event.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "custom-confirm-button",
+                            popup: "custom-popup", // Add the custom popup class
+                        },
+                    });
+                });
+        }
+    }
+    
+    
+
+    // Fetch updated attendees
+    function fetchUpdatedAttendees(eventId, setAttendees) {
+        axios
+            .get(`/events/${eventId}/attendees`)
+            .then((response) => {
+                setAttendees(response.data.attendees);
+            })
+            .catch((error) => {
+                console.error("Error fetching updated attendees:", error);
             });
     }
 
-
-    // Debug props to ensure data is passed correctly
-    console.log('Auth:', auth);
     return (
         <div className="min-h-screen flex flex-col">
             <Head title={event.title} />
@@ -117,35 +214,27 @@ export default function EventDetails() {
                                 <div className="custom-card p-6 rounded-lg">
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold">
-                                            Attendees ({attendees && attendees.length > 0 ? attendees.length : 0})
+                                            Attendees ({attendees.length})
                                         </h2>
-                                        <button className="text-green-600 hover:underline">
-                                            See all
-                                        </button>
                                     </div>
-                                    {attendees && attendees.length > 0 ? (
+                                    {attendees.length > 0 ? (
                                         <div className="grid grid-cols-4 gap-4">
                                             {attendees.map((attendee) => (
                                                 <div key={attendee.id} className="text-center">
                                                     <img
-                                                        src={`https://via.placeholder.com/64`} // Replace with actual profile image if available
-                                                        alt={`Attendee ${attendee.name}`}
+                                                        src={`https://via.placeholder.com/64`}
+                                                        alt={attendee.name}
                                                         className="w-16 h-16 rounded-full mx-auto mb-2"
                                                     />
                                                     <p className="text-sm font-medium">{attendee.name}</p>
                                                 </div>
                                             ))}
                                         </div>
-                                    ) : auth?.user && auth.user.id === event?.group?.user_id ? (
-                                        <p className="text-gray-500 text-center mt-4">
-                                            You are the host of this event. No attendees have joined yet.
-                                        </p>
                                     ) : (
                                         <p className="text-gray-500 text-center mt-4">
                                             No attendees yet. Be the first to join this event!
                                         </p>
                                     )}
-
                                 </div>
                             </div>
 
@@ -165,28 +254,31 @@ export default function EventDetails() {
                                         <div>
                                             {/* Display Date */}
                                             <div>
-                                                {new Date(event.event_date).toLocaleDateString('en-US', {
+                                                {new Intl.DateTimeFormat('en-US', {
+                                                    timeZone: 'Europe/Athens', // Specify the desired European time zone
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
-                                                })}
+                                                }).format(new Date(event.event_date))}
                                             </div>
 
-                                            {/* Display Time Range with Custom Time Zone */}
+                                            {/* Display Time Range with Europe Time Zone */}
                                             <div className="text-gray-600">
-                                                {new Date(`1970-01-01T${event.event_time}`).toLocaleTimeString('en-US', {
+                                                {new Intl.DateTimeFormat('en-US', {
+                                                    timeZone: 'Europe/Athens',
                                                     hour: 'numeric',
                                                     minute: 'numeric',
-                                                })}
+                                                    hour12: false,
+                                                }).format(startDateTime)}
                                                 {' '}
                                                 to{' '}
-                                                {new Date(
-                                                    new Date(`1970-01-01T${event.event_time}`).getTime() + event.duration * 60 * 60 * 1000
-                                                ).toLocaleTimeString('en-US', {
+                                                {new Intl.DateTimeFormat('en-US', {
+                                                    timeZone: 'Europe/Athens',
                                                     hour: 'numeric',
                                                     minute: 'numeric',
-                                                })}
+                                                    hour12: false,
+                                                }).format(endDateTime)}
                                                 {' '}
                                                 EET
                                             </div>
@@ -206,50 +298,35 @@ export default function EventDetails() {
                                     </div>
 
                                     {/* Action Buttons */}
-<div className="space-y-3 mt-6">
-    {auth?.user && event?.group && auth.user.id === event.group.user_id ? (
-        <>
-            <button
-                className="w-full custom-btn py-3 px-4 rounded-lg"
-                onClick={() => router.visit(`/events/edit/${event.id}`)}
-            >
-                Edit Event Information
-            </button>
-            {/* Remove Button */}
-            <button
-    className="w-full custom-btn py-3 px-4 rounded-lg"
-    onClick={() => {
-        if(confirm('Are you sure you want to delete this event?')) {
-            axios.delete(`/events/${event.id}`)
-                .then(() => {
-                    router.visit('/Home');
-                })
-                .catch((error) => {
-                    console.error('Error deleting event:', error);
-                    alert('Failed to delete event');
-                });
-        }
-    }}
->
-    <i className="fas fa-trash me-2"></i>
-    Remove Event
-</button>
-        </>
-    ) : (
-        // Display Attend and Share buttons for non-hosts
-        <>
-            <button
-                className="w-full custom-btn bg-green-600 py-3 px-4 rounded-lg"
-                onClick={() => attendEvent(event.id)}
-            >
-                Attend Online
-            </button>
-            <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
-                Share
-            </button>
-        </>
-    )}
-</div>
+                                    <div className="space-y-3 mt-6">
+                                        {auth?.user && auth.user.id === event?.group?.user_id ? (
+                                            // Display Edit button only for the host
+                                            <button
+                                                className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                onClick={() => router.get(`/events/edit/${event.id}`)}
+                                            >
+                                                Edit Event Information
+                                            </button>
+                                        ) : (
+                                            // Display Attend and Share buttons for non-hosts
+                                            <>
+                                                <button
+                                                    className={`w-full custom-btn py-3 px-4 rounded-lg ${isAttending ? "bg-gray-400" : "bg-green-600"
+                                                        }`}
+                                                    onClick={() =>
+                                                        toggleAttendance(event.id, isAttending, setIsAttending, setAttendees)
+                                                    }
+                                                >
+                                                    {isAttending ? "Attending" : "Attend Online"}
+                                                </button>
+                                                <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
+                                                    Share
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
