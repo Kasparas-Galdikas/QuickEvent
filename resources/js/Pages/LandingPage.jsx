@@ -105,12 +105,12 @@ export default function Home() {
                                     </button>
                                 </div>
                                 <div className="col-lg-6 text-center">
-                                <img
-    src="/images/introduction.png"
-    alt="Introduction"
-    className="img-fluid rounded"
-    style={{ maxHeight: '500px', objectFit: 'contain' }} // Ensures the image fits well within the specified size
-/>
+                                    <img
+                                        src="/images/intro.png"
+                                        alt="Introduction"
+                                        className="img-fluid rounded"
+                                        style={{ maxHeight: '500px', objectFit: 'contain' }} // Ensures the image fits well within the specified size
+                                    />
 
                                 </div>
                             </div>

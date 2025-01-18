@@ -97,7 +97,6 @@ export default function UserAtendedEvents() {
                                                         whiteSpace: "normal",
                                                         lineHeight: "1.2em",
                                                         maxHeight: "3.6em",
-                                                        color: "#B0AB8C",
                                                     }}
                                                 >
                                                     {event.title}
