@@ -14,6 +14,7 @@ class Event extends Model
         'group_id',
         'title',
         'event_date',
+        'type',
         'category',
         'event_time',
         'duration',

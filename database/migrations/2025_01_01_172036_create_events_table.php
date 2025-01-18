@@ -21,7 +21,7 @@ class CreateEventsTable extends Migration
             $table->text('description'); // Event description
             $table->string('location'); // Event location
             $table->string('image_path')->nullable(); // Optional image path for the event
-            $table->string('status')->default('pending'); // Status of the event
+            $table->string('type')->default('in-person'); // Type of the event with default value
             $table->unsignedBigInteger('group_id')->nullable(); // Foreign key for group
             $table->timestamps(); // Created at and updated at timestamps
 

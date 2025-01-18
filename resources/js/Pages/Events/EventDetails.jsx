@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { router } from '@inertiajs/react';
 import Register from "../Auth/Register";
 import axios from 'axios';
+import { DateTime } from 'luxon';
 
 export default function EventDetails() {
     const { auth, event, host, topics } = usePage().props; // Remove attendees from here
@@ -165,9 +166,6 @@ export default function EventDetails() {
         });
     };
 
-
-
-
     // Fetch updated attendees
     function fetchUpdatedAttendees(eventId, setAttendees) {
         axios
@@ -179,6 +177,15 @@ export default function EventDetails() {
                 console.error("Error fetching updated attendees:", error);
             });
     }
+
+    const isJoinButtonDisabled = (eventDate, eventTime, duration) => {
+        const eventStart = DateTime.fromISO(`${eventDate}T${eventTime}`, { zone: 'Europe/Vilnius' }); // EET
+        const eventEnd = eventStart.plus({ minutes: duration * 60 }); // Convert hours to minutes
+        const now = DateTime.now().setZone('Europe/Vilnius'); // Current time in EET
+
+        return now < eventStart || now > eventEnd; // Disable before start or after end
+    };
+
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -352,66 +359,122 @@ export default function EventDetails() {
                                     </div>
 
                                     {/* Location */}
-                                    <div className="flex mt-5">
-                                        <div className="w-6 h-6 mt-1">
-                                            <i className="fas fa-video"></i>
+                                    {event.type === 'online' ? (
+                                        <div className="flex mt-5">
+                                            <div className="w-6 h-6 mt-1">
+                                                <i className="fas fa-video"></i>
+                                            </div>
+                                            <div className="overflow-hidden pl-4">
+                                                <div>Online event</div>
+                                                <div className="text-gray-600">Button below visible for attendees</div>
+                                            </div>
                                         </div>
-                                        <div className="overflow-hidden pl-4">
-                                            <div>Online event</div>
-                                            <div className="text-gray-600">Link visible for attendees</div>
+                                    ) : event.type === 'in-person' ? (
+                                        <div className="flex mt-5">
+                                            <div className="w-6 h-6 mt-1">
+                                                <i className="fas fa-map-marker-alt"></i>
+                                            </div>
+                                            <div className="overflow-hidden pl-4">
+                                                <div>In-person event</div>
+                                                <div className="text-gray-600">{event.location}</div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : null}
+
+
 
                                     <div className="space-y-3 mt-6">
-                                        {/* CASE 1: Authenticated + Host */}
-                                        {auth?.user && auth.user.id === event?.group?.user_id ? (
+                                        {auth?.user ? (
                                             <>
-                                                <button
-                                                    className="w-full custom-btn py-3 px-4 rounded-lg"
-                                                    onClick={() => router.get(`/events/edit/${event.id}`)}
-                                                >
-                                                    Edit Event Information
-                                                </button>
+                                                {/* CASE 1: Host */}
+                                                {auth.user.id === event?.group?.user_id ? (
+                                                    <>
+                                                        {/* Edit Event */}
+                                                        <button
+                                                            className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                            onClick={() => router.get(`/events/edit/${event.id}`)}
+                                                        >
+                                                            Edit Event Information
+                                                        </button>
 
-                                                <button
-                                                    className="w-full custom-btn py-3 px-4 rounded-lg"
-                                                    onClick={() => handleEventDeletion(event.id, router)}
-                                                >
-                                                    <i className="fas fa-trash me-2"></i>
-                                                    Remove Event
-                                                </button>
+                                                        {/* Join Online Meeting (Host as Moderator) */}
+                                                        {event.type === 'online' && (
+                                                            <button
+                                                                className={`w-full custom-btn py-3 px-4 rounded-lg ${isJoinButtonDisabled(event.event_date, event.event_time, event.duration)
+                                                                        ? 'opacity-50 cursor-not-allowed'
+                                                                        : ''
+                                                                    }`}
+                                                                onClick={() => {
+                                                                    // Open the meeting in a new tab
+                                                                    const meetingUrl = `/meetings/${event.slug}`;
+                                                                    window.open(meetingUrl, '_blank');
+                                                                }}
+                                                                disabled={isJoinButtonDisabled(event.event_date, event.event_time, event.duration)}
+                                                            >
+                                                                Join Online Meeting
+                                                            </button>
+                                                        )}
 
-                                            </>
-                                        ) : auth?.user ? (
-                                            /* CASE 2: Authenticated but NOT Host */
-                                            <>
-                                                <button
-                                                    className={`w-full custom-btn py-3 px-4 rounded-lg ${isAttending ? 'bg-gray-400' : 'bg-green-600'
-                                                        }`}
-                                                    onClick={() =>
-                                                        toggleAttendance(event.id, isAttending, setIsAttending, setAttendees)
-                                                    }
-                                                >
-                                                    {isAttending ? 'Attending' : 'Attend Online'}
-                                                </button>
-                                                <button className="w-full bg-white custom-btn bg-green-600 py-3 px-4 rounded-lg">
-                                                    Share
-                                                </button>
+                                                        {/* Remove Event */}
+                                                        <button
+                                                            className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                            onClick={() => handleEventDeletion(event.id, router)}
+                                                        >
+                                                            Remove Event
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    /* CASE 2: Attendees */
+                                                    <>
+                                                        {/* Join Online Meeting (Only for attendees) */}
+                                                        {isAttending && event.type === 'online' && (
+                                                            <button
+                                                                className={`w-full custom-btn py-3 px-4 rounded-lg ${isJoinButtonDisabled(event.event_date, event.event_time, event.duration)
+                                                                        ? 'opacity-50 cursor-not-allowed'
+                                                                        : ''
+                                                                    }`}
+                                                                onClick={() => {
+                                                                    // Open the meeting in a new tab
+                                                                    const meetingUrl = `/meetings/${event.slug}`;
+                                                                    window.open(meetingUrl, '_blank');
+                                                                }}
+                                                                disabled={isJoinButtonDisabled(event.event_date, event.event_time, event.duration)}
+                                                            >
+                                                                Join Online Meeting
+                                                            </button>
+                                                        )}
+
+                                                        {/* Attend or Stop Attend */}
+                                                        {isAttending ? (
+                                                            <button
+                                                                className="w-full custom-btn py-3 px-4 rounded-lg bg-gray-400"
+                                                                onClick={() =>
+                                                                    toggleAttendance(event.id, isAttending, setIsAttending, setAttendees)
+                                                                }
+                                                            >
+                                                                Stop Attend
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className="w-full custom-btn py-3 px-4 rounded-lg bg-green-600"
+                                                                onClick={() =>
+                                                                    toggleAttendance(event.id, isAttending, setIsAttending, setAttendees)
+                                                                }
+                                                            >
+                                                                Attend
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
                                             </>
                                         ) : (
-                                            /* CASE 3: NOT Authenticated (Trigger the modals) */
+                                            /* CASE 3: Not Authenticated (Prompt to Register/Log In) */
                                             <>
                                                 <button
                                                     className="w-full custom-btn py-3 px-4 rounded-lg"
                                                     onClick={openRegisterModal}
                                                 >
                                                     Register to Attend
-                                                </button>
-                                                <button
-                                                    className="w-full custom-btn py-3 px-4 rounded-lg bg-white"
-                                                    onClick={openRegisterModal}
-                                                >
-                                                    Register to Share
                                                 </button>
                                             </>
                                         )}
@@ -426,25 +489,6 @@ export default function EventDetails() {
 
             <div className="flex-grow"></div>
             <Footer />
-
-            {/* Mobile Action Bar - Meetup style */}
-            <div className="sticky bottom-0 z-10 w-full bg-white px-5 py-5 border-t lg:hidden">
-                <div className="max-w-5xl mx-auto">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <div className="font-semibold">FREE</div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <button className="border-2 border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-50">
-                                Share
-                            </button>
-                            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                                Attend Online
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

@@ -313,15 +313,6 @@ export default function Home() {
                                             Scheduling an event encourages more people to join your group. Need help with
                                             your group? Are you an organizer who wants to help others succeed?
                                         </p>
-                                        <a
-                                            href="https://discord.gg/organizers"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-link text-decoration-none p-0"
-                                            style={{ textAlign: 'left' }}
-                                        >
-                                            Join the Meetup Organizers Discord channel
-                                        </a>
                                     </div>
 
 

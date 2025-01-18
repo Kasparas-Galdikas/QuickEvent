@@ -20,6 +20,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
     const [groupImage, setGroupImage] = useState(null);
     const [errors, setErrors] = useState({});
     const [filteredTopics, setFilteredTopics] = useState([]);
+    const [eventType, setEventType] = useState('in-person');
 
     // Constants for min/max topic selection
     const MIN_TOPICS = 1;
@@ -122,6 +123,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         formData.append('description', document.getElementById('description').value);
         formData.append('start_date', startDate.toISOString());
         formData.append('duration', document.getElementById('duration').value);
+        formData.append('type', eventType); 
         formData.append(
             'location',
             document.querySelector('input[placeholder="Search or add a location"]').value
@@ -386,6 +388,25 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                         </button>
                         <InputError message={errors.topics} />
                     </div>
+
+                    {/* Event Type */}
+                    <div className="mb-6">
+                        <InputLabel value="Event Type (required)" />
+                        <select
+                            id="event-type"
+                            className="form-control custom-dropdown w-full"
+                            value={eventType} // State to hold the selected event type
+                            onChange={(e) => setEventType(e.target.value)} // Update the event type
+                            disabled={submitting}
+                            required
+                        >
+                            <option value="" disabled>Select event type</option>
+                            <option value="in-person">In-Person</option>
+                            <option value="online">Online Meeting</option>
+                        </select>
+                        <InputError message={errors.eventType} />
+                    </div>
+
 
                     {/* Location */}
                     <div className="mb-6">

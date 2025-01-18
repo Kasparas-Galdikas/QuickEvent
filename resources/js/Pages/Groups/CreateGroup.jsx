@@ -89,28 +89,35 @@ export default function CreateGroup() {
         }
     };
 
+    const [submitting, setSubmitting] = useState(false); // Ensure this is declared
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
+        if (submitting) return; // Prevent multiple submissions
+        setSubmitting(true);
+
         try {
-            const response = await axios.post('/groups', {
+            await axios.post('/groups', {
                 location,
                 groupName,
                 groupDescription,
                 topics: selectedTopics,
             });
-    
-            // Redirect to Home page
-            router.visit('/Home');
+
+            router.visit('/Home', {
+                onSuccess: () => setSubmitting(false), // Reset submitting state after redirect
+                onError: () => setSubmitting(false), // Re-enable button on redirect error
+            });
         } catch (error) {
             console.error('Error creating group:', error);
-    
+
             if (error.response) {
-                // Handle validation or server errors
                 setErrors(error.response.data.errors || {});
             } else {
                 alert('Network error. Please try again.');
             }
+            setSubmitting(false); // Re-enable button on error
         }
     };
     
@@ -286,13 +293,17 @@ export default function CreateGroup() {
 
                                 {/* Submit Button */}
                                 <PrimaryButton
-                                    className="mt-4"
-                                    disabled={currentStep === 4 && groupDescription.length < 50}
-                                    type={currentStep === 4 ? 'submit' : 'button'}
-                                    onClick={currentStep === 4 ? undefined : handleNext}
-                                >
-                                    {currentStep === 4 ? 'Create' : 'Next'}
-                                </PrimaryButton>
+    className="mt-4"
+    disabled={
+        submitting || // Disable when submitting
+        (currentStep === 4 && groupDescription.length < 50) // Additional conditions
+    }
+    type={currentStep === 4 ? 'submit' : 'button'}
+    onClick={currentStep === 4 ? undefined : handleNext}
+>
+    {currentStep === 4 ? 'Create' : 'Next'}
+</PrimaryButton>
+
                             </div>
                         </div>
                     </form>

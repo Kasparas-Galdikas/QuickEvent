@@ -26,6 +26,7 @@ class EventController extends Controller
             'topics'      => 'nullable|array',
             'topics.*'    => 'exists:topics,id',
             'image'       => 'nullable|image|max:2048',
+            'type'        => 'required|string|in:in-person,online,hybrid',
         ]);
     
         // 2. Handle image if provided
@@ -49,6 +50,7 @@ class EventController extends Controller
             'duration'    => $validated['duration'],
             'location'    => $validated['location'],
             'image_path'  => $imagePath,
+            'type'        => $validated['type'],
         ]);
     
         // 5. Attach topics

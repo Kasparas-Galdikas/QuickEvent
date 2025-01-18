@@ -14,6 +14,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Group\GroupDetailsController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\MeetingController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -86,6 +87,9 @@ Route::prefix('topics')->group(function () {
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
+
+    // Meeting Room Route (Authenticated)
+    Route::middleware(['auth'])->get('/meetings/{slug}', [MeetingController::class, 'show'])->name('meetings.show');
 
     // Home Routes
     Route::prefix('Home')->group(function () {
