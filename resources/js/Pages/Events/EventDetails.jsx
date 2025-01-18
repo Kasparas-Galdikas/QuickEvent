@@ -18,7 +18,7 @@ export default function EventDetails() {
 
     const openRegisterModal = () => setShowRegisterModal(true);
     const closeRegisterModal = () => setShowRegisterModal(false);
-  
+
 
     useEffect(() => {
         // Check if the user is attending the event
@@ -116,6 +116,56 @@ export default function EventDetails() {
         }
     }
 
+    const handleEventDeletion = (eventId, router) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to delete this event? This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            customClass: {
+                confirmButton: "custom-confirm-button",
+                cancelButton: "custom-cancel-button",
+                popup: "custom-popup", // Add a custom popup class
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .delete(`/events/${eventId}`)
+                    .then(() => {
+                        Swal.fire({
+                            title: "Deleted",
+                            text: "The event has been successfully deleted.",
+                            icon: "success",
+                            confirmButtonText: "OK",
+                            customClass: {
+                                confirmButton: "custom-confirm-button",
+                                popup: "custom-popup", // Add the custom popup class
+                            },
+                        }).then(() => {
+                            router.visit('/Home');
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting event:", error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "Failed to delete the event.",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                            customClass: {
+                                confirmButton: "custom-confirm-button",
+                                popup: "custom-popup", // Add the custom popup class
+                            },
+                        });
+                    });
+            }
+        });
+    };
+
+
 
 
     // Fetch updated attendees
@@ -146,7 +196,7 @@ export default function EventDetails() {
                     <Register
                         show={showRegisterModal}
                         onClose={closeRegisterModal}
-                     
+
                     />
 
 
@@ -315,12 +365,23 @@ export default function EventDetails() {
                                     <div className="space-y-3 mt-6">
                                         {/* CASE 1: Authenticated + Host */}
                                         {auth?.user && auth.user.id === event?.group?.user_id ? (
-                                            <button
-                                                className="w-full custom-btn py-3 px-4 rounded-lg"
-                                                onClick={() => router.get(`/events/edit/${event.id}`)}
-                                            >
-                                                Edit Event Information
-                                            </button>
+                                            <>
+                                                <button
+                                                    className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                    onClick={() => router.get(`/events/edit/${event.id}`)}
+                                                >
+                                                    Edit Event Information
+                                                </button>
+
+                                                <button
+                                                    className="w-full custom-btn py-3 px-4 rounded-lg"
+                                                    onClick={() => handleEventDeletion(event.id, router)}
+                                                >
+                                                    <i className="fas fa-trash me-2"></i>
+                                                    Remove Event
+                                                </button>
+
+                                            </>
                                         ) : auth?.user ? (
                                             /* CASE 2: Authenticated but NOT Host */
                                             <>
@@ -355,8 +416,6 @@ export default function EventDetails() {
                                             </>
                                         )}
                                     </div>
-
-
 
                                 </div>
                             </div>

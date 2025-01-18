@@ -39,9 +39,16 @@ export default function UserAtendedEvents() {
                 <hr />
                 {loading ? (
                     <div className="text-center py-4">
-                        <div className="spinner-border text-primary" role="status">
+                        <div
+                            className="spinner-border"
+                            role="status"
+                            style={{
+                                color: "#B0AB8C", // Set the spinner color
+                            }}
+                        >
                             <span className="visually-hidden">Loading...</span>
                         </div>
+
                     </div>
                 ) : error ? (
                     <div className="alert alert-danger" role="alert">
@@ -90,6 +97,7 @@ export default function UserAtendedEvents() {
                                                         whiteSpace: "normal",
                                                         lineHeight: "1.2em",
                                                         maxHeight: "3.6em",
+                                                        color: "#B0AB8C",
                                                     }}
                                                 >
                                                     {event.title}

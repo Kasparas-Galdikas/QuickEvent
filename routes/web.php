@@ -12,20 +12,32 @@ use App\Http\Controllers\TopicsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Group\GroupDetailsController;
-
+use App\Http\Controllers\SearchController;
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
 
-// Profile Routes
+// Prfoile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
 
 // Public Routes unauthenticated
 Route::get('/', function () {
     return Inertia::render('LandingPage');
 });
+
+// API route for search
+Route::get('/api/events/search', [SearchController::class, 'search'])->name('api.search');
+
+Route::get('/search', function (Request $request) {
+    return inertia('Search/SearchResultsPage', [
+        'query' => $request->query('query'),
+        'location' => $request->query('location'), // Pass the location parameter
+    ]);
+})->name('search');
+
 // Upcomming event route 
 Route::get('/events/upcoming', [EventController::class, 'getUpcomingEvents']);
 

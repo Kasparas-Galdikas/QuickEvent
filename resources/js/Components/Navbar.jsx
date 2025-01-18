@@ -5,6 +5,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Login from '@/Pages/Auth/Login';
 import Register from '@/Pages/Auth/Register';
 import axios from 'axios';
+import SearchForm from './SearchForm';
 
 export default function Navbar() {
     const { auth, currentRoute } = usePage().props;
@@ -31,7 +32,11 @@ export default function Navbar() {
         <>
             <nav className="navbar navbar-expand-lg navbar-custom">
                 <div className="container-fluid">
-                    <Link href="/Home" className="navbar-brand d-flex align-items-center">
+                    {/* Dynamically set the href based on whether the user is logged in */}
+                    <Link 
+                        href={user ? "/Home" : "/"} 
+                        className="navbar-brand d-flex align-items-center"
+                    >
                         <ApplicationLogo alt="QuickEvent Logo" />
                     </Link>
 
@@ -45,28 +50,8 @@ export default function Navbar() {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className={`w-100 ${isMenuOpen ? 'd-block' : 'd-none'} d-lg-flex flex-column flex-lg-row`}>
-                        <form className="d-flex ms-lg-3 p-3 p-lg-0">
-                            <div className="input-group">
-                                <span className="input-group-text">
-                                    <i className="bi bi-search"></i>
-                                </span>
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Search events"
-                                    aria-label="Search events"
-                                />
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Your location"
-                                    aria-label="Your location"
-                                />
-                                <button className="search btn" type="submit">
-                                    <i className="bi bi-search text-secondary"></i>
-                                </button>
-                            </div>
-                        </form>
+
+                        <SearchForm />
 
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (

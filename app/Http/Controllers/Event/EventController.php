@@ -60,7 +60,6 @@ class EventController extends Controller
         return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
 
-
     public function getGroupEvents($groupId)
     {
         $events = Event::where('group_id', $groupId)
