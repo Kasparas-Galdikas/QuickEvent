@@ -80,11 +80,15 @@ export default function EditEvent({ event, topics: initialTopics }) {
         }
     };
 
-    
 
+    const [submitting, setSubmitting] = useState(false);
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
+        if (submitting) return; // Prevent duplicate submissions
+        setSubmitting(true);
+
         // Client-side validation
         const newErrors = {};
         if (!formData.title) newErrors.title = 'Title is required.';
@@ -98,15 +102,16 @@ export default function EditEvent({ event, topics: initialTopics }) {
         } else if (selectedTopics.length > MAX_TOPICS) {
             newErrors.topics = 'You can select up to five topics only.';
         }
-    
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            setSubmitting(false); // Re-enable buttons if validation fails
             return;
         }
-    
+
         // Convert start date to EET
         const formattedDate = format(startDate, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Europe/Vilnius' });
-    
+
         // Construct form data
         const updateFormData = new FormData();
         updateFormData.append('_method', 'PUT');
@@ -115,20 +120,30 @@ export default function EditEvent({ event, topics: initialTopics }) {
         updateFormData.append('start_date', formattedDate);
         updateFormData.append('duration', formData.duration);
         updateFormData.append('location', formData.location);
-    
+
         selectedTopics.forEach((topic) => {
             updateFormData.append('topics[]', topic);
         });
-    
+
         if (groupImage) {
             updateFormData.append('image', groupImage);
         }
-    
+
         try {
             await axios.post(`/events/${event.id}`, updateFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            router.visit('/Home');
+            // Keep submitting true until redirect is completed
+            router.visit('/Home', {
+                onSuccess: () => {
+                    // Reset submitting only after successful redirection
+                    setSubmitting(false);
+                },
+                onError: (error) => {
+                    console.error('Redirection error:', error);
+                    setSubmitting(false);
+                },
+            });
         } catch (error) {
             if (error.response?.data.errors) {
                 setErrors(error.response.data.errors);
@@ -136,9 +151,11 @@ export default function EditEvent({ event, topics: initialTopics }) {
                 setErrors({ general: 'An unexpected error occurred. Please try again.' });
                 console.error('Error updating event:', error);
             }
+            setSubmitting(false); // Re-enable buttons on error
         }
     };
-    
+
+
 
     // Calculate how many topics remain
     const topicsSelected = selectedTopics.length;
@@ -181,35 +198,35 @@ export default function EditEvent({ event, topics: initialTopics }) {
                         <InputError message={errors.title} />
                     </div>
 
-                  {/* Date and Time */}
-<div className="mb-6">
-    <InputLabel value="Date and Time" />
-    <div className="flex gap-4 items-center">
-        {/* Date Picker */}
-        <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            className="form-control custom-date-time"
-            dateFormat="yyyy-MM-dd"
-        />
+                    {/* Date and Time */}
+                    <div className="mb-6">
+                        <InputLabel value="Date and Time" />
+                        <div className="flex gap-4 items-center">
+                            {/* Date Picker */}
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                className="form-control custom-date-time"
+                                dateFormat="yyyy-MM-dd"
+                            />
 
-        {/* Time Picker */}
-        <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            className="form-control custom-date-time custom-time-box"
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={15}
-            timeCaption="Time"
-            dateFormat="HH:mm" // 24-hour format
-            timeFormat="HH:mm"
-        />
+                            {/* Time Picker */}
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                className="form-control custom-date-time custom-time-box"
+                                showTimeSelect
+                                showTimeSelectOnly
+                                timeIntervals={15}
+                                timeCaption="Time"
+                                dateFormat="HH:mm" // 24-hour format
+                                timeFormat="HH:mm"
+                            />
 
-        <span className="text-gray-700">EET</span>
-    </div>
-    <InputError message={errors.start_date} />
-</div>
+                            <span className="text-gray-700">EET</span>
+                        </div>
+                        <InputError message={errors.start_date} />
+                    </div>
 
 
                     {/* Duration */}
@@ -246,6 +263,7 @@ export default function EditEvent({ event, topics: initialTopics }) {
                                 type="button"
                                 className="btn mt-2 custom-btn px-3 py-1"
                                 style={{ fontSize: '14px' }}
+                                disabled={submitting}
                                 onClick={() => document.getElementById('event-image-upload').click()}
                             >
                                 {event.image_path ? 'Change Image' : 'Upload Image'}
@@ -301,8 +319,8 @@ export default function EditEvent({ event, topics: initialTopics }) {
                                         type="button"
                                         disabled={isDisabled}
                                         className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${isSelected
-                                                ? 'bg-teal-600 text-white border-teal-600'
-                                                : 'bg-teal-100 text-teal-600 border-teal-600'
+                                            ? 'bg-teal-600 text-white border-teal-600'
+                                            : 'bg-teal-100 text-teal-600 border-teal-600'
                                             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleTopicChange(topic.id)}
                                     >
@@ -341,11 +359,12 @@ export default function EditEvent({ event, topics: initialTopics }) {
                     <div className="flex justify-between mt-8">
                         <PrimaryButton
                             type="button"
+                            disabled={submitting}
                             onClick={() => router.visit(`/events/details/${event.slug}`)}
                         >
                             Cancel
                         </PrimaryButton>
-                        <PrimaryButton type="submit">Save Changes</PrimaryButton>
+                        <PrimaryButton type="submit" disabled={submitting}>Save Changes</PrimaryButton>
                     </div>
                 </form>
             </div>

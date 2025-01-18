@@ -103,7 +103,7 @@ export default function Profile() {
 
                         {/* Activity Stats */}
                         <div className="card mt-4">
-                            <div className="card-body">
+                            <div className="card-body custom-card">
                                 <h5 className="mb-3">Activity</h5>
                                 <div className="d-flex justify-content-between text-center">
                                     <div className="px-3">
@@ -124,7 +124,7 @@ export default function Profile() {
 
                         {/* About Section */}
                         <div className="card mt-4">
-                            <div className="card-body">
+                            <div className="card-body custom-card">
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <h5 className="mb-0">About me</h5>
                                     <button 
@@ -136,7 +136,7 @@ export default function Profile() {
                                 </div>
                                 {isEditing ? (
                                     <textarea
-                                        className="form-control"
+                                        className="form-control custom-textarea"
                                         value={userInfo.bio}
                                         onChange={(e) => setUserInfo({ ...userInfo, bio: e.target.value })}
                                         rows="3"
@@ -153,7 +153,7 @@ export default function Profile() {
                     <div className="col-md-8">
                         {/* Interests Section */}
                         <div className="card mb-4">
-                            <div className="card-body">
+                            <div className="card-body custom-card">
                                 <h5 className="mb-3">My interests (3)</h5>
                                 <div className="d-flex flex-wrap gap-2">
                                     {userInfo.interests.map((interest, index) => (
@@ -167,7 +167,7 @@ export default function Profile() {
 
                         {/* Upcoming Events */}
                         <div className="card mb-4">
-                            <div className="card-body">
+                            <div className="card-body custom-card">
                                 <h5 className="mb-3">Upcoming Events</h5>
                                 <p className="text-muted">No upcoming events. Join some groups to find events!</p>
                             </div>
@@ -175,7 +175,7 @@ export default function Profile() {
 
                         {/* My Groups */}
                         <div className="card">
-                            <div className="card-body">
+                            <div className="card-body custom-card">
                                 <h5 className="mb-3">My Groups</h5>
                                 <p className="text-muted">You haven't joined any groups yet. Explore groups to get started!</p>
                             </div>

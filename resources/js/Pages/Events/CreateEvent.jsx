@@ -89,9 +89,15 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         }
     };
 
+    const [submitting, setSubmitting] = useState(false);
+
     // Submit form with topic validation
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Prevent double submissions (safeguard against async timing issues)
+        if (submitting) return;
+        setSubmitting(true); // Disable button immediately
 
         // Client-side validation for topics
         const newErrors = {};
@@ -103,7 +109,8 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-            return; // Prevent form submission
+            setSubmitting(false); // Stop submission process if validation fails
+            return;
         } else {
             setErrors({});
         }
@@ -115,17 +122,14 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         formData.append('description', document.getElementById('description').value);
         formData.append('start_date', startDate.toISOString());
         formData.append('duration', document.getElementById('duration').value);
-
-        // Location from text input
         formData.append(
             'location',
             document.querySelector('input[placeholder="Search or add a location"]').value
         );
 
-        // Selected topics
+        // Add selected topics
         selectedTopics.forEach((topic) => {
             formData.append('topics[]', topic);
-
         });
 
         // Optional image
@@ -145,8 +149,11 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
             } else {
                 console.error('Error creating event:', error);
             }
+        } finally {
+            setSubmitting(false); // Re-enable button after process
         }
     };
+
 
     // Calculate how many topics remain
     const topicsSelected = selectedTopics.length;
@@ -161,6 +168,53 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
     } else if (topicsSelected === MAX_TOPICS) {
         topicsMessage = 'You have selected all 5 topics.';
     }
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (group_id) {
+            setLoading(true); // Start loading
+            Promise.all([
+                // Fetch group details
+                axios.get(`/groups/${group_id}`).then((response) => setGroupDetails(response.data)),
+
+                // Fetch topics related to the group
+                axios.get(`/topics/filter-by-group`, { params: { group_id } }).then((response) => {
+                    setTopics(response.data);
+                    setFilteredTopics(response.data); // Initialize filtered topics
+                }),
+            ])
+                .catch((error) => console.error('Error fetching data:', error))
+                .finally(() => setLoading(false)); // End loading
+        }
+    }, [group_id]);
+
+    if (loading) {
+        return (
+            <>
+                <Navbar />
+                <div
+                    className="d-flex justify-content-center align-items-center"
+                    style={{ height: '100vh' }}
+                >
+                    <div
+                        className="spinner-border"
+                        role="status"
+                        style={{
+                            width: '3rem',
+                            height: '3rem',
+                            color: '#B0AB8C',
+                        }}
+                    >
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
+
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -182,7 +236,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                     {/* Title */}
                     <div className="mb-6">
                         <InputLabel htmlFor="title" value="Title (required)" />
-                        <TextInput id="title" type="text" className="w-full" maxLength="80" required />
+                        <TextInput id="title" type="text" className="w-full" maxLength="80" required disabled={submitting} />
                         <InputError message={errors.title} />
                     </div>
 
@@ -196,6 +250,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                 onChange={(date) => setStartDate(date)}
                                 className="form-control custom-date-time"
                                 dateFormat="MMMM d, yyyy"
+                                disabled={submitting}
                             />
 
                             {/* Time Picker with EET Adjustments */}
@@ -205,6 +260,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                 className="form-control custom-date-time custom-time-box"
                                 showTimeSelect
                                 showTimeSelectOnly
+                                disabled={submitting}
                                 timeIntervals={15}
                                 timeCaption="Time"
                                 dateFormat="HH:mm" // Display hours in 24-hour format
@@ -233,7 +289,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                     {/* Duration */}
                     <div className="mb-6">
                         <InputLabel value="Duration (required)" />
-                        <select className="form-control custom-dropdown" id="duration" defaultValue="1">
+                        <select className="form-control custom-dropdown" id="duration" defaultValue="1" disabled={submitting}>
                             <option value="1">1 hour</option>
                             <option value="2">2 hours</option>
                             <option value="3">3 hours</option>
@@ -251,6 +307,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                 className="btn mt-2 custom-btn px-3 py-1"
                                 style={{ fontSize: '14px' }}
                                 onClick={() => document.getElementById('event-image-upload').click()}
+                                disabled={submitting}
                             >
                                 Upload Image
                             </button>
@@ -260,6 +317,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                 accept="image/*"
                                 onChange={handleImageUpload}
                                 className="hidden"
+                                disabled={submitting}
                             />
                         </div>
                         {groupImage && (
@@ -278,6 +336,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                             placeholder="Enter event description"
                             rows="4"
                             required
+                            disabled={submitting}
                         ></textarea>
                         <InputError message={errors.description} />
                     </div>
@@ -303,8 +362,8 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                                     <button
                                         key={topic.id}
                                         type="button"
-                                        disabled={isDisabled}
-                                        className={`px-4 py-2 rounded-full text-sm border-2 transition-colors ${isSelected
+                                        disabled={isDisabled || submitting}
+                                        className={`px-4 py-2 rounded-full text-sm border-2 ${isSelected
                                             ? 'bg-teal-600 text-white border-teal-600'
                                             : 'bg-teal-100 text-teal-600 border-teal-600'
                                             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -319,6 +378,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                             type="button"
                             className="text-teal-600 mt-3"
                             onClick={handleViewMore}
+                            disabled={submitting}
                         >
                             {(currentPage + 1) * 15 >= filteredTopics.length
                                 ? 'Back to Start'
@@ -334,14 +394,21 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                             type="text"
                             placeholder="Search or add a location"
                             className="w-full"
+                            disabled={submitting}
                         />
                         <InputError message={errors.location} />
                     </div>
 
                     {/* Buttons */}
                     <div className="flex justify-between mt-8">
-                        <PrimaryButton type="button">Cancel</PrimaryButton>
-                        <PrimaryButton type="submit">Publish</PrimaryButton>
+                        <PrimaryButton
+                            type="button"
+                            onClick={() => router.visit('/Home')}
+                            disabled={submitting}
+                        >
+                            Cancel
+                        </PrimaryButton>
+                        <PrimaryButton type="submit" disabled={submitting}>Publish</PrimaryButton>
                     </div>
                 </form>
             </div>
