@@ -21,6 +21,21 @@ export default function ForgotPassword({ show, onClose, status }) {
 
     return (
         <Modal show={show} onClose={onClose}>
+            {processing && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
+                    <div
+                        className="spinner-border"
+                        role="status"
+                        style={{
+                            width: '3rem',
+                            height: '3rem',
+                            color: '#B0AB8C',
+                        }}
+                    >
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            )}
             <GuestLayout>
                 <Head title="Forgot Password" />
                 <div className="mb-4 text-sm text-gray-600">
@@ -44,7 +59,7 @@ export default function ForgotPassword({ show, onClose, status }) {
                     <InputError message={errors.email} className="mt-2" />
                     <div className="mt-4 flex items-center justify-end">
                         <PrimaryButton className="ms-4" disabled={processing}>
-                            Email Password Reset Link
+                            {processing ? 'Processing...' : 'Email Password Reset Link'}
                         </PrimaryButton>
                     </div>
                 </form>

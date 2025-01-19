@@ -131,7 +131,11 @@ export default function Home() {
                                             <div className="card custom-card custom-hover event-card h-100">
                                                 {/* Event Image */}
                                                 <img
-                                                    src={event.image_path || '/images/default-event.png'}
+                                                    src={
+                                                        event.image_path
+                                                            ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
+                                                            : '/images/default-event.png' // Fallback image
+                                                    }
                                                     onError={(e) => {
                                                         e.target.onerror = null;
                                                         e.target.src =

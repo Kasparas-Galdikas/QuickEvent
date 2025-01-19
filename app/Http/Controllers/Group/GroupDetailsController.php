@@ -55,7 +55,7 @@ class GroupDetailsController extends Controller
     public function show(Request $request)
     {
         $group = Group::findOrFail($request->id);
-        
+
         // Load essential relationships
         $group->load(['user', 'topics', 'events']);
 
@@ -65,7 +65,7 @@ class GroupDetailsController extends Controller
             'name' => $group->name,
             'description' => $group->description,
             'location' => $group->location,
-            'image_path' => null,
+            'image_path' => $group->image_path,
             'user_id' => $group->user_id,
             'user' => [
                 'id' => $group->user->id,
@@ -91,7 +91,7 @@ class GroupDetailsController extends Controller
     public function edit($id)
     {
         $group = Group::with(['topics'])->findOrFail($id);
-        
+
         // Check if user has permission to edit
         if (auth()->id() !== $group->user_id) {
             return redirect()->back()->with('error', 'Unauthorized');
@@ -103,52 +103,79 @@ class GroupDetailsController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $group = Group::findOrFail($id);
+    {
+        $group = Group::findOrFail($id);
+
+        // Check if user has permission to update
+        if (auth()->id() !== $group->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Validate the request
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string|max:255',
+            'topics' => 'required|array|min:1', // Add validation for topics
+            'topics.*' => 'exists:topics,id'
+        ]);
+
+        // Update group basic info
+        $group->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'location' => $validated['location'],
+        ]);
+
+        // Sync topics
+        $group->topics()->sync($request->topics);
+
+        return redirect()->route('groups.show.details', $group->id)
+            ->with('success', 'Group updated successfully');
+    }
+    //destroy method
+    public function destroy($id)
+    {
+        $group = Group::findOrFail($id);
+
+        if (auth()->id() !== $group->user_id) {
+            abort(403);
+        }
+
+        if ($group->image_path) {
+            Storage::delete($group->image_path);
+        }
+
+        // Delete the group (events will be automatically deleted due to the boot method)
+        $group->delete();
+
+        return to_route('Home');
+    }
+
+    public function updateImage(Request $request, $id)
+    {
+        $group = Group::findOrFail($id);
     
-    // Check if user has permission to update
-    if (auth()->id() !== $group->user_id) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    // Validate the request
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'required|string',
-        'location' => 'required|string|max:255',
-        'topics' => 'required|array|min:1', // Add validation for topics
-        'topics.*' => 'exists:topics,id'
-    ]);
-
-    // Update group basic info
-    $group->update([
-        'name' => $validated['name'],
-        'description' => $validated['description'],
-        'location' => $validated['location'],
-    ]);
-
-    // Sync topics
-    $group->topics()->sync($request->topics);
-
-    return redirect()->route('groups.show.details', $group->id)
-        ->with('success', 'Group updated successfully');
-}
-   //destroy method
-   public function destroy($id)
-{
-    $group = Group::findOrFail($id);
+        if (auth()->id() !== $group->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
     
-    if (auth()->id() !== $group->user_id) {
-        abort(403);
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+    
+        if ($group->image_path) {
+            Storage::delete($group->image_path);
+        }
+    
+        $path = $request->file('image')->store('groups', 'public');
+    
+        $group->update(['image_path' => $path]);
+    
+        return response()->json([
+            'message' => 'Image uploaded successfully',
+            'image_path' => '/storage/' . $path,
+        ]);
     }
-
-    if ($group->image_path) {
-        Storage::delete($group->image_path);
-    }
-
-    // Delete the group (events will be automatically deleted due to the boot method)
-    $group->delete();
-
-    return to_route('Home');
-}
+    
 }

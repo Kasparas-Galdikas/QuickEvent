@@ -33,42 +33,48 @@ export default function Register({ show, onClose, openLoginModal }) {
         }));
     };
 
+    const [loading, setLoading] = useState(false);
+
     const handleRegister = async (e) => {
         e.preventDefault();
         setErrors({});
-    
-      try {
-    // Step 1: Check if the user exists and is not verified
-    const checkResponse = await axios.post('/check-user', { email: formData.email });
-    
-    if (checkResponse.data.requiresVerification) {
-        // If user exists but is not verified, show verification flow
-        setVerificationEmail(formData.email);
-        setShowVerifyEmail(true);
-        return; // Exit the function since no registration is needed
-    }
+        setLoading(true); // Show spinner
 
-    // Step 2: Register the user if not found or already verified
-    const registerResponse = await axios.post('/register', formData);
+        try {
+            // Step 1: Check if the user exists and is not verified
+            const checkResponse = await axios.post('/check-user', { email: formData.email });
 
-    // Step 3: After successful registration, initiate verification flow
-    setVerificationEmail(formData.email);
-    setShowVerifyEmail(true);
+            if (checkResponse.data.requiresVerification) {
+                // If user exists but is not verified, show verification flow
+                setVerificationEmail(formData.email);
+                setShowVerifyEmail(true);
+                setLoading(false); // Hide spinner when modal is shown
+                return; // Exit the function since no registration is needed
+            }
 
-} catch (error) {
-    // Handle errors gracefully
-    if (error.response) {
-        // Handle API-specific errors (e.g., validation errors)
-        if (error.response.data.errors) {
-            setErrors(error.response.data.errors); // Display specific error messages
-        } else {
-            console.error('Server error:', error.response.data.message || 'Unknown error');
+            // Step 2: Register the user if not found or already verified
+            const registerResponse = await axios.post('/register', formData);
+
+            // Step 3: After successful registration, initiate verification flow
+            setVerificationEmail(formData.email);
+            setShowVerifyEmail(true);
+        } catch (error) {
+            // Handle errors gracefully
+            if (error.response) {
+                // Handle API-specific errors (e.g., validation errors)
+                if (error.response.data.errors) {
+                    setErrors(error.response.data.errors); // Display specific error messages
+                } else {
+                    console.error('Server error:', error.response.data.message || 'Unknown error');
+                }
+            } else {
+                // Handle unexpected errors (e.g., network issues)
+                console.error('Unexpected error:', error.message);
+            }
+        } finally {
+            setLoading(false); // Hide spinner regardless of success or failure
         }
-    } else {
-        // Handle unexpected errors (e.g., network issues)
-        console.error('Unexpected error:', error.message);
-    }
-}}
+    };
 
 
     const handleGoogleRegister = () => {
@@ -88,6 +94,26 @@ export default function Register({ show, onClose, openLoginModal }) {
 
             {/* Registration Form Modal */}
             <Modal show={show} onClose={onClose}>
+
+                {loading && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-700 z-50">
+                        <div
+                            className="spinner-border"
+                            role="status"
+                            style={{
+                                width: '3rem',
+                                height: '3rem',
+                                color: '#B0AB8C', // Custom spinner color
+                               
+                            }}
+                        >
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                )}
+
+
+
                 <GuestLayout>
                     <form onSubmit={handleRegister}>
                         <div>

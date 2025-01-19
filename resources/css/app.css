@@ -200,3 +200,154 @@ body {
     background-color: rgb(225, 225, 188) !important; /* Lighter and softer shade */
     transition: background-color 0.3s ease !important; /* Smooth transition effect */
 }
+
+/* Custom Dropdown Styles */
+.custom-select {
+    background-color: rgb(245, 247, 235); /* Match navbar */
+    border: 1px solid rgb(220, 223, 208); /* Subtle border */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    border-radius: 8px; /* Rounded corners */
+    color: #6e754f; /* Text color */
+    font-size: 0.9rem; /* Adjust font size */
+    padding: 10px 15px; /* Padding for better spacing */
+    transition: all 0.2s ease; /* Smooth transitions */
+}
+
+/* Dropdown Menu Items */
+.custom-select option {
+    background-color: rgb(245, 247, 235); /* Match dropdown */
+    color: #6e754f; /* Text color */
+    padding: 10px 15px; /* Spacing for options */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Active Item */
+.custom-select option:checked {
+    background-color: rgb(232, 240, 214); /* Active background color */
+    font-weight: bold; /* Bold text for active item */
+    color: #8d9440; /* Text color for active item */
+}
+
+/* Hover Effect for Items */
+.custom-select option:hover {
+    background-color: rgb(235, 240, 225); /* Hover background */
+    color: #8d9440; /* Highlighted text */
+    border-radius: 5px; /* Rounded edges on hover */
+}
+
+
+/* Custom Calendar Container */
+.custom-calendar {
+    border: 1px solid #d4d4d4; /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    background-color: rgb(245, 247, 235); /* Light background */
+    padding: 0px; /* Spacing around the calendar */
+    font-family: 'Arial', sans-serif; /* Match your site's font */
+    width: fit-content;
+    margin: 0 auto; /* Center the calendar */
+}
+
+/* Calendar Header */
+.custom-calendar .react-calendar__navigation {
+    background-color: rgb(232, 240, 214); /* Slightly darker background for the header */
+    border-bottom: 1px solid #c2c2c2; /* Subtle separator */
+    padding: 8px 12px;
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
+    font-weight: bold;
+    color: #6e754f; /* Text color */
+}
+
+.custom-calendar .react-calendar__navigation button {
+    background: none;
+    border: none;
+    color: #6e754f;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.custom-calendar .react-calendar__navigation button:hover {
+    color: #8d9440; /* Highlighted color */
+}
+
+/* Calendar Days and Tiles */
+.custom-calendar .react-calendar__tile {
+    background-color: rgb(245, 247, 235); /* Match calendar background */
+    border: 1px solid transparent; /* Default state */
+    border-radius: 5px; /* Rounded corners for tiles */
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 8px;
+    transition: all 0.2s ease;
+    color: #6e754f; /* Default text color */
+}
+
+.custom-calendar .react-calendar__tile:hover {
+    background-color: rgb(235, 240, 225); /* Hover background */
+    border-color: rgb(220, 223, 208); /* Subtle hover border */
+    color: #8d9440; /* Highlight text on hover */
+}
+
+/* Calendar Today Tile */
+.custom-calendar .react-calendar__tile--now {
+    background-color: rgb(252, 245, 220); /* Less bright background for today's date */
+    border-color: #e6b566; /* Subtle border */
+    font-weight: bold;
+    color: #8a6b3f; /* Muted text color for today */
+}
+
+/* Active Tile */
+.custom-calendar .react-calendar__tile--active {
+    background-color: rgb(240, 234, 210); /* Vanilla-inspired background */
+    color: #6e754f; /* Dark text color */
+    font-weight: bold;
+    border: 1px solid rgb(220, 216, 193); /* Subtle border to highlight */
+}
+
+/* Hover Effect for Active Tile */
+.custom-calendar .react-calendar__tile--active:hover {
+    background-color: rgb(235, 229, 204); /* Slightly darker vanilla tone on hover */
+    border-color: rgb(210, 206, 183); /* Subtle hover border */
+    color: #5f6443; /* Slightly darker text on hover */
+}
+
+/* Weekdays */
+.custom-calendar .react-calendar__month-view__weekdays {
+    background-color: rgb(232, 240, 214); /* Match header background */
+    border-bottom: 1px solid #c2c2c2; /* Subtle separator */
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #6e754f;
+    text-transform: uppercase;
+}
+
+/* Disabled Tiles */
+.custom-calendar .react-calendar__tile--disabled {
+    background-color: rgb(245, 247, 235); /* Match background */
+    color: #c2c2c2; /* Disabled text color */
+    cursor: not-allowed;
+}
+
+/* Month and Year Views */
+.custom-calendar .react-calendar__month-view__days__day--neighboringMonth {
+    color: #c2c2c2; /* Dim color for days outside the current month */
+}
+
+.custom-calendar .react-calendar__tile--hasActive {
+    background-color: rgb(232, 240, 214) !important; /* Active month/year highlight */
+    color: #ffffff !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .custom-calendar {
+        font-size: 0.8rem; /* Adjust font size for smaller screens */
+    }
+
+    .custom-calendar .react-calendar__tile {
+        padding: 6px;
+    }
+}

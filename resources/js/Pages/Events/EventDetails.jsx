@@ -237,7 +237,11 @@ export default function EventDetails() {
                             <div className="mt-0 w-full lg:mt-8">
 
                                 <img
-                                    src={event.image_path || '/images/default-event.png'}
+                                    src={
+                                        event.image_path
+                                            ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
+                                            : '/images/default-event.png' // Fallback image
+                                    }
                                     alt="Event Cover"
                                     className="rounded-lg"
                                     style={{

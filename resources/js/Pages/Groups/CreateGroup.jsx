@@ -31,6 +31,8 @@ export default function CreateGroup() {
         fetchTopics();
     }, []);
 
+    
+
     // Filter and paginate topics
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -49,6 +51,9 @@ export default function CreateGroup() {
         if (currentStep === 1 && !location.trim()) {
             newErrors.location = 'Location is required.';
         }
+        if (currentStep === 2 && selectedTopics.length < 1) {
+            newErrors.topics = 'Please select at least one topic.';
+        }
         if (currentStep === 3 && !groupName.trim()) {
             newErrors.groupName = 'Group name is required.';
         }
@@ -57,11 +62,11 @@ export default function CreateGroup() {
         }
 
         if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+            setErrors(newErrors); // Show errors
         } else {
             setErrors({});
             if (currentStep < 4) {
-                setCurrentStep(currentStep + 1);
+                setCurrentStep(currentStep + 1); // Proceed to the next step
             }
         }
     };
@@ -120,7 +125,7 @@ export default function CreateGroup() {
             setSubmitting(false); // Re-enable button on error
         }
     };
-    
+
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -213,9 +218,7 @@ export default function CreateGroup() {
                                 {/* Topics Selection */}
                                 {currentStep === 2 && (
                                     <div>
-                                        <h2 className="text-lg font-bold">
-                                            Search topics for your group
-                                        </h2>
+                                        <h2 className="text-lg font-bold">Search topics for your group</h2>
                                         <TextInput
                                             id="searchTopics"
                                             name="searchTopics"
@@ -233,8 +236,8 @@ export default function CreateGroup() {
                                                     key={topic.id}
                                                     type="button"
                                                     className={`px-4 py-2 rounded-full text-sm border-2 ${selectedTopics.includes(topic.id)
-                                                            ? 'bg-teal-600 text-white border-teal-600'
-                                                            : 'bg-teal-100 text-teal-600 border-teal-600'
+                                                        ? 'bg-teal-600 text-white border-teal-600'
+                                                        : 'bg-teal-100 text-teal-600 border-teal-600'
                                                         }`}
                                                     onClick={() => handleTopicChange(topic.id)}
                                                 >
@@ -242,6 +245,14 @@ export default function CreateGroup() {
                                                 </button>
                                             ))}
                                         </div>
+
+                                        {/* Error message for topics */}
+                                        {errors.topics && (
+                                            <div> 
+                                                 <span className="text-red-500 text-sm">{errors.topics}</span>
+                                            </div>
+                                           
+                                        )}
 
                                         <button
                                             type="button"
@@ -254,6 +265,7 @@ export default function CreateGroup() {
                                         </button>
                                     </div>
                                 )}
+
 
                                 {/* Group Name Input */}
                                 {currentStep === 3 && (
@@ -293,16 +305,16 @@ export default function CreateGroup() {
 
                                 {/* Submit Button */}
                                 <PrimaryButton
-    className="mt-4"
-    disabled={
-        submitting || // Disable when submitting
-        (currentStep === 4 && groupDescription.length < 50) // Additional conditions
-    }
-    type={currentStep === 4 ? 'submit' : 'button'}
-    onClick={currentStep === 4 ? undefined : handleNext}
->
-    {currentStep === 4 ? 'Create' : 'Next'}
-</PrimaryButton>
+                                    className="mt-4"
+                                    disabled={
+                                        submitting || // Disable when submitting
+                                        (currentStep === 4 && groupDescription.length < 50) // Additional conditions
+                                    }
+                                    type={currentStep === 4 ? 'submit' : 'button'}
+                                    onClick={currentStep === 4 ? undefined : handleNext}
+                                >
+                                    {currentStep === 4 ? 'Create' : 'Next'}
+                                </PrimaryButton>
 
                             </div>
                         </div>

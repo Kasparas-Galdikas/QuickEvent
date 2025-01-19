@@ -15,11 +15,22 @@ use App\Http\Controllers\Group\GroupDetailsController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
+//Detected user location if null sends to backend 
+Route::post('/update-location', [UserController::class, 'updateLocation'])->middleware('auth');
+Route::get('/check-location', [UserController::class, 'checkLocation'])->middleware('auth');
+
+// upload group image 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/groups/{id}/update-image', [GroupDetailsController::class, 'updateImage'])
+        ->name('groups.update.image');
+});
+
 
 // Prfoile Routes
 Route::get('/Profile', fn() => Inertia::render('Profile'))->name('profile');
@@ -70,6 +81,7 @@ Route::prefix('auth')->group(function () {
     Route::get('/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.redirect');
     Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
 });
+
 
 // Verification Code Routes
 Route::get('/verify', function () {
@@ -124,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edit/{id}', [GroupDetailsController::class, 'edit'])->name('groups.edit');
         Route::put('/{id}', [GroupDetailsController::class, 'update'])->name('groups.update');
         Route::delete('/{id}', [GroupDetailsController::class, 'destroy'])->name('groups.destroy');
+
     });
 
 

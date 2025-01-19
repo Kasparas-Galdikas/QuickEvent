@@ -45,23 +45,25 @@ export default function Show() {
         }
 
         formData.append('image', file);
-        formData.append('_method', 'PUT');
 
         try {
-            await axios.post(`/groups/${group.id}`, formData, {
+            const response = await axios.post(`/groups/${group.id}/update-image`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
-            // Atnaujinti puslapį po sėkmingo įkėlimo
-            window.location.reload();
+            if (response.status === 200) {
+                window.location.reload(); // Reload the page
+            }
         } catch (error) {
             console.error('Error uploading image:', error);
             alert('Failed to upload image');
         }
-
     };
+
+
+
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -77,10 +79,21 @@ export default function Show() {
                                 {/* Left Column - Image with upload button */}
                                 <div className="col-md-7 position-relative">
                                     <img
-                                        src={group.image_path || "https://via.placeholder.com/600x400"}
-                                        className="rounded w-100 h-100 object-fit-cover"
+                                        src={
+                                            group.image_path
+                                                ? `/storage/${group.image_path}` // Access the image via the `/storage` URL
+                                                : '/images/default-group.png'   // Fallback image
+                                        }
+                                        className="rounded object-fit-cover"
                                         alt={group.name}
+                                        style={{
+                                            width: '600px', // Fixed width
+                                            height: '320px', // Fixed height
+                                            border: '1px solid black', // 1px black border
+                                        }}
                                     />
+
+
                                     {auth && auth.user && auth.user.id === group.user_id && (  // Add this condition
                                         <button
                                             className="btn custom-btn position-absolute top-0 start-0 m-3"
@@ -100,11 +113,6 @@ export default function Show() {
                                         <div className="d-flex align-items-center">
                                             <i className="fas fa-map-marker-alt me-2"></i>
                                             <span>{group.location}</span>
-                                        </div>
-
-                                        <div className="d-flex align-items-center">
-                                            <i className="fas fa-user-friends me-2"></i>
-                                            <span>1 member · Public group</span>
                                         </div>
 
                                         <div className="d-flex align-items-center">
@@ -200,7 +208,12 @@ export default function Show() {
                                     <a
                                         className={`nav-link ${activeTab === 'about' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('about')}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{
+                                            cursor: 'pointer',
+                                            color: activeTab === 'about' ? '#2c2c2c' : '#6c757d', // Dark text for active, muted for inactive
+                                            backgroundColor: activeTab === 'about' ? '#f7f4e4' : 'transparent', // Slightly brighter vanilla background for active
+                                            fontWeight: activeTab === 'about' ? 'bold' : 'normal', // Optional: Bold for active
+                                        }}
                                     >
                                         About
                                     </a>
@@ -209,38 +222,17 @@ export default function Show() {
                                     <a
                                         className={`nav-link ${activeTab === 'events' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('events')}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{
+                                            cursor: 'pointer',
+                                            color: activeTab === 'events' ? '#2c2c2c' : '#6c757d', // Dark text for active, muted for inactive
+                                            backgroundColor: activeTab === 'events' ? '#f7f4e4' : 'transparent', // Slightly brighter vanilla background for active
+                                            fontWeight: activeTab === 'events' ? 'bold' : 'normal', // Optional: Bold for active
+                                        }}
                                     >
                                         Events
                                     </a>
                                 </li>
-                                <li className="nav-item">
-                                    <a
-                                        className={`nav-link ${activeTab === 'members' ? 'active' : ''}`}
-                                        onClick={() => setActiveTab('members')}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        Members
-                                    </a>
-                                </li>
-                                <li className="nav-item">
-                                    <a
-                                        className={`nav-link ${activeTab === 'photos' ? 'active' : ''}`}
-                                        onClick={() => setActiveTab('photos')}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        Pictures
-                                    </a>
-                                </li>
-                                <li className="nav-item">
-                                    <a
-                                        className={`nav-link ${activeTab === 'discussions' ? 'active' : ''}`}
-                                        onClick={() => setActiveTab('discussions')}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        Discussions
-                                    </a>
-                                </li>
+
                             </ul>
                         </div>
                     </div>
@@ -273,7 +265,11 @@ export default function Show() {
                                                 >
                                                     <div className="d-flex">
                                                         <img
-                                                            src={event.image_path || "/images/default-event.png"}
+                                                            src={
+                                                                event.image_path
+                                                                    ? `/storage/${event.image_path}` // Access the image via the `/storage` URL
+                                                                    : '/images/default-event.png'   // Fallback image
+                                                            }
                                                             className="rounded w-20 h-20 object-fit-cover"
                                                             alt={event.name}
                                                             style={{ width: '120px', height: '80px' }}
@@ -343,7 +339,16 @@ export default function Show() {
                                 <div className="card-body">
                                     <h2 className="fs-4 mb-4">Host</h2>
                                     <div className="d-flex items-center gap-3">
-                                        <div className="rounded-circle bg-secondary" style={{ width: '64px', height: '64px' }}></div>
+                                        <img
+                                            src={
+                                                group.user?.profile_image_path
+                                                    ? `/storage/${group.user.profile_image_path}` // User's profile image
+                                                    : '/images/default-profile.png' // Fallback image
+                                            }
+                                            alt={group.user?.name || 'Default Profile'}
+                                            className="rounded-circle"
+                                            style={{ width: '64px', height: '64px', objectFit: 'cover' }}
+                                        />
                                         <div>
                                             <p className="fw-bold mb-1">{group.user?.name}</p>
                                             <button className="btn btn-link p-0">
@@ -353,25 +358,7 @@ export default function Show() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Narių kortelė */}
-                            <div className="card custom-card mb-5"> {/* Pridėjome mb-5 klasę */}
-                                <div className="card-body">
-                                    <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <h2 className="fs-4 m-0">Members (1)</h2>
-                                        <a href="#" className="text-primary">All</a>
-                                    </div>
-
-                                    {/* Organizatoriaus įrašas narių sąraše */}
-                                    <div className="d-flex align-items-center mb-2">
-                                        <div className="rounded-circle bg-secondary" style={{ width: '48px', height: '48px' }}></div>
-                                        <div className="ms-3">
-                                            <p className="mb-0 fw-semibold">{group.user?.name}</p>
-                                            <small className="text-muted">Host</small>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -380,9 +367,12 @@ export default function Show() {
 
             {/* Upload Modal */}
             {showUploadModal && (
-                <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                <div
+                    className="modal custom fade show d-block"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+                >
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
+                        <div className="modal-content custom-card">
                             <div className="modal-header">
                                 <h5 className="modal-title">Upload Photo</h5>
                                 <button
@@ -401,7 +391,6 @@ export default function Show() {
                                         className="form-control"
                                         id="photo-upload"
                                         accept="image/*"
-                                        onChange={handleFileUpload}
                                     />
                                 </div>
                                 <small className="text-muted">
@@ -416,11 +405,10 @@ export default function Show() {
                                 >
                                     Cancel
                                 </button>
-
                                 <button
                                     type="button"
                                     className="btn custom-btn"
-                                    onClick={handleFileUpload}  // Pridėtas onClick handler
+                                    onClick={handleFileUpload} // Call the upload handler
                                 >
                                     Upload
                                 </button>
@@ -429,6 +417,8 @@ export default function Show() {
                     </div>
                 </div>
             )}
+
+
 
             <Footer />
         </div>

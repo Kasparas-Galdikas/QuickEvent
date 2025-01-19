@@ -47,9 +47,6 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         }
     }, [group_id]);
 
-    // Filter topics by search query
-
-
     // Paginate displayed topics (15 per page)
     const displayedTopics = filteredTopics.slice(
         currentPage * 15,
@@ -82,17 +79,21 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         }
     };
 
-    // Handle image upload
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setGroupImage(file);
-        }
-    };
+  //  handle Image Upload 
+const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        setGroupImage(file); // Save the file to state
+        const previewURL = URL.createObjectURL(file); // Create a preview URL for local display
+        setGroupDetails((prev) => ({
+            ...prev,
+            image_preview: previewURL, // Store the preview URL for the image
+        }));
+    }
+};
 
     const [submitting, setSubmitting] = useState(false);
 
-    // Submit form with topic validation
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -100,8 +101,19 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         if (submitting) return;
         setSubmitting(true); // Disable button immediately
 
-        // Client-side validation for topics
         const newErrors = {};
+
+        // Parse the duration (assuming it's in hours) and calculate the event's end time
+        const durationInHours = parseFloat(document.getElementById('duration').value); // Ensure the value is a number
+        const eventEndTime = new Date(startDate.getTime() + durationInHours * 60 * 60 * 1000); // Add duration to start time
+
+        // Check if the event's end time is in the past
+        if (eventEndTime < new Date()) {
+            newErrors.start_date =
+                'The event cannot be created because the calculated end time pasted.';
+        }
+
+        // Client-side validation for topics
         if (selectedTopics.length < MIN_TOPICS) {
             newErrors.topics = 'Please select at least one topic.';
         } else if (selectedTopics.length > MAX_TOPICS) {
@@ -110,7 +122,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-            setSubmitting(false); // Stop submission process if validation fails
+            setSubmitting(false); // Re-enable button if validation fails
             return;
         } else {
             setErrors({});
@@ -123,7 +135,7 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         formData.append('description', document.getElementById('description').value);
         formData.append('start_date', startDate.toISOString());
         formData.append('duration', document.getElementById('duration').value);
-        formData.append('type', eventType); 
+        formData.append('type', eventType);
         formData.append(
             'location',
             document.querySelector('input[placeholder="Search or add a location"]').value
@@ -147,7 +159,8 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
             router.visit('/Home');
         } catch (error) {
             if (error.response?.data.errors) {
-                setErrors(error.response.data.errors); // Store server validation errors
+                const serverErrors = error.response.data.errors;
+                setErrors(serverErrors); // Store server validation errors
             } else {
                 console.error('Error creating event:', error);
             }
@@ -415,10 +428,18 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
                             type="text"
                             placeholder="Search or add a location"
                             className="w-full"
+                            value={groupDetails?.location || ''} // Prefill with location from group details
                             disabled={submitting}
+                            onChange={(e) =>
+                                setGroupDetails((prev) => ({
+                                    ...prev,
+                                    location: e.target.value,
+                                }))
+                            }
                         />
                         <InputError message={errors.location} />
                     </div>
+
 
                     {/* Buttons */}
                     <div className="flex justify-between mt-8">

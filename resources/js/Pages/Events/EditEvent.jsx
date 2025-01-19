@@ -82,15 +82,27 @@ export default function EditEvent({ event, topics: initialTopics }) {
 
 
     const [submitting, setSubmitting] = useState(false);
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (submitting) return; // Prevent duplicate submissions
         setSubmitting(true);
 
-        // Client-side validation
         const newErrors = {};
+
+        // Parse the duration (assuming it's in hours) and calculate the event's end time
+        const durationInHours = parseFloat(document.getElementById('duration').value); // Ensure the value is a number
+        const eventEndTime = new Date(startDate.getTime() + durationInHours * 60 * 60 * 1000); // Add duration to start time
+
+        // Check if the event's end time is in the past
+        if (eventEndTime < new Date()) {
+            newErrors.start_date =
+                'The event cannot be created because its calculated end time passed.';
+        }
+
+
+        // Client-side validation for other fields
         if (!formData.title) newErrors.title = 'Title is required.';
         if (!formData.description) newErrors.description = 'Description is required.';
         if (!formData.location) newErrors.location = 'Location is required.';
@@ -103,6 +115,7 @@ export default function EditEvent({ event, topics: initialTopics }) {
             newErrors.topics = 'You can select up to five topics only.';
         }
 
+        // If there are errors, set them and re-enable the submit button
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             setSubmitting(false); // Re-enable buttons if validation fails
@@ -136,17 +149,16 @@ export default function EditEvent({ event, topics: initialTopics }) {
             // Keep submitting true until redirect is completed
             router.visit('/Home', {
                 onSuccess: () => {
-                    // Reset submitting only after successful redirection
-                    setSubmitting(false);
+                    setSubmitting(false); // Reset submitting only after successful redirection
                 },
                 onError: (error) => {
                     console.error('Redirection error:', error);
-                    setSubmitting(false);
+                    setSubmitting(false); // Re-enable on redirection error
                 },
             });
         } catch (error) {
             if (error.response?.data.errors) {
-                setErrors(error.response.data.errors);
+                setErrors(error.response.data.errors); // Server validation errors
             } else {
                 setErrors({ general: 'An unexpected error occurred. Please try again.' });
                 console.error('Error updating event:', error);
@@ -154,6 +166,7 @@ export default function EditEvent({ event, topics: initialTopics }) {
             setSubmitting(false); // Re-enable buttons on error
         }
     };
+
 
 
 

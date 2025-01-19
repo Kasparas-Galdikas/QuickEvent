@@ -35,13 +35,19 @@ export default function Login({ show, onClose, status }) {
         });
     };
 
+    const [loading, setLoading] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
+        if (loading) return; // Prevent multiple submissions
+    
         setErrors({}); // Clear previous errors
-
+        setLoading(true); // Show spinner and disable buttons
+    
         try {
             const response = await axios.post('/login', formData);
-
+    
             if (response.data.status === 'unverified') {
                 setVerifyEmail(response.data.email); // Pass email to VerifyEmail component
                 setShowVerifyEmail(true); // Show the VerifyEmail modal
@@ -56,8 +62,12 @@ export default function Login({ show, onClose, status }) {
             } else {
                 console.error('Unexpected error:', error);
             }
+        } finally {
+            setLoading(false); // Hide spinner and re-enable buttons
         }
     };
+    
+
 
     const handleForgotPasswordClick = () => {
         setShowForgotPassword(true); // Open Forgot Password modal
@@ -65,9 +75,27 @@ export default function Login({ show, onClose, status }) {
 
     return (
         <>
+
             {/* Login Modal */}
             <Modal show={show && !showForgotPassword} onClose={onClose}>
                 <GuestLayout>
+
+                    {loading && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-700 z-50">
+                            <div
+                                className="spinner-border"
+                                role="status"
+                                style={{
+                                    width: '3rem',
+                                    height: '3rem',
+                                    color: '#B0AB8C', // Custom color
+                                }}
+                            >
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    )}
+
                     <Head title="Log in" />
                     {status && (
                         <div className="mb-4 text-sm font-medium text-green-600">
@@ -120,12 +148,13 @@ export default function Login({ show, onClose, status }) {
                             <button
                                 type="button"
                                 onClick={handleForgotPasswordClick}
+                                disabled={loading}
                                 className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 Forgot your password?
                             </button>
 
-                            <PrimaryButton type="submit" className="ms-4">
+                            <PrimaryButton type="submit" className="ms-4"  disabled={loading}>
                                 Log in
                             </PrimaryButton>
                         </div>
@@ -135,6 +164,7 @@ export default function Login({ show, onClose, status }) {
                         <div className="flex items-center justify-between">
                             <SecondaryButton
                                 type="button"
+                                disabled={loading}
                                 onClick={() => {
                                     window.location.href = '/auth/google'; // Redirect to Laravel's Google login route
                                 }}

@@ -163,7 +163,11 @@ export default function Home() {
                                                     {/* Group Image */}
                                                     <div style={{ minWidth: '150px', height: '150px', flexShrink: 0 }}>
                                                         <img
-                                                            src={group.image_path || '/images/default-group.png'}
+                                                            src={
+                                                                group.image_path
+                                                                    ? `/storage/${group.image_path}` // Access the image via the `/storage` URL
+                                                                    : '/images/default-event.png'   // Fallback image
+                                                            }
                                                             className="rounded w-100 h-100 object-fit-cover"
                                                             alt={group.name}
                                                             style={{
@@ -265,8 +269,12 @@ export default function Home() {
                                                                     }}
                                                                 >
                                                                     <img
-                                                                        src={event.image_path || '/images/default-event.png'}
-                                                                        alt={event.title}
+                                                                        src={
+                                                                            event.image_path
+                                                                                ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
+                                                                                : '/images/default-event.png' // Fallback image
+                                                                        }
+                                                                        alt={event.title || 'Event Image'} // Fallback alt text
                                                                         style={{
                                                                             width: '100%',
                                                                             height: '100%',
@@ -328,7 +336,7 @@ export default function Home() {
                 <div className="row">
                     <div className="col-md-4 col-lg-3 mb-4">
                         <Calendar
-                            className="mx-auto"
+                            className="mx-auto custom-card custom-calendar"
                             onChange={(date) => {
                                 const normalizedDate = normalizeDate(date);
                                 setSelectedDate(normalizedDate);
@@ -340,13 +348,13 @@ export default function Home() {
                             value={selectedDate}
                         />
 
-                       <UserAtendedEvents/>
-                        
+                        <UserAtendedEvents />
+
                     </div>
 
                     <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}>
                         <div className="d-flex justify-content-start mb-3">
-                            <select className="form-select w-auto">
+                            <select className="custom-select w-32">
                                 <option>Any type</option>
                                 <option>Online</option>
                                 <option>In-person</option>
