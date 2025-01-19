@@ -79,18 +79,18 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
         }
     };
 
-  //  handle Image Upload 
-const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        setGroupImage(file); // Save the file to state
-        const previewURL = URL.createObjectURL(file); // Create a preview URL for local display
-        setGroupDetails((prev) => ({
-            ...prev,
-            image_preview: previewURL, // Store the preview URL for the image
-        }));
-    }
-};
+    //  handle Image Upload 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setGroupImage(file); // Save the file to state
+            const previewURL = URL.createObjectURL(file); // Create a preview URL for local display
+            setGroupDetails((prev) => ({
+                ...prev,
+                image_preview: previewURL, // Store the preview URL for the image
+            }));
+        }
+    };
 
     const [submitting, setSubmitting] = useState(false);
 

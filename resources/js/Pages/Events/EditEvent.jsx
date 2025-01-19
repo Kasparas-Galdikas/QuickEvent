@@ -72,13 +72,19 @@ export default function EditEvent({ event, topics: initialTopics }) {
         }
     };
 
-    // Handle image upload
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setGroupImage(file);
+            const previewURL = URL.createObjectURL(file); // Generate a local preview
+            setGroupImage(file); // Save the uploaded file
+            setGroupDetails((prev) => ({
+                ...prev,
+                image_preview: previewURL, // Use this for display during upload
+            }));
         }
     };
+    
+    
 
 
     const [submitting, setSubmitting] = useState(false);
@@ -263,23 +269,14 @@ export default function EditEvent({ event, topics: initialTopics }) {
                     <div className="mb-6">
                         <InputLabel value="Event Image" />
                         <div>
-                            {event.image_path && (
-                                <div className="mb-3">
-                                    <img
-                                        src={event.image_path}
-                                        alt="Current event image"
-                                        className="rounded w-48 h-32 object-cover"
-                                    />
-                                </div>
-                            )}
                             <button
                                 type="button"
                                 className="btn mt-2 custom-btn px-3 py-1"
                                 style={{ fontSize: '14px' }}
-                                disabled={submitting}
                                 onClick={() => document.getElementById('event-image-upload').click()}
+                                disabled={submitting}
                             >
-                                {event.image_path ? 'Change Image' : 'Upload Image'}
+                                Upload Image
                             </button>
                             <input
                                 id="event-image-upload"
@@ -287,11 +284,12 @@ export default function EditEvent({ event, topics: initialTopics }) {
                                 accept="image/*"
                                 onChange={handleImageUpload}
                                 className="hidden"
+                                disabled={submitting}
                             />
                         </div>
                         {groupImage && (
                             <p className="mt-2 text-sm text-gray-500">
-                                Selected new file: {groupImage.name}
+                                Selected file: {groupImage.name}
                             </p>
                         )}
                     </div>

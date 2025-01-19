@@ -166,7 +166,7 @@ export default function Home() {
                                                             src={
                                                                 group.image_path
                                                                     ? `/storage/${group.image_path}` // Access the image via the `/storage` URL
-                                                                    : '/images/default-event.png'   // Fallback image
+                                                                    : '/images/default-group.png'   // Fallback image
                                                             }
                                                             className="rounded w-100 h-100 object-fit-cover"
                                                             alt={group.name}
@@ -417,7 +417,11 @@ export default function Home() {
                                                 <div className="row g-0 align-items-center">
                                                     <div className="col-md-4">
                                                         <img
-                                                            src={event.image_path || '/images/default-event.png'}
+                                                          src={
+                                                                            event.image_path
+                                                                                ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
+                                                                                : '/images/default-event.png' // Fallback image
+                                                                        }
                                                             className="card-img"
                                                             alt={event.title}
                                                             loading="lazy"

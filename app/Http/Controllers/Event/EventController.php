@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 class EventController extends Controller
 {
@@ -237,51 +238,59 @@ class EventController extends Controller
             'group' => $event->group
         ]);
     }
-    public function update(Request $request, $id)
-    {
-        $event = Event::findOrFail($id);
 
-        // Check if user has permission to update
-        if (auth()->id() !== $event->group->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+ public function update(Request $request, $id)
+{
+    $event = Event::findOrFail($id);
 
-        // Validate the request
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:1000',
-            'start_date' => 'required|date',
-            'duration' => 'required|integer|min:1|max:24',
-            'location' => 'required|string|max:255',
-            'topics' => 'nullable|array',
-            'topics.*' => 'exists:topics,id',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        // Handle image upload if provided
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('events', 'public');
-            // Pridėkite pilną kelią
-            $imagePath = '/storage/' . $imagePath;
-            $event->image_path = $imagePath;
-        }
-
-        // Update event
-        $event->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'event_date' => date('Y-m-d', strtotime($validated['start_date'])),
-            'event_time' => date('H:i:s', strtotime($validated['start_date'])),
-            'duration' => $validated['duration'],
-            'location' => $validated['location'],
-        ]);
-
-        // Update topics
-        if (isset($validated['topics'])) {
-            $event->topics()->sync($validated['topics']);
-        }
-
-        return response()->json(['message' => 'Event updated successfully', 'event' => $event]);
+    // Ensure the user has permission to update
+    if (auth()->id() !== $event->group->user_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    // Validate the request
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string|max:1000',
+        'start_date' => 'required|date',
+        'duration' => 'required|integer|min:1|max:24',
+        'location' => 'required|string|max:255',
+        'topics' => 'nullable|array',
+        'topics.*' => 'exists:topics,id',
+        'image' => 'nullable|image|max:2048',
+    ]);
+
+    // Handle image upload if provided
+    if ($request->hasFile('image')) {
+        // Delete the old image if it exists
+        if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
+            Storage::disk('public')->delete($event->image_path);
+        }
+
+        $imagePath = $request->file('image')->store('events', 'public');
+        $event->image_path = $imagePath; // Store relative path
+    }
+
+    // Update event details
+    $event->update([
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'event_date' => Carbon::parse($validated['start_date'])->toDateString(),
+        'event_time' => Carbon::parse($validated['start_date'])->toTimeString(),
+        'duration' => $validated['duration'],
+        'location' => $validated['location'],
+    ]);
+
+    // Update topics
+    if (isset($validated['topics'])) {
+        $event->topics()->sync($validated['topics']);
+    }
+
+    // Return success response with updated event
+    return response()->json([
+        'message' => 'Event updated successfully',
+        'event' => $event->load('topics'), // Include related topics in the response
+    ]);
+}
 }
 

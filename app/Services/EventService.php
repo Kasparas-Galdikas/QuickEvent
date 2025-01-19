@@ -17,19 +17,18 @@ class EventService
      */
     public function fetchAndStoreUpcomingEvents()
     {
-
         $this->cleanupExpiredEvents();
-
+    
         $apiEventCount = Event::whereNull('group_id')->count(); // Only count API events
-        $remainingEvents = max(0, 120 - $apiEventCount);
-
+        $remainingEvents = max(0, 180 - $apiEventCount); // Change from 120 to 180
+    
         if ($remainingEvents > 0) {
             $this->fetchAndProcessEvents($remainingEvents);
         } else {
-            Log::info('Already have 120 API events. Skipping fetch.');
+            Log::info('Already have 180 API events. Skipping fetch.');
         }
-
     }
+    
 
     /**
      * Clean up expired events from the database.
@@ -69,69 +68,48 @@ class EventService
     private function fetchAndProcessEvents(int $remainingEvents): void
     {
         $labels = [
-            'music',
-            'business',
-            'food',
-            'community',
-            'arts',
-            'film',
-            'sports',
-            'health',
-            'technology',
-            'travel',
-            'charity',
-            'religion',
-            'family',
-            'holiday',
-            'politics',
-            'fashion',
-            'lifestyle',
-            'auto',
-            'hobbies',
-            'other',
-            'school'
+            'music', 'business', 'food', 'community', 'arts', 'film', 'sports',
+            'health', 'technology', 'travel', 'charity', 'religion', 'family',
+            'holiday', 'politics', 'fashion', 'lifestyle', 'auto', 'hobbies',
+            'other', 'school'
         ];
-    
+
+        $europeanCountries = [
+            'AL', 'AD', 'AM', 'AT', 'AZ', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE',
+            'FI', 'FR', 'GE', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'KZ', 'XK', 'LV', 'LI', 'LT',
+            'LU', 'MT', 'MD', 'MC', 'ME', 'NL', 'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS',
+            'SK', 'SI', 'ES', 'SE', 'CH', 'TR', 'UA', 'GB', 'VA'
+        ];
+
         $offset = 0;
-        $batchSize = 75; // Fetch 75 events per batch
+        $batchSize = 75;
         $processedIds = [];
         $totalFetched = 0;
-    
-        while ($totalFetched < $remainingEvents) {
-            // Adjust batch limit for the final batch
-            $batchLimit = min($batchSize, $remainingEvents - $totalFetched);
-            $events = $this->fetchEventsFromAPI($batchLimit, $offset, $labels);
-    
-            if (empty($events)) {
-                Log::info("No more events available to fetch.");
+
+        foreach ($europeanCountries as $country) {
+            while ($totalFetched < $remainingEvents) {
+                $batchLimit = min($batchSize, $remainingEvents - $totalFetched);
+                $events = $this->fetchEventsFromAPI($batchLimit, $offset, $labels, $country);
+
+                if (empty($events)) {
+                    break;
+                }
+
+                $storedCount = $this->processEvents($events, $processedIds);
+                $totalFetched += $storedCount;
+
+                $offset += $batchSize;
+            }
+
+            $offset = 0;
+
+            if ($totalFetched >= $remainingEvents) {
                 break;
             }
-    
-            // Validate and store events
-            $validEvents = array_filter($events, function ($event) use ($processedIds) {
-                $eventId = $event['id'];
-                $slug = $event['slug'] ?? Str::slug($event['title'] . '-' . $eventId);
-                return !in_array($eventId, $processedIds) && !Event::where('slug', $slug)->exists();
-            });
-    
-            $storedCount = $this->processEvents($validEvents, $processedIds);
-    
-            if ($storedCount > 0) {
-                $totalFetched += $storedCount;
-            } else {
-                Log::info("No valid new events in this batch. Fetching another batch...");
-            }
-    
-            Log::info('Fetch progress:', [
-                'offset' => $offset,
-                'batchLimit' => $batchLimit,
-                'totalFetched' => $totalFetched,
-                'remainingEvents' => $remainingEvents - $totalFetched,
-            ]);
-    
-            $offset += $batchSize; // Increment the offset by 100 for the next batch
         }
     }
+
+    
     
 
     /**
@@ -142,38 +120,45 @@ class EventService
      * @param array $labels
      * @return array
      */
-    private function fetchEventsFromAPI(int $limit, int $offset, array $labels): array
+    private function fetchEventsFromAPI(int $limit, int $offset, array $labels, string $country): array
     {
         $queryParams = [
             'phq_label' => implode(',', $labels),
             'limit' => $limit,
             'sort' => 'start',
             'offset' => $offset,
-            'start.gte' => now()->toIso8601String(), // Fetch only events starting from now
+            'start.gte' => now()->toIso8601String(),
+            'country' => $country, // Single country code
         ];
-
+    
         Log::info('Sending request to PredictHQ API.', [
+            'country' => $country,
             'offset' => $offset,
             'limit' => $limit,
             'params' => $queryParams
         ]);
-
+    
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('PREDICTHQ_API_KEY'),
             'Accept' => 'application/json',
         ])->get('https://api.predicthq.com/v1/events/', $queryParams);
-
+    
         if ($response->successful()) {
-            return $response->json()['results'];
+            $results = $response->json()['results'];
+            return $results;
         }
-
+    
         Log::error('Failed to fetch events from PredictHQ API.', [
+            'country' => $country,
             'status' => $response->status(),
             'response' => $response->body(),
         ]);
-
+    
         return [];
     }
+    
+    
+    
 
     /**
      * Process and store fetched events.
@@ -191,7 +176,7 @@ class EventService
             $eventId = $event['id'];
     
             if (in_array($eventId, $processedIds)) {
-                continue; // Skip already processed events
+                continue;
             }
     
             $processedIds[] = $eventId;
@@ -199,21 +184,22 @@ class EventService
             $slug = $event['slug'] ?? Str::slug($event['title'] . '-' . $eventId);
             $address = $this->extractAddress($event);
     
-            // Validate description and treat "Sourced from predicthq.com" as empty
             $description = $event['description'] ?? '';
             if (trim($description) === 'Sourced from predicthq.com') {
                 $description = ''; // Treat as empty
             }
     
-            // Validate required fields
             if (empty($event['title']) || empty($event['start']) || empty($event['duration']) ||
                 empty($description) || empty($address)) {
                 continue;
             }
     
-            // Check for duplicates in the database
             if (Event::where('slug', $slug)->exists()) {
-                continue; // Skip duplicates
+                Log::info("Skipping event (duplicate slug):", [
+                    'id' => $eventId,
+                    'slug' => $slug,
+                ]);
+                continue;
             }
     
             $newEvents[] = [
@@ -221,20 +207,24 @@ class EventService
                 'event_date' => date('Y-m-d', strtotime($event['start'])),
                 'event_time' => date('H:i:s', strtotime($event['start'])),
                 'duration' => $event['duration'] ?? 0,
-                'description' => $description, // Use the validated description
+                'description' => $description,
                 'location' => $address,
                 'slug' => $slug,
-                'group_id' => null, // Mark as API event
+                'group_id' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+
         }
     
         if (!empty($newEvents)) {
-            Event::insert($newEvents); // Bulk insert new events
+            Event::insert($newEvents);
+            Log::info("Inserted events into the database:", [
+                'count' => count($newEvents),
+                'events' => array_column($newEvents, 'title'),
+            ]);
     
             foreach ($newEvents as $eventData) {
-                // Retrieve the newly inserted event
                 $storedEvent = Event::where('slug', $eventData['slug'])->first();
     
                 if ($storedEvent) {

@@ -212,10 +212,11 @@ export default function EventDetails() {
                         <div className="mt-4 flex lg:mt-5">
                             <div>
                                 <img
-                                    src="https://via.placeholder.com/48"
+                                    src="/images/default-profile.png"
                                     alt="Host"
                                     className="rounded-full w-12 h-12 object-cover"
                                 />
+
                             </div>
                             <div className="ml-6">
                                 <div className="text-gray-600">Hosted By</div>
@@ -298,10 +299,11 @@ export default function EventDetails() {
                                             {attendees.map((attendee) => (
                                                 <div key={attendee.id} className="text-center">
                                                     <img
-                                                        src={`https://via.placeholder.com/64`}
+                                                        src={attendee.image_path ? `/storage/${attendee.image_path}` : '/images/default-profile.png'}
                                                         alt={attendee.name}
                                                         className="w-16 h-16 rounded-full mx-auto mb-2"
                                                     />
+
                                                     <p className="text-sm font-medium">{attendee.name}</p>
                                                 </div>
                                             ))}
@@ -405,8 +407,8 @@ export default function EventDetails() {
                                                         {event.type === 'online' && (
                                                             <button
                                                                 className={`w-full custom-btn py-3 px-4 rounded-lg ${isJoinButtonDisabled(event.event_date, event.event_time, event.duration)
-                                                                        ? 'opacity-50 cursor-not-allowed'
-                                                                        : ''
+                                                                    ? 'opacity-50 cursor-not-allowed'
+                                                                    : ''
                                                                     }`}
                                                                 onClick={() => {
                                                                     // Open the meeting in a new tab
@@ -434,8 +436,8 @@ export default function EventDetails() {
                                                         {isAttending && event.type === 'online' && (
                                                             <button
                                                                 className={`w-full custom-btn py-3 px-4 rounded-lg ${isJoinButtonDisabled(event.event_date, event.event_time, event.duration)
-                                                                        ? 'opacity-50 cursor-not-allowed'
-                                                                        : ''
+                                                                    ? 'opacity-50 cursor-not-allowed'
+                                                                    : ''
                                                                     }`}
                                                                 onClick={() => {
                                                                     // Open the meeting in a new tab
