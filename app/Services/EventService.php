@@ -20,7 +20,7 @@ class EventService
         $this->cleanupExpiredEvents();
     
         $apiEventCount = Event::whereNull('group_id')->count(); // Only count API events
-        $remainingEvents = max(0, 180 - $apiEventCount); // Change from 120 to 180
+        $remainingEvents = max(0, 180 - $apiEventCount); // fetch up to 180 events
     
         if ($remainingEvents > 0) {
             $this->fetchAndProcessEvents($remainingEvents);
@@ -109,9 +109,6 @@ class EventService
         }
     }
 
-    
-    
-
     /**
      * Fetch events from the PredictHQ API.
      *
@@ -157,9 +154,6 @@ class EventService
         return [];
     }
     
-    
-    
-
     /**
      * Process and store fetched events.
      *

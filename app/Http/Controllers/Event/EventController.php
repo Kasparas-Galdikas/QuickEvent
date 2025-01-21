@@ -18,47 +18,47 @@ class EventController extends Controller
     {
         // 1. Validate
         $validated = $request->validate([
-            'group_id'    => 'required|exists:groups,id',
-            'title'       => 'required|string|max:255',
+            'group_id' => 'required|exists:groups,id',
+            'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'start_date'  => 'required|date', // or 'required|date_format:Y-m-d\TH:i' if your front-end uses ISO
-            'duration'    => 'required|integer|min:1|max:24',
-            'location'    => 'required|string|max:255',
-            'topics'      => 'nullable|array',
-            'topics.*'    => 'exists:topics,id',
-            'image'       => 'nullable|image|max:2048',
-            'type'        => 'required|string|in:in-person,online,hybrid',
+            'start_date' => 'required|date', // or 'required|date_format:Y-m-d\TH:i' if your front-end uses ISO
+            'duration' => 'required|integer|min:1|max:24',
+            'location' => 'required|string|max:255',
+            'topics' => 'nullable|array',
+            'topics.*' => 'exists:topics,id',
+            'image' => 'nullable|image|max:2048',
+            'type' => 'required|string|in:in-person,online',
         ]);
-    
+
         // 2. Handle image if provided
         $imagePath = $request->hasFile('image')
             ? $request->file('image')->store('events', 'public')
             : null;
-    
+
         // 3. Convert start_date with Carbon & set the timezone to EET
         $dateTimeEET = Carbon::parse($validated['start_date'])->setTimezone('Europe/Helsinki');
-    
+
         // 4. Create the event with correct date and time
         $event = Event::create([
-            'group_id'    => $validated['group_id'],
-            'title'       => $validated['title'],
+            'group_id' => $validated['group_id'],
+            'title' => $validated['title'],
             'description' => $validated['description'],
-    
+
             // Store the date in Y-m-d, time in H:i:s
-            'event_date'  => $dateTimeEET->format('Y-m-d'),
-            'event_time'  => $dateTimeEET->format('H:i:s'),
-    
-            'duration'    => $validated['duration'],
-            'location'    => $validated['location'],
-            'image_path'  => $imagePath,
-            'type'        => $validated['type'],
+            'event_date' => $dateTimeEET->format('Y-m-d'),
+            'event_time' => $dateTimeEET->format('H:i:s'),
+
+            'duration' => $validated['duration'],
+            'location' => $validated['location'],
+            'image_path' => $imagePath,
+            'type' => $validated['type'],
         ]);
-    
+
         // 5. Attach topics
         if (!empty($validated['topics'])) {
             $event->topics()->attach($validated['topics']);
         }
-    
+
         // 6. Redirect
         return redirect()->route('Home')->with('success', 'Event created successfully!');
     }
@@ -75,16 +75,16 @@ class EventController extends Controller
     }
 
     public function getUpcomingEvents()
-{
-    // Fetch the next 4 events closest to the current date and time
-    $events = Event::whereDate('event_date', '>=', now()->toDateString())
-        ->orderBy('event_date', 'asc')
-        ->orderBy('event_time', 'asc')
-        ->take(4)
-        ->get();
+    {
+        // Fetch the next 4 events closest to the current date and time
+        $events = Event::whereDate('event_date', '>=', now()->toDateString())
+            ->orderBy('event_date', 'asc')
+            ->orderBy('event_time', 'asc')
+            ->take(4)
+            ->get();
 
-    return response()->json($events);
-}
+        return response()->json($events);
+    }
 
 
 
@@ -239,58 +239,58 @@ class EventController extends Controller
         ]);
     }
 
- public function update(Request $request, $id)
-{
-    $event = Event::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
 
-    // Ensure the user has permission to update
-    if (auth()->id() !== $event->group->user_id) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    // Validate the request
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string|max:1000',
-        'start_date' => 'required|date',
-        'duration' => 'required|integer|min:1|max:24',
-        'location' => 'required|string|max:255',
-        'topics' => 'nullable|array',
-        'topics.*' => 'exists:topics,id',
-        'image' => 'nullable|image|max:2048',
-    ]);
-
-    // Handle image upload if provided
-    if ($request->hasFile('image')) {
-        // Delete the old image if it exists
-        if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
-            Storage::disk('public')->delete($event->image_path);
+        // Ensure the user has permission to update
+        if (auth()->id() !== $event->group->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $imagePath = $request->file('image')->store('events', 'public');
-        $event->image_path = $imagePath; // Store relative path
+        // Validate the request
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'start_date' => 'required|date',
+            'duration' => 'required|integer|min:1|max:24',
+            'location' => 'required|string|max:255',
+            'topics' => 'nullable|array',
+            'topics.*' => 'exists:topics,id',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        // Handle image upload if provided
+        if ($request->hasFile('image')) {
+            // Delete the old image if it exists
+            if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
+                Storage::disk('public')->delete($event->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('events', 'public');
+            $event->image_path = $imagePath; // Store relative path
+        }
+
+        // Update event details
+        $event->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'event_date' => Carbon::parse($validated['start_date'])->toDateString(),
+            'event_time' => Carbon::parse($validated['start_date'])->toTimeString(),
+            'duration' => $validated['duration'],
+            'location' => $validated['location'],
+        ]);
+
+        // Update topics
+        if (isset($validated['topics'])) {
+            $event->topics()->sync($validated['topics']);
+        }
+
+        // Return success response with updated event
+        return response()->json([
+            'message' => 'Event updated successfully',
+            'event' => $event->load('topics'), // Include related topics in the response
+        ]);
     }
-
-    // Update event details
-    $event->update([
-        'title' => $validated['title'],
-        'description' => $validated['description'],
-        'event_date' => Carbon::parse($validated['start_date'])->toDateString(),
-        'event_time' => Carbon::parse($validated['start_date'])->toTimeString(),
-        'duration' => $validated['duration'],
-        'location' => $validated['location'],
-    ]);
-
-    // Update topics
-    if (isset($validated['topics'])) {
-        $event->topics()->sync($validated['topics']);
-    }
-
-    // Return success response with updated event
-    return response()->json([
-        'message' => 'Event updated successfully',
-        'event' => $event->load('topics'), // Include related topics in the response
-    ]);
-}
 }
 

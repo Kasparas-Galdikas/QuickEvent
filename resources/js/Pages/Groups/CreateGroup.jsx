@@ -31,7 +31,20 @@ export default function CreateGroup() {
         fetchTopics();
     }, []);
 
-    
+    // Fetch user location from the back-end
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            try {
+                const response = await axios.get('/check-location'); // Back-end route
+                setLocation(response.data.location || ''); // Set location if available
+            } catch (error) {
+                console.error('Error fetching user location:', error);
+            }
+        };
+
+        fetchUserLocation();
+    }, []);
+
 
     // Filter and paginate topics
     const filteredTopics = topics.filter((topic) =>
@@ -248,10 +261,10 @@ export default function CreateGroup() {
 
                                         {/* Error message for topics */}
                                         {errors.topics && (
-                                            <div> 
-                                                 <span className="text-red-500 text-sm">{errors.topics}</span>
+                                            <div>
+                                                <span className="text-red-500 text-sm">{errors.topics}</span>
                                             </div>
-                                           
+
                                         )}
 
                                         <button
