@@ -1,0 +1,2 @@
+import{j as s,x as l}from"./app-CW5vnyZ4.js";import{A as a}from"./ApplicationLogo-4evykrWK.js";function x({children:e}){return s.jsxs("div",{className:"flex flex-col items-center",children:[s.jsx("div",{className:"mb-6",children:s.jsxs(l,{href:"/",children:[s.jsx(a,{className:"h-20 w-30 fill-current text-gray-600"})," "]})}),s.jsx("div",{className:"w-full bg-[#FAF3DD] px-6 py-4 shadow-lg sm:max-w-lg sm:rounded-lg",children:e})]})}export{x as G};
+//# sourceMappingURL=GuestLayout-DcK0uX-X.js.map

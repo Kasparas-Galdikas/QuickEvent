@@ -6,88 +6,36 @@ const SearchForm = () => {
     const [loadingLocation, setLoadingLocation] = useState(false);
 
     useEffect(() => {
-        const detectLocation = async () => {
-            if (!navigator.geolocation) {
-                console.error("Geolocation is not supported by this browser.");
-                return;
-            }
-
+        const fetchLocation = async () => {
             setLoadingLocation(true);
 
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude } = position.coords;
+            try {
+                // Fetch location from the backend
+                const response = await fetch("/check-location", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                    },
+                });
 
-                    try {
-                        const response = await fetch(
-                            `https://geocode.maps.co/reverse?lat=${latitude}&lon=${longitude}`
-                        );
-                        const data = await response.json();
+                const data = await response.json();
 
-                        if (data && data.address) {
-                            const city =
-                                data.address.city ||
-                                data.address.town ||
-                                data.address.village ||
-                                data.address.state ||
-                                "";
-                            const country = data.address.country_code
-                                ? data.address.country_code.toUpperCase()
-                                : "";
-
-                            const detectedLocation = city
-                                ? `${city}, ${country}`
-                                : `Unknown Location, ${country}`;
-
-                            setLocation(detectedLocation); // Update location state
-
-                            // Check if location in the database is already set
-                            const checkLocationResponse = await fetch('/check-location', {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document
-                                        .querySelector('meta[name="csrf-token"]')
-                                        .getAttribute('content'),
-                                },
-                            });
-
-                            const { location: currentLocation } = await checkLocationResponse.json();
-
-                            if (!currentLocation) {
-                                // Send the location to the backend if it is null
-                                const backendResponse = await fetch('/update-location', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document
-                                            .querySelector('meta[name="csrf-token"]')
-                                            .getAttribute('content'),
-                                    },
-                                    body: JSON.stringify({ location: detectedLocation }),
-                                });
-
-                                if (!backendResponse.ok) {
-                                    console.error("Failed to send location to backend:", await backendResponse.text());
-                                }
-                            }
-                        } else {
-                            console.error("Address not found in API response.");
-                        }
-                    } catch (error) {
-                        console.error("Error fetching location data:", error);
-                    } finally {
-                        setLoadingLocation(false); // Stop loading
-                    }
-                },
-                (error) => {
-                    console.error("Error detecting location:", error);
-                    setLoadingLocation(false);
+                if (data.location) {
+                    setLocation(data.location); // Update location with the backend response
+                } else {
+                    console.error("Failed to fetch location from backend");
                 }
-            );
+            } catch (error) {
+                console.error("Error fetching location:", error);
+            } finally {
+                setLoadingLocation(false);
+            }
         };
 
-        detectLocation();
+        fetchLocation();
     }, []);
 
     const buildUrl = () => {
