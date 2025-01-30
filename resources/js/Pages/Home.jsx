@@ -352,149 +352,152 @@ export default function Home() {
 
                     </div>
 
-                    <div className="col-md-6 col-lg-7" style={{ marginLeft: '20px' }}>
-                        <div className="d-flex justify-content-start mb-3">
-                            <select className="custom-select w-32">
-                                <option>Any type</option>
-                                <option>Online</option>
-                                <option>In-person</option>
-                            </select>
-                            <button className="custom-btn btn ms-2">Reset Filters</button>
-                        </div>
+                    <div className="col-md-6 col-lg-7">
 
-                        <div className="d-flex flex-column align-items-center">
-                            {Object.entries(groupedEvents)
-                                .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
-                                .filter(([date]) => normalizeDate(date) >= selectedDate)
-                                .map(([date, groupedEvents], index) => (
-                                    <div key={date} className="w-100">
-                                        {/* Display 'No events planned' message for the selected date */}
-                                        {index === 0 && normalizeDate(date) > selectedDate && (
-                                            <div className="w-100">
-                                                <h6
-                                                    className="text-start text-muted mb-3 fw-bold"
-                                                    style={{ marginLeft: '10px' }}
-                                                >
-                                                    {selectedDate.toLocaleDateString('en-US', {
+                        <div className="ms-4">
+
+                            <div className="d-flex justify-content-start mb-3">
+                                <select className="custom-select w-32">
+                                    <option>Any type</option>
+                                    <option>Online</option>
+                                    <option>In-person</option>
+                                </select>
+                                <button className="custom-btn btn ms-2">Reset Filters</button>
+                            </div>
+
+                            <div className="d-flex flex-column align-items-center">
+                                {Object.entries(groupedEvents)
+                                    .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
+                                    .filter(([date]) => normalizeDate(date) >= selectedDate)
+                                    .map(([date, groupedEvents], index) => (
+                                        <div key={date} className="w-100">
+                                            {/* Display 'No events planned' message for the selected date */}
+                                            {index === 0 && normalizeDate(date) > selectedDate && (
+                                                <div className="w-100">
+                                                    <h6
+                                                        className="text-start text-muted mb-3 fw-bold"
+                                                        style={{ marginLeft: '10px' }}
+                                                    >
+                                                        {selectedDate.toLocaleDateString('en-US', {
+                                                            weekday: 'long',
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                        })}
+                                                    </h6>
+                                                    <p className="text-center">No events planned for this date</p>
+                                                    <hr />
+                                                </div>
+                                            )}
+
+                                            <h6
+                                                className="text-start text-muted mb-3 fw-bold"
+                                                style={{ marginLeft: '10px' }}
+                                            >
+                                                {new Date(date).toDateString() === new Date().toDateString()
+                                                    ? 'Today'
+                                                    : new Date(date).toLocaleDateString('en-US', {
                                                         weekday: 'long',
                                                         year: 'numeric',
                                                         month: 'long',
                                                         day: 'numeric',
                                                     })}
-                                                </h6>
-                                                <p className="text-center">No events planned for this date</p>
-                                                <hr />
-                                            </div>
-                                        )}
+                                            </h6>
+                                            <hr />
 
-                                        <h6
-                                            className="text-start text-muted mb-3 fw-bold"
-                                            style={{ marginLeft: '10px' }}
-                                        >
-                                            {new Date(date).toDateString() === new Date().toDateString()
-                                                ? 'Today'
-                                                : new Date(date).toLocaleDateString('en-US', {
+                                            {groupedEvents.map((event) => (
+                                                <div
+                                                    className="card custom-card custom-hover mb-3 w-100"
+                                                    key={`global-event-${event.id}`}
+                                                    onClick={() => router.get(`/events/details/${event.slug}`)}
+                                                    style={{
+                                                        border: 'none',
+                                                        padding: '10px',
+                                                        height: 'auto',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <div className="row g-0 align-items-center">
+                                                        <div className="col-md-4">
+                                                            <img
+                                                                src={
+                                                                    event.image_path
+                                                                        ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
+                                                                        : '/images/default-event.png' // Fallback image
+                                                                }
+                                                                className="card-img"
+                                                                alt={event.title}
+                                                                loading="lazy"
+                                                                style={{
+                                                                    width: '230px',
+                                                                    height: '130px',
+                                                                    objectFit: 'cover',
+                                                                    border: '1px solid black',
+                                                                    borderRadius: '8px',
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-8">
+                                                            <div className="card-body py-2">
+                                                                <h5 className="card-title">{event.title}</h5>
+                                                                <p
+                                                                    className="card-text text-truncate"
+                                                                    style={{
+                                                                        maxHeight: '3.6em',
+                                                                        overflow: 'hidden',
+                                                                    }}
+                                                                >
+                                                                    {event.description}
+                                                                </p>
+                                                                <p className="mb-0">Location: {event.location}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+
+                                {/* Display message if no events are planned */}
+                                {Object.entries(groupedEvents)
+                                    .filter(([date]) => normalizeDate(date) >= selectedDate)
+                                    .length === 0 && (
+                                        <div className="w-100">
+                                            <h6
+                                                className="text-start text-muted mb-3 fw-bold"
+                                                style={{ marginLeft: '10px' }}
+                                            >
+                                                {selectedDate.toLocaleDateString('en-US', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
                                                 })}
-                                        </h6>
-                                        <hr />
+                                            </h6>
+                                            <p className="text-center">No events planned for this date</p>
+                                            <hr />
+                                        </div>
+                                    )}
 
-                                        {groupedEvents.map((event) => (
-                                            <div
-                                                className="card custom-card custom-hover mb-3 w-100"
-                                                key={`global-event-${event.id}`}
-                                                onClick={() => router.get(`/events/details/${event.slug}`)}
-                                                style={{
-                                                    border: 'none',
-                                                    padding: '10px',
-                                                    height: 'auto',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                <div className="row g-0 align-items-center">
-                                                    <div className="col-md-4">
-                                                        <img
-                                                          src={
-                                                                            event.image_path
-                                                                                ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
-                                                                                : '/images/default-event.png' // Fallback image
-                                                                        }
-                                                            className="card-img"
-                                                            alt={event.title}
-                                                            loading="lazy"
-                                                            style={{
-                                                                width: '230px',
-                                                                height: '130px',
-                                                                objectFit: 'cover',
-                                                                border: '1px solid black',
-                                                                borderRadius: '8px',
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div className="col-md-8">
-                                                        <div className="card-body py-2">
-                                                            <h5 className="card-title">{event.title}</h5>
-                                                            <p
-                                                                className="card-text text-truncate"
-                                                                style={{
-                                                                    maxHeight: '3.6em',
-                                                                    overflow: 'hidden',
-                                                                }}
-                                                            >
-                                                                {event.description}
-                                                            </p>
-                                                            <p className="mb-0">Location: {event.location}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ))}
-
-                            {/* Display message if no events are planned */}
-                            {Object.entries(groupedEvents)
-                                .filter(([date]) => normalizeDate(date) >= selectedDate)
-                                .length === 0 && (
-                                    <div className="w-100">
-                                        <h6
-                                            className="text-start text-muted mb-3 fw-bold"
-                                            style={{ marginLeft: '10px' }}
-                                        >
-                                            {selectedDate.toLocaleDateString('en-US', {
-                                                weekday: 'long',
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}
-                                        </h6>
-                                        <p className="text-center">No events planned for this date</p>
-                                        <hr />
+                                {/* Infinite scroll loader */}
+                                {calendarEvents.length > 0 && calendarHasMore && (
+                                    <div ref={calendarRef} className="text-center my-4">
+                                        {calendarLoading ? (
+                                            <p>Loading more events...</p>
+                                        ) : (
+                                            <p>Scroll down to load more events</p>
+                                        )}
                                     </div>
                                 )}
 
-                            {/* Infinite scroll loader */}
-                            {calendarEvents.length > 0 && calendarHasMore && (
-                                <div ref={calendarRef} className="text-center my-4">
-                                    {calendarLoading ? (
-                                        <p>Loading more events...</p>
-                                    ) : (
-                                        <p>Scroll down to load more events</p>
-                                    )}
-                                </div>
-                            )}
+                                {calendarEvents.length === 0 && hasMore && (
+                                    <div ref={generalRef} className="text-center my-4">
+                                        {loading ? <p>Loading more events...</p> : <p>Scroll down to load more events</p>}
+                                    </div>
+                                )}
+                            </div>
 
-                            {calendarEvents.length === 0 && hasMore && (
-                                <div ref={generalRef} className="text-center my-4">
-                                    {loading ? <p>Loading more events...</p> : <p>Scroll down to load more events</p>}
-                                </div>
-                            )}
                         </div>
-
-
                     </div>
                 </div>
             </div>

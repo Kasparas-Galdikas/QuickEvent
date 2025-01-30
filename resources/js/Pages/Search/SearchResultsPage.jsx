@@ -105,6 +105,7 @@ const SearchResultsPage = () => {
 
     return (
         <div className="d-flex flex-column min-vh-100">
+
             <Navbar />
 
             {/* Show initial loader while the page is loading */}
@@ -251,8 +252,9 @@ const SearchResultsPage = () => {
                                     src="/images/search.png"
                                     alt="No results found"
                                     style={{
-                                        maxWidth: "600px", // Larger image size
-                                        height: "auto",
+                                        width: "250px",
+                                        height: "250px",
+                                        objectFit: "cover"
                                     }}
                                 />
                                 <p
