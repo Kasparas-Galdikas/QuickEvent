@@ -165,9 +165,9 @@ body {
 }
 
 .custom-popup {
-    background-color:rgb(249, 241, 208); /* Vanilla color */
+    background-color:rgb(249, 241, 208)!important; /* Vanilla color */
     border: none; /* Optional: Remove border for a clean look */
-    color: #333; /* Ensure text is readable */
+    color: #333!important; /* Ensure text is readable */
 }
 
 /* Confirm button styling */
