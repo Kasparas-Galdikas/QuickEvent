@@ -8,7 +8,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
-
+import 'sweetalert2/dist/sweetalert2.min.css';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 // Get the CSRF token from the meta tag
