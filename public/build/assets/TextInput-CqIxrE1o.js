@@ -1,4 +1,0 @@
-import{j as f,r as t}from"./app-CW5vnyZ4.js";function x({message:e,className:n="",...o}){return e?f.jsx("p",{...o,className:"text-sm text-red-600 "+n,children:e}):null}const p=t.forwardRef(function({type:n="text",className:o="",isFocused:u=!1,...a},c){const s=t.useRef(null);return t.useImperativeHandle(c,()=>({focus:()=>{var r;return(r=s.current)==null?void 0:r.focus()}})),t.useEffect(()=>{var r;u&&((r=s.current)==null||r.focus())},[u]),f.jsx("input",{...a,type:n,className:`rounded-md border-[1px] border-[#C9A564] bg-[#FFF9C4] text-dark px-4 py-2 shadow-sm 
-                    focus:border-[#B89C64] focus:ring-2 focus:ring-[#B89C64] focus:outline-none 
-                    transition duration-150 ease-in-out `+o,ref:s})});export{x as I,p as T};
-//# sourceMappingURL=TextInput-CqIxrE1o.js.map
