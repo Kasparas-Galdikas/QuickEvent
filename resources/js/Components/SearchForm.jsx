@@ -8,33 +8,50 @@ const SearchForm = () => {
     useEffect(() => {
         const fetchLocation = async () => {
             setLoadingLocation(true);
-
-            try {
-                // Fetch location from the backend
-                const response = await fetch("/check-location", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute("content"),
+         
+    
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                      
+    
+                        try {
+                            // Send lat/lon to the backend
+                            const response = await fetch(`/check-location?lat=${latitude}&lon=${longitude}`, {
+                                method: "GET",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": document
+                                        .querySelector('meta[name="csrf-token"]')
+                                        .getAttribute("content"),
+                                },
+                            });
+    
+                            const data = await response.json();
+    
+                            if (data.location) {
+                                setLocation(data.location); // Update UI with location
+                            } else {
+                                console.error("Failed to fetch accurate location from backend");
+                            }
+                        } catch (error) {
+                            console.error("Error fetching location:", error);
+                        } finally {
+                            setLoadingLocation(false);
+                        }
                     },
-                });
-
-                const data = await response.json();
-
-                if (data.location) {
-                    setLocation(data.location); // Update location with the backend response
-                } else {
-                    console.error("Failed to fetch location from backend");
-                }
-            } catch (error) {
-                console.error("Error fetching location:", error);
-            } finally {
+                    (error) => {
+                        console.error("Geolocation error:", error);
+                        setLoadingLocation(false);
+                    }
+                );
+            } else {
+                console.error("Geolocation is not supported by this browser.");
                 setLoadingLocation(false);
             }
         };
-
+    
         fetchLocation();
     }, []);
 

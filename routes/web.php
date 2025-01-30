@@ -23,8 +23,7 @@ use App\Http\Controllers\UserController;
 */
 //Detected user location if null sends to backend 
 Route::post('/update-location', [UserController::class, 'updateLocation'])->middleware('auth');
-Route::get('/check-location', [UserController::class, 'checkLocation'])->middleware('auth');
-
+Route::get('/check-location', [UserController::class, 'checkLocation'])->name('check-location');
 // upload group image 
 Route::middleware(['auth'])->group(function () {
     Route::post('/groups/{id}/update-image', [GroupDetailsController::class, 'updateImage'])
