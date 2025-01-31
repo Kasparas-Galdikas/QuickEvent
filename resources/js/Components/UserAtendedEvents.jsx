@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "@inertiajs/react";
 
 export default function UserAtendedEvents() {
     const [events, setEvents] = useState([]);
@@ -58,19 +59,19 @@ export default function UserAtendedEvents() {
                     <>
                         {events.length > 0 ? (
                             events.map((event) => (
-                                <a
+                                <Link
                                     key={event.id}
-                                    href={`/events/details/${event.slug}`} // Correct URL
+                                    href={`/events/details/${event.slug}`} // SPA navigation
                                     className="text-decoration-none text-inherit"
                                 >
-                                    <div className="custom-card custom-hover card mt-2">
+                                   <div className="custom-card custom-hover card"> 
                                         <div className="card-body d-flex align-items-center">
                                             <div
                                                 className="event-image me-3"
                                                 style={{
-                                                    flexShrink: 0, // Prevent image from shrinking
+                                                    
                                                     width: "60px",
-                                                    height: "60px",
+                                                    height: "40px",
                                                 }}
                                             >
                                                 <img
@@ -104,7 +105,7 @@ export default function UserAtendedEvents() {
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             ))
                         ) : (
                             <p className="text-center text-muted">No attended events to display.</p>

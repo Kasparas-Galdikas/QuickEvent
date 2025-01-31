@@ -220,7 +220,7 @@ class EventController extends Controller
         }
 
         $event->delete();
-        return response()->json(['message' => 'Event deleted successfully']);
+        return Inertia::location('/Home');
     }
 
     public function edit($id)
@@ -287,10 +287,8 @@ class EventController extends Controller
         }
 
         // Return success response with updated event
-        return response()->json([
-            'message' => 'Event updated successfully',
-            'event' => $event->load('topics'), // Include related topics in the response
-        ]);
+        return Inertia::location("/events/details/{$event->slug}");
+
     }
 }
 

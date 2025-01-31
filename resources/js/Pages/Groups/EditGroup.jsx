@@ -12,7 +12,7 @@ export default function EditGroup({ group }) {
         location: group.location
     });
     const [errors, setErrors] = useState({});
-    const [topics, setTopics] = useState([]); 
+    const [topics, setTopics] = useState([]);
     const [selectedTopics, setSelectedTopics] = useState(group.topics?.map(t => t.id) || []);
     const [currentPage, setCurrentPage] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
@@ -67,14 +67,14 @@ export default function EditGroup({ group }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         const submitData = {
             name: groupData.name,
             description: groupData.description,
             location: groupData.location,
             topics: selectedTopics // Make sure this is included
         };
-    
+
         router.put(`/groups/${group.id}`, submitData, {
             onSuccess: () => {
                 router.visit(`/groups/show/${group.id}`);
@@ -153,11 +153,10 @@ export default function EditGroup({ group }) {
                                         <button
                                             key={topic.id}
                                             type="button"
-                                            className={`px-4 py-2 rounded-full text-sm border-2 ${
-                                                selectedTopics.includes(topic.id)
+                                            className={`px-4 py-2 rounded-full text-sm border-2 ${selectedTopics.includes(topic.id)
                                                     ? 'bg-teal-600 text-white border-teal-600'
                                                     : 'bg-teal-100 text-teal-600 border-teal-600'
-                                            }`}
+                                                }`}
                                             onClick={() => handleTopicChange(topic.id)}
                                         >
                                             {topic.name}

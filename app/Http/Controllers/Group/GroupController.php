@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+
 class GroupController extends Controller
 {
     // Add this new index method
@@ -49,7 +50,7 @@ class GroupController extends Controller
                 'topics' => 'required|array',
                 'topics.*' => 'exists:topics,id', // Ensure topic IDs exist
             ]);
-
+    
             // Create the group
             $group = Group::create([
                 'name' => $validated['groupName'],
@@ -57,16 +58,15 @@ class GroupController extends Controller
                 'location' => $validated['location'],
                 'user_id' => auth()->id(),
             ]);
-
+    
             // Attach topics to the group
             $group->topics()->attach($validated['topics']);
-
-            return response()->json([
-                'message' => 'Group created successfully!',
-                'group' => $group,
-            ]);
+    
+            // redirect using Inertia
+            return Inertia::location('/Home');
+    
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create group'], 500);
+            return back()->withErrors(['error' => 'Failed to create group'])->withInput();
         }
     }
 

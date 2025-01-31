@@ -96,38 +96,36 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Prevent double submissions (safeguard against async timing issues)
+    
         if (submitting) return;
-        setSubmitting(true); // Disable button immediately
-
+        setSubmitting(true);
+    
         const newErrors = {};
-
-        // Parse the duration (assuming it's in hours) and calculate the event's end time
-        const durationInHours = parseFloat(document.getElementById('duration').value); // Ensure the value is a number
-        const eventEndTime = new Date(startDate.getTime() + durationInHours * 60 * 60 * 1000); // Add duration to start time
-
-        // Check if the event's end time is in the past
+    
+        // Parse the duration and calculate end time
+        const durationInHours = parseFloat(document.getElementById('duration').value);
+        const eventEndTime = new Date(startDate.getTime() + durationInHours * 60 * 60 * 1000);
+    
+        // Check if event end time is in the past
         if (eventEndTime < new Date()) {
-            newErrors.start_date =
-                'The event cannot be created because the calculated end time pasted.';
+            newErrors.start_date = 'The event cannot be created because the calculated end time is in the past.';
         }
-
-        // Client-side validation for topics
+    
+        // Validate topics
         if (selectedTopics.length < MIN_TOPICS) {
             newErrors.topics = 'Please select at least one topic.';
         } else if (selectedTopics.length > MAX_TOPICS) {
             newErrors.topics = 'You can select up to five topics only.';
         }
-
+    
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-            setSubmitting(false); // Re-enable button if validation fails
+            setSubmitting(false);
             return;
         } else {
             setErrors({});
         }
-
+    
         // Construct form data for submission
         const formData = new FormData();
         formData.append('group_id', group_id);
@@ -140,34 +138,31 @@ export default function CreateEvent({ group_id = [], initialTopics = [] }) {
             'location',
             document.querySelector('input[placeholder="Search or add a location"]').value
         );
-
+    
         // Add selected topics
         selectedTopics.forEach((topic) => {
             formData.append('topics[]', topic);
         });
-
+    
         // Optional image
         if (groupImage) {
             formData.append('image', groupImage);
         }
-
-        try {
-            await axios.post('/events', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            // Redirect to Home page if successful
-            router.visit('/Home');
-        } catch (error) {
-            if (error.response?.data.errors) {
-                const serverErrors = error.response.data.errors;
-                setErrors(serverErrors); // Store server validation errors
-            } else {
-                console.error('Error creating event:', error);
-            }
-        } finally {
-            setSubmitting(false); // Re-enable button after process
-        }
+    
+        // ✅ Use `router.post()` instead of `axios.post()` for full SPA
+        router.post('/events', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            preserveScroll: true, // Prevents page jumping
+            onSuccess: () => {
+                setSubmitting(false); // Re-enable button
+            },
+            onError: (errors) => {
+                setSubmitting(false); // Re-enable button on error
+                setErrors(errors);
+            },
+        });
     };
+    
 
 
     // Calculate how many topics remain

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useInView } from "react-intersection-observer"; // For infinite scroll
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
+import { router } from '@inertiajs/react';
 
 const SearchResultsPage = () => {
     const { props } = usePage();
@@ -192,9 +193,7 @@ const SearchResultsPage = () => {
                                             <div
                                                 className="card custom-card custom-hover mb-3 w-100"
                                                 key={`search-event-${event.id}`}
-                                                onClick={() =>
-                                                    (window.location.href = `/events/details/${event.slug}`)
-                                                }
+                                                onClick={() => router.visit(`/events/details/${event.slug}`)}
                                                 style={{
                                                     border: "none",
                                                     padding: "10px",
@@ -202,6 +201,7 @@ const SearchResultsPage = () => {
                                                     cursor: "pointer",
                                                 }}
                                             >
+
                                                 <div className="row g-0 align-items-center">
                                                     <div className="col-md-4">
                                                         <img

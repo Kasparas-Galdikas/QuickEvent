@@ -35,7 +35,7 @@ export default function CreateGroup() {
     useEffect(() => {
         const fetchUserLocation = async () => {
             try {
-                const response = await axios.get('/check-location'); // Back-end route
+                const response = await axios.get('/get-location'); // Back-end route
                 setLocation(response.data.location || ''); // Set location if available
             } catch (error) {
                 console.error('Error fetching user location:', error);
@@ -111,35 +111,26 @@ export default function CreateGroup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (submitting) return; // Prevent multiple submissions
         setSubmitting(true);
-
-        try {
-            await axios.post('/groups', {
-                location,
-                groupName,
-                groupDescription,
-                topics: selectedTopics,
-            });
-
-            router.visit('/Home', {
-                onSuccess: () => setSubmitting(false), // Reset submitting state after redirect
-                onError: () => setSubmitting(false), // Re-enable button on redirect error
-            });
-        } catch (error) {
-            console.error('Error creating group:', error);
-
-            if (error.response) {
-                setErrors(error.response.data.errors || {});
-            } else {
-                alert('Network error. Please try again.');
-            }
-            setSubmitting(false); // Re-enable button on error
-        }
+    
+        router.post('/groups', {
+            location,
+            groupName,
+            groupDescription,
+            topics: selectedTopics,
+        }, {
+            preserveScroll: true, // Prevents jumping to the top
+            preserveState: true, // Keeps form inputs if validation fails
+            onSuccess: () => setSubmitting(false), // Reset submitting state
+            onError: (errors) => {
+                setSubmitting(false); // Re-enable button if there's an error
+                setErrors(errors); // Store validation errors
+            },
+        });
     };
-
-
+    
     return (
         <div className="flex flex-col min-h-screen">
             <Navbar />

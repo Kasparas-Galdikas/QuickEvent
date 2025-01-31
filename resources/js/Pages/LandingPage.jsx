@@ -5,6 +5,7 @@ import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import Register from './Auth/Register';
 import axios from 'axios';
+import { Link } from '@inertiajs/react';
 
 export default function Home() {
     const { auth } = usePage().props; // Access the logged-in user info via Inertia
@@ -124,7 +125,7 @@ export default function Home() {
                             <div className="row row-cols-1 row-cols-md-4 g-4">
                                 {events.map((event) => (
                                     <div className="col" key={event.id}>
-                                        <a
+                                        <Link
                                             href={`/events/details/${event.slug}`}
                                             className="text-decoration-none text-dark"
                                         >
@@ -133,13 +134,12 @@ export default function Home() {
                                                 <img
                                                     src={
                                                         event.image_path
-                                                            ? `/storage/${event.image_path}` // Ensure relative paths are prefixed correctly
-                                                            : '/images/default-event.png' // Fallback image
+                                                            ? `/storage/${event.image_path}`
+                                                            : '/images/default-event.png'
                                                     }
                                                     onError={(e) => {
                                                         e.target.onerror = null;
-                                                        e.target.src =
-                                                            '/images/default-event.png';
+                                                        e.target.src = '/images/default-event.png';
                                                     }}
                                                     className="card-img-top border border-dark rounded"
                                                     alt={event.title}
@@ -164,7 +164,7 @@ export default function Home() {
                                                     </p>
                                                 </div>
                                             </div>
-                                        </a>
+                                        </Link>
                                     </div>
                                 ))}
                             </div>

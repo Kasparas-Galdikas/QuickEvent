@@ -129,13 +129,13 @@ export default function EventDetails() {
             customClass: {
                 confirmButton: "custom-confirm-button",
                 cancelButton: "custom-cancel-button",
-                popup: "custom-popup", // Add a custom popup class
+                popup: "custom-popup",
             },
         }).then((result) => {
             if (result.isConfirmed) {
-                axios
-                    .delete(`/events/${eventId}`)
-                    .then(() => {
+                router.delete(`/events/${eventId}`, {
+                    preserveScroll: true, // Prevents page from jumping
+                    onSuccess: () => {
                         Swal.fire({
                             title: "Deleted",
                             text: "The event has been successfully deleted.",
@@ -143,13 +143,13 @@ export default function EventDetails() {
                             confirmButtonText: "OK",
                             customClass: {
                                 confirmButton: "custom-confirm-button",
-                                popup: "custom-popup", // Add the custom popup class
+                                popup: "custom-popup",
                             },
                         }).then(() => {
-                            router.visit('/Home');
+                            router.visit('/Home'); // SPA navigation
                         });
-                    })
-                    .catch((error) => {
+                    },
+                    onError: (error) => {
                         console.error("Error deleting event:", error);
                         Swal.fire({
                             title: "Error",
@@ -158,13 +158,15 @@ export default function EventDetails() {
                             confirmButtonText: "OK",
                             customClass: {
                                 confirmButton: "custom-confirm-button",
-                                popup: "custom-popup", // Add the custom popup class
+                                popup: "custom-popup",
                             },
                         });
-                    });
+                    },
+                });
             }
         });
     };
+
 
     // Fetch updated attendees
     function fetchUpdatedAttendees(eventId, setAttendees) {
@@ -398,10 +400,13 @@ export default function EventDetails() {
                                                         {/* Edit Event */}
                                                         <button
                                                             className="w-full custom-btn py-3 px-4 rounded-lg"
-                                                            onClick={() => router.get(`/events/edit/${event.id}`)}
+                                                            onClick={() => router.visit(`/events/edit/${event.id}`, {
+                                                                preserveState: true, // Keeps form inputs and UI state
+                                                            })}
                                                         >
                                                             Edit Event Information
                                                         </button>
+
 
                                                         {/* Join Online Meeting (Host as Moderator) */}
                                                         {event.type === 'online' && (

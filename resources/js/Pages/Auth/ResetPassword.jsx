@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 
 export default function ResetPassword({ token, email }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -15,11 +16,13 @@ export default function ResetPassword({ token, email }) {
 
     const submit = (e) => {
         e.preventDefault();
-
+    
         post(route('password.store'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onSuccess: () => {
+                reset('password', 'password_confirmation'); // Reset form
+                router.visit('/'); // ✅ SPA Redirect only on success
+            },
         });
-        Inertia.visit('/'); // Redirect to login after success
     };
 
     return (

@@ -156,7 +156,7 @@ export default function Home() {
                                         <div className="card custom-card">
                                             <div
                                                 className="card-body custom-hover"
-                                                onClick={() => router.get(`/groups/show/${group.id}`)}
+                                                onClick={() => router.get(`/groups/show/${group.id}`)} // SPA navigation
                                                 style={{ cursor: 'pointer', padding: '20px' }}
                                             >
                                                 <div className="d-flex">
@@ -203,7 +203,7 @@ export default function Home() {
                                                             style={{ alignSelf: 'flex-start' }}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                router.get(`/groups/set-group/${group.id}`)
+                                                                router.get(`/groups/set-group/${group.id}`) // SPA navigation
                                                             }}
                                                         >
                                                             <i className="fas fa-calendar-plus me-2"></i>
@@ -243,6 +243,7 @@ export default function Home() {
                                                             borderRadius: '8px',
                                                         }}
                                                     >
+                                                        {/* Right Column: Related Events displayed */}
                                                         {group.events.map((event) => (
                                                             <div
                                                                 key={`group-event-${event.id}`}
@@ -322,8 +323,6 @@ export default function Home() {
                                             your group? Are you an organizer who wants to help others succeed?
                                         </p>
                                     </div>
-
-
                                 )}
                             </div>
                         </div>

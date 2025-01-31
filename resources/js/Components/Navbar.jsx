@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react'; // Added router for SPA navigation
 import '../../css/Navbar.css';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Login from '@/Pages/Auth/Login';
@@ -8,7 +8,7 @@ import axios from 'axios';
 import SearchForm from './SearchForm';
 
 export default function Navbar() {
-    const { auth, currentRoute } = usePage().props;
+    const { auth } = usePage().props;
     const user = auth?.user || null;
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,7 +22,7 @@ export default function Navbar() {
     const handleLogout = async () => {
         try {
             await axios.post('/logout');
-            window.location.href = '/';
+            window.location.href = '/'; // Full page reload on logout
         } catch (error) {
             console.error('Error during logout:', error);
         }
@@ -56,12 +56,13 @@ export default function Navbar() {
                         <div className={`d-flex ${isMenuOpen ? 'justify-content-center' : 'ms-auto'} p-3 p-lg-0`}>
                             {user ? (
                                 <>
-                                    <button
-                                        onClick={() => window.location.href = route('groups.create')}
-                                        className="btn btn-create-group me-3"
+                                    {/* SPA Navigation for Create Group */}
+                                    <Link
+                                        href={route('groups.create')}
+                                        className="btn btn-create-group mt-1 me-3"
                                     >
                                         Create Group
-                                    </button>
+                                    </Link>
 
                                     <div className="dropdown">
                                         <button
@@ -84,7 +85,7 @@ export default function Navbar() {
                                             <li>
                                                 <Link
                                                     href="/Home"
-                                                    className={`dropdown-item ${window.location.pathname === '/Home' ? 'active' : ''}`}
+                                                    className={`dropdown-item ${route().current('Home') ? 'active' : ''}`}
                                                 >
                                                     Explore Events
                                                 </Link>
@@ -95,7 +96,6 @@ export default function Navbar() {
                                                 </button>
                                             </li>
                                         </ul>
-
                                     </div>
                                 </>
                             ) : (

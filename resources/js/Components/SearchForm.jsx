@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { router } from "@inertiajs/react"; // Import Inertia router
 
 const SearchForm = () => {
     const [query, setQuery] = useState("");
@@ -9,12 +10,10 @@ const SearchForm = () => {
         const fetchLocation = async () => {
             setLoadingLocation(true);
          
-    
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const { latitude, longitude } = position.coords;
-                      
     
                         try {
                             // Send lat/lon to the backend
@@ -55,25 +54,26 @@ const SearchForm = () => {
         fetchLocation();
     }, []);
 
-    const buildUrl = () => {
-        let url = "/search?";
-        const params = [];
+    const handleSearch = () => {
+        const params = new URLSearchParams();
 
         if (query.trim()) {
-            params.push(`query=${encodeURIComponent(query)}`);
+            params.append("query", query);
         }
 
         if (location.trim()) {
-            params.push(`location=${encodeURIComponent(location)}`);
+            params.append("location", location);
         }
 
-        return url + params.join("&");
+        const url = `/search?${params.toString()}`;
+
+        router.visit(url); // Use Inertia.js for SPA navigation
     };
 
     return (
         <form
             className="d-flex ms-lg-3 p-3 p-lg-0"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={(e) => e.preventDefault()} // Prevent form submission
         >
             <div className="input-group">
                 <span className="input-group-text">
@@ -95,13 +95,13 @@ const SearchForm = () => {
                     value={location} // Reflect state
                     onChange={(e) => setLocation(e.target.value)} // Allow manual override
                 />
-                <a
+                <button
+                    type="button"
                     className="search btn"
-                    href={buildUrl()}
-                    role="button"
+                    onClick={handleSearch} // Use Inertia.js for navigation
                 >
                     <i className="bi bi-search text-secondary"></i>
-                </a>
+                </button>
             </div>
         </form>
     );
