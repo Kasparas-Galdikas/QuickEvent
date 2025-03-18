@@ -66,6 +66,4 @@ class User extends Authenticatable
                     ->withPivot('joined_at', 'left_at') // Include pivot data
                     ->whereNull('event_user.left_at');  // Only include active events
     }
-    
-
 }

@@ -12,6 +12,14 @@ use Illuminate\Support\Str;
 
 class EventService
 {
+
+    private EventConfigService $config;
+
+    public function __construct()
+    {
+        $this->config = EventConfigService::getInstance();
+    }
+    
     /**
      * Main method to fetch and store events.
      */
@@ -67,26 +75,14 @@ class EventService
      */
     private function fetchAndProcessEvents(int $remainingEvents): void
     {
-        $labels = [
-            'music', 'business', 'food', 'community', 'arts', 'film', 'sports',
-            'health', 'technology', 'travel', 'charity', 'religion', 'family',
-            'holiday', 'politics', 'fashion', 'lifestyle', 'auto', 'hobbies',
-            'other', 'school'
-        ];
-
-        $europeanCountries = [
-            'AL', 'AD', 'AM', 'AT', 'AZ', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE',
-            'FI', 'FR', 'GE', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'KZ', 'XK', 'LV', 'LI', 'LT',
-            'LU', 'MT', 'MD', 'MC', 'ME', 'NL', 'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS',
-            'SK', 'SI', 'ES', 'SE', 'CH', 'TR', 'UA', 'GB', 'VA'
-        ];
+        $labels = $this->config->getAllowedLabels();
+        $countries = $this->config->getAllowedCountries();
 
         $offset = 0;
         $batchSize = 75;
-        $processedIds = [];
         $totalFetched = 0;
 
-        foreach ($europeanCountries as $country) {
+        foreach ($countries as $country) {
             while ($totalFetched < $remainingEvents) {
                 $batchLimit = min($batchSize, $remainingEvents - $totalFetched);
                 $events = $this->fetchEventsFromAPI($batchLimit, $offset, $labels, $country);
@@ -95,6 +91,7 @@ class EventService
                     break;
                 }
 
+                $processedIds = []; // Initialize an empty array for tracking processed events
                 $storedCount = $this->processEvents($events, $processedIds);
                 $totalFetched += $storedCount;
 
@@ -102,7 +99,6 @@ class EventService
             }
 
             $offset = 0;
-
             if ($totalFetched >= $remainingEvents) {
                 break;
             }
@@ -281,4 +277,11 @@ class EventService
 
         return null;
     }
+
+    public function testProcessEvents(array $events)
+{
+    $processedIds = [];
+    return $this->processEvents($events, $processedIds);
+}
+
 }

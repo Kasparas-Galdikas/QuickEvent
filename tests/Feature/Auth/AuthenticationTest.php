@@ -19,16 +19,25 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
-
+        // Create a user with a verified email
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+        ]);
+    
+        // Attempt to log in
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
-
+    
+        // Verify that the user is authenticated
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+    
+        // Assert the response is a 200 OK with the expected JSON content
+        $response->assertStatus(200);
+        $response->assertJson(['status' => 'verified']);
     }
+    
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {

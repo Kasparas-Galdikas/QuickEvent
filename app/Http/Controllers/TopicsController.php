@@ -51,13 +51,13 @@ class TopicsController extends Controller
                     ->where('group_id', $groupId);
             })->get();
     
-           
-         
             return response()->json($topics);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error fetching topics by group.', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Failed to fetch topics by group'], 500);
         }
-    }
+    }    
     
 }

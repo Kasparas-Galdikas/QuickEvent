@@ -21,8 +21,13 @@ use App\Http\Controllers\UserController;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
 // user location routes
-Route::post('/update-location', [UserController::class, 'updateLocation'])->middleware('auth');
+Route::post('/update-location', [UserController::class, 'updateLocation'])->middleware('auth')->name('update-location');
 Route::get('/check-location', [UserController::class, 'checkLocation'])->name('check-location');
 Route::get('/get-location', [UserController::class, 'getUserLocation'])
     ->middleware('auth')
@@ -61,7 +66,7 @@ Route::post('/events/{id}/attend', [EventController::class, 'attend'])->name('ev
 Route::delete('/events/{id}/attend', [EventController::class, 'unattend'])->name('events.unattend');
 Route::get('/events/{id}/is-attending', [EventController::class, 'isAttending'])->name('events.isAttending');
 Route::get('/user-attended-events', [EventController::class, 'getUserAttendedEvents'])->name('user.attended.events');
-Route::get('/events/{id}/attendees', [EventController::class, 'getEventAttendees']);
+Route::get('/events/{id}/attendees', [EventController::class, 'getEventAttendees'])->name('events.attendees');
 
 
 //Event Path route 
@@ -69,7 +74,7 @@ Route::get('/events/details/{slug}', [EventController::class, 'show'])->name('ev
 
 //Home routes to fetch events for infinite scroll and calendar
 Route::get('/api/events', [HomePageController::class, 'fetchEvents'])->name('api.events');
-Route::get('/api/calendar-events', [HomePageController::class, 'fetchEventsForCalendar']);
+Route::get('/api/calendar-events', [HomePageController::class, 'fetchEventsForCalendar'])->name('api.calendar-events');
 
 
 // Authentication Routes
